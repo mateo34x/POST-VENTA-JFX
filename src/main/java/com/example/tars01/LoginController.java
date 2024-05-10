@@ -1,22 +1,22 @@
 package com.example.tars01;
 
-import javafx.animation.PauseTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import com.example.tars01.Database.Constans;
+import com.example.tars01.Database.DatabaseManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.logging.Handler;
+import java.sql.*;
 
 public class LoginController {
     @FXML
     private TextField usernameField;
+
+
 
     @FXML
     private PasswordField passwordField;
@@ -35,7 +35,9 @@ public class LoginController {
 
 
         if (!username.isEmpty() && !password.isEmpty()) {
-            messageLabel.setText("Login successful");
+
+            VerificarUser(username,password);
+
         } else {
             messageLabel.setText("Username and password are required");
 
@@ -55,6 +57,46 @@ public class LoginController {
 
 
 
+    }
+
+
+
+    private void VerificarUser(String user, String pass) {
+        DatabaseManager.createTableUser();
+        String sqlSelect = "SELECT user, pass FROM users WHERE user = ?";
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL2);
+             PreparedStatement selectStatement = connection.prepareStatement(sqlSelect)) {
+
+            selectStatement.setString(1, user);
+            ResultSet resultSet = selectStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedUser = resultSet.getString("user");
+                String storedPass = resultSet.getString("pass");
+
+                // Verificar si las contraseñas coinciden
+                if (pass.equals(storedPass)) {
+
+                    Stage stage = (Stage) R.getScene().getWindow();
+                    stage.close();
+                    HelloMain h = new HelloMain();
+                    h.go();
+                } else {
+                    messageLabel.setText("Contraseña incorrecta");
+                    Funtions.HideMessage(messageLabel, 0);
+                }
+            } else {
+                messageLabel.setText("Usuario incorrecto");
+                Funtions.HideMessage(messageLabel, 0);
+            }
+        } catch (SQLException e) {
+            messageLabel.setText("Error al verificar el usuario");
+            Funtions.HideMessage(messageLabel, 0);
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

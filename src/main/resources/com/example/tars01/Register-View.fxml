@@ -8,7 +8,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.RegistreController">
     <children>
-        <Label layoutX="250.0" layoutY="50.0" style="-fx-text-fill: #FFFFFF;" text="Registro" />
+        <Label layoutX="270.0" layoutY="50.0" style="-fx-text-fill: #FFFFFF;" text="Registro" />
         <TextField fx:id="nombreVerdaderoField" layoutX="200.0" layoutY="100.0" prefWidth="200.0" promptText="Nombre Verdadero" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
         <TextField fx:id="nombreUsuarioField" layoutX="200.0" layoutY="150.0" prefWidth="200.0" promptText="Nombre de usuario" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
         <PasswordField fx:id="passwordField" layoutX="200.0" layoutY="200.0" prefWidth="200.0" promptText="Contraseña" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
