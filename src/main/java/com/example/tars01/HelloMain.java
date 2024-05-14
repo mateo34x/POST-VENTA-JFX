@@ -24,11 +24,16 @@ public class HelloMain extends Application {
 
     public void go() throws IOException {
         Stage stage = new Stage();
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("Main-View.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Main-View.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setResizable(true);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+
+
+        System.out.println("H: "+screenHeight+"\n"+
+                "W: "+screenWidth);
+
         stage.setTitle("Hello!");
         stage.setWidth(screenWidth);
         stage.setHeight(screenHeight);

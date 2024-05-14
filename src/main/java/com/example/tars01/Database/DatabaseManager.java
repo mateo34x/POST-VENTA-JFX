@@ -1,9 +1,14 @@
 package com.example.tars01.Database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+
+import javax.swing.*;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
 
@@ -31,4 +36,105 @@ public class DatabaseManager {
             System.err.println("Error al crear la tabla de users: " + e.getMessage());
         }
     }
+
+
+    public static void createTableVentas() {
+        try (Connection connection = DriverManager.getConnection(Constans.URL3);
+             Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE IF NOT EXISTS Ventas (" +
+                    "idVenta TEXT PRIMARY KEY," +
+                    "fecha TEXT," +
+                    "totalVenta DECIMAL(10, 2)," +
+                    "cantidadPagada DECIMAL(10, 2)," +
+                    "cambio DECIMAL(10, 2)," +
+                    "detallesVenta TEXT)");
+        } catch (SQLException e) {
+            System.err.println("Error al crear la tabla de Ventas: " + e.getMessage());
+        }
+    }
+
+    public static void SaveSold(String id, String fecha, double totalVenta, double cantidadPagada, double cambio, String detalles, Label info) {
+        DatabaseManager.createTableVentas();
+
+        String sqlInsert = "INSERT INTO Ventas (idVenta, fecha, totalVenta, cantidadPagada, cambio, detallesVenta) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL3);
+             PreparedStatement statement = connection.prepareStatement(sqlInsert)) {
+
+            statement.setString(1, id);
+            statement.setString(2, fecha);
+            statement.setDouble(3,totalVenta);
+            statement.setDouble(4, cantidadPagada);
+            statement.setDouble(5, cambio);
+            statement.setString(6, detalles);
+            statement.executeUpdate();
+
+
+        } catch (SQLException e) {
+            Platform.runLater(()->info.setText("Error al insertar el producto: " + e.getMessage()));
+        }
+    }
+
+
+    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name,TextField price, TextField code) {
+        // Construir la consulta SQL base
+        String sqlUpdate = "UPDATE productos SET ";
+
+        // Lista para almacenar las partes de la consulta SQL que necesitan ser actualizadas
+        List<String> updates = new ArrayList<>();
+
+        // Lista para almacenar los valores de los parámetros a establecer en la consulta preparada
+        List<Object> parameters = new ArrayList<>();
+
+        // Comprobar y construir la parte de la consulta SQL para cada campo que se quiere actualizar
+        if (nombre != null) {
+            updates.add("nombre = ?");
+            parameters.add(nombre);
+        }
+        if (precio != null) {
+            updates.add("precio = ?");
+            parameters.add(precio);
+        }
+        if (nuevoCodigo != null) {
+            updates.add("codigo_barras = ?");
+            parameters.add(nuevoCodigo);
+        }
+
+
+
+        // Combinar las partes de la consulta SQL para construir la consulta final
+        sqlUpdate += String.join(", ", updates);
+        sqlUpdate += " WHERE codigo_barras = ?"; // Condición de actualización basada en el código de barras existente
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement updateStatement = connection.prepareStatement(sqlUpdate)) {
+
+            // Establecer los valores de los parámetros en la consulta preparada
+            for (int i = 0; i < parameters.size(); i++) {
+                updateStatement.setObject(i + 1, parameters.get(i));
+            }
+
+            // Establecer el código de barras existente como último parámetro
+            updateStatement.setString(parameters.size() + 1, codigoExistente);
+
+            // Ejecutar la consulta SQL y obtener el número de filas afectadas
+            int rowsAffected = updateStatement.executeUpdate();
+
+            // Verificar si se actualizaron filas
+            if (rowsAffected > 0) {
+                Platform.runLater(()->info.setText("Producto actualizado correctamente."));
+                Platform.runLater(name::clear);
+                Platform.runLater(price::clear);
+                Platform.runLater(code::clear);
+
+
+
+            } else {
+                Platform.runLater(()->info.setText("El producto a actualizar no existe.."));
+            }
+        } catch (SQLException e) {
+            Platform.runLater(()->info.setText("Error al actualizar el producto: " + e.getMessage()));
+        }
+    }
+
 }

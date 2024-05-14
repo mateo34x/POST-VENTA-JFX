@@ -6,6 +6,7 @@ module com.example.tars01 {
     requires java.desktop;
     requires jdk.compiler;
     requires jbcrypt;
+    requires MaterialFX;
 
 
     opens com.example.tars01 to javafx.fxml;
