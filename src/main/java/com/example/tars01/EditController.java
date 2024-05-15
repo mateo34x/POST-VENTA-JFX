@@ -2,34 +2,36 @@ package com.example.tars01;
 
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
-import com.example.tars01.Database.Producto;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 
+import javax.swing.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 public class EditController {
 
+    public static final int SERVER_PORT = 8080;
+    private ServerSocket serverSocket;
+    private boolean serverRunning = false;
     @FXML
     TextField textFieldItemEdit;
     @FXML
@@ -43,6 +45,9 @@ public class EditController {
 
     String priceOriginal;
     String codeOriginal;
+
+    @FXML
+    MenuItem seeEdit;
 
     @FXML
     Label hora;
@@ -107,11 +112,18 @@ public class EditController {
         Platform.runLater(() -> saveChange.setDisable(isEmpty || !isPriceChanged));
     }
 
+    public void cargarVistaCreate() {
+        cargarVista("CreateProducto-View.fxml");
+    }
+    public void cargarVistaVenta() {
+        cargarVista("Main-View.fxml");
+    }
 
-    public void cargarVista() {
+
+    public void cargarVista(String fxmlFile) {
         try {
             // Cargar el archivo FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Main-View.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
             double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
             double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
@@ -176,6 +188,77 @@ public class EditController {
             e.printStackTrace();
         }
     }
+
+
+    @FXML
+    private void OnServer() throws IOException {
+
+
+        if (seeEdit.getText().equals("Apagar")) {
+            serverSocket.close();
+            serverRunning = false;
+            seeEdit.setText("Encender");
+        } else if (seeEdit.getText().equals("Encender")) {
+            serverSocket = new ServerSocket(SERVER_PORT);
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+
+                    startServer();
+
+                    return null;
+                }
+            };
+
+            worker.execute();
+            seeEdit.setText("Apagar");
+        }
+
+    }
+
+
+    public void startServer() {
+        try {
+
+
+            serverRunning = true;
+            Platform.runLater(() -> info.setText("Servidor iniciado. Esperando conexiones..."));
+
+
+            while (serverRunning) {
+                Socket clientSocket = serverSocket.accept();
+                Platform.runLater(() -> info.setText("Cliente conectado desde " + clientSocket.getInetAddress()));
+                System.out.println("Cliente conectado desde " + clientSocket.getInetAddress());
+
+
+                try {
+                    BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+
+                    String message;
+                    while ((message = inputReader.readLine()) != null) {
+                        String codigoP = message.trim();
+
+                        Platform.runLater(() -> info.setText("Mensaje recibido"));
+                        Platform.runLater(() -> textFieldItemEdit.setText(codigoP));
+                        searchProduct(codigoP);
+
+                        System.out.println(codigoP);
+
+                    }
+                } catch (IOException e) {
+                    Platform.runLater(() -> info.setText("Error al leer mensaje del cliente: " + e.getMessage()));
+
+
+                }
+            }
+        } catch (IOException e) {
+            Platform.runLater(() -> info.setText(e.getMessage()));
+
+
+        }
+    }
+
 
 
 }

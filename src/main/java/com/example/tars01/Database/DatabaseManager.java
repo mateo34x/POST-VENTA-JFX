@@ -1,7 +1,10 @@
 package com.example.tars01.Database;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 import javax.swing.*;
@@ -11,6 +14,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
+
+
+    public static void insertarProducto(Producto producto,Label info, TableView tableView) {
+        DatabaseManager.createTable();
+        String sqlSelect = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
+        String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio) VALUES (?, ?, ?)";
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
+             PreparedStatement insertStatement = connection.prepareStatement(sqlInsert)) {
+
+            selectStatement.setString(1, producto.getId());
+            ResultSet resultSet = selectStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt("count");
+
+            if (count > 0) {
+                Platform.runLater(()->info.setText("El id: "+producto.getId()+" pertenece a un producto existente"));
+
+            } else {
+                insertStatement.setString(1, producto.getId());
+                insertStatement.setString(2, producto.getName());
+                insertStatement.setString(3, producto.getPrice());
+                insertStatement.executeUpdate();
+                obtenerTodosLosProductos(tableView,info);
+            }
+
+
+        } catch (SQLException e) {
+            Platform.runLater(()->info.setText("Error al guardar el producto: "+ e.getMessage()));
+
+        }
+    }
+
 
     public static void createTable() {
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
@@ -137,4 +174,30 @@ public class DatabaseManager {
         }
     }
 
+
+
+    public static void obtenerTodosLosProductos(TableView tableView,Label info) {
+        int cantidad = 0;
+        String sql = "SELECT codigo_barras, nombre, precio FROM productos";
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                String id = resultSet.getString("codigo_barras");
+                String name = resultSet.getString("nombre");
+                String price = resultSet.getString("precio");
+                Producto producto = new Producto(name,price);
+                producto.setId(id);
+                tableView.getItems().add(producto);
+                tableView.refresh();
+                cantidad++;
+                int finalCantidad = cantidad;
+                Platform.runLater(()->info.setText(finalCantidad +" productos obtenidos correctamente"));
+            }
+        } catch (SQLException e) {
+            Platform.runLater(()->info.setText("Error al obtener todos los productos"));
+
+        }
+
+    }
 }

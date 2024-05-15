@@ -9,39 +9,25 @@
 <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.EditController">
    <children>
       <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
-         <menus>
-            <Menu mnemonicParsing="false" text="Turno">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Iniciar turno" />
-                  <MenuItem mnemonicParsing="false" text="Terminar turno" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" style="-fx-text-fill: BLACK;" text="Cuenta">
-               <items>
-                  <MenuItem mnemonicParsing="false" style="-fx-text-fill: black;" text="Cerrar sesión" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Vistas">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Crear Producto" />
-                  <MenuItem disable="true" mnemonicParsing="false" text="Editar Producto" />
-                  <MenuItem mnemonicParsing="false" onAction="#cargarVista" text="Nueva venta" />
-                  <MenuItem mnemonicParsing="false" text="Eliminar producto" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Listar todos los productos" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Servidor">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Encender" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Coming soon" />
-               </items>
-            </Menu>
-         </menus>
+         <Menu mnemonicParsing="false" text="Vistas">
+            <items>
+               <MenuItem mnemonicParsing="false" onAction="#cargarVistaCreate" text="Crear Producto" />
+               <MenuItem disable="true" mnemonicParsing="false" text="Editar Producto" />
+               <MenuItem mnemonicParsing="false" onAction="#cargarVistaVenta" text="Nueva venta" />
+               <MenuItem mnemonicParsing="false" text="Buscar venta" />
+
+            </items>
+         </Menu>
+         <Menu mnemonicParsing="false" text="Servidor">
+            <items>
+               <MenuItem fx:id="seeEdit" mnemonicParsing="false" onAction="#OnServer" text="Encender" />
+            </items>
+         </Menu>
+         <Menu mnemonicParsing="false" text="Help">
+            <items>
+               <MenuItem mnemonicParsing="false" text="Coming soon" />
+            </items>
+         </Menu>
       </MenuBar>
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
          <children>
@@ -52,7 +38,7 @@
                </font>
             </Label>
             <Button layoutX="416.0" layoutY="17.0" mnemonicParsing="false" style="-fx-background-color: #5C5470;" text="Limpiar" textFill="WHITE" />
-            <Button fx:id="saveChange" disable="true" layoutX="46.0" layoutY="288.0" mnemonicParsing="false" prefHeight="35.0" onAction="#update" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Guardar cambios" textAlignment="CENTER" textFill="WHITE">
+            <Button fx:id="saveChange" disable="true" layoutX="46.0" layoutY="288.0" mnemonicParsing="false" onAction="#update" prefHeight="35.0" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Guardar cambios" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>

@@ -4,9 +4,13 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Producto {
+    private String id;
     private final SimpleStringProperty name;
     private final SimpleStringProperty price;
     private final SimpleIntegerProperty quantity;
+
+
+
 
     public Producto(String name, String price) {
         this.name = new SimpleStringProperty(name);
@@ -14,6 +18,13 @@ public class Producto {
         this.quantity = new SimpleIntegerProperty(1); // Cantidad inicial es 1
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name.get();

@@ -630,6 +630,9 @@ public class MainController {
     public void cargarVistaEditar() {
         cargarVista("Editar-View.fxml");
     }
+    public void cargarVistaCrear() {
+        cargarVista("CreateProducto-View.fxml");
+    }
 
 
     private void cargarVista(String fxmlFile) {

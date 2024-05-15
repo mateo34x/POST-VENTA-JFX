@@ -55,12 +55,11 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Vistas">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Crear Producto" />
+                        <MenuItem mnemonicParsing="false" text="Crear Producto" onAction="#cargarVistaCrear" />
                         <MenuItem mnemonicParsing="false" onAction="#cargarVistaEditar" text="Editar Producto" />
                   <MenuItem disable="true" mnemonicParsing="false" text="Nueva venta" />
-                        <MenuItem mnemonicParsing="false" text="Eliminar producto" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Listar todos los productos" />
+                        <MenuItem mnemonicParsing="false" text="Buscar venta" />
+
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Servidor">
