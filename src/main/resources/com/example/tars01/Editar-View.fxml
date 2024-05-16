@@ -14,7 +14,7 @@
                <MenuItem mnemonicParsing="false" onAction="#cargarVistaCreate" text="Crear Producto" />
                <MenuItem disable="true" mnemonicParsing="false" text="Editar Producto" />
                <MenuItem mnemonicParsing="false" onAction="#cargarVistaVenta" text="Nueva venta" />
-               <MenuItem mnemonicParsing="false" text="Buscar venta" />
+               <MenuItem mnemonicParsing="false" onAction="#cargarVistaBuscar" text="Buscar venta" />
 
             </items>
          </Menu>

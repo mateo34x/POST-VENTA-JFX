@@ -1,8 +1,12 @@
 package com.example.tars01;
 
 import javafx.animation.PauseTransition;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
 import java.io.*;
@@ -53,6 +57,31 @@ public class Funtions {
         } catch (IOException e) {
             // Manejo de excepciones si hay un problema al escribir en el archivo
             e.printStackTrace();
+        }
+    }
+
+
+    public static void cargarVista(String fxmlFile,TextField textField) {
+        try {
+
+            double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
+            double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+            FXMLLoader loader = new FXMLLoader(Funtions.class.getResource(fxmlFile));
+            Parent root = loader.load();
+
+
+            // Obtener la referencia al VBox principal en el archivo FXML principal
+            VBox mainContainer = (VBox) textField.getScene().getRoot();
+            mainContainer.setPrefWidth(screenWidth);
+            mainContainer.setPrefHeight(screenHeight);
+
+            // Limpiar el contenedor principal y agregar la nueva vista
+            mainContainer.getChildren().clear();
+            mainContainer.getChildren().add(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Manejo de errores
         }
     }
 }

@@ -30,6 +30,8 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static com.example.tars01.Funtions.cargarVista;
+
 
 public class CreateProductController {
 
@@ -239,36 +241,17 @@ public class CreateProductController {
 
 
     public void cargarVistaEditar() {
-        cargarVista("Editar-View.fxml");
+        cargarVista("Editar-View.fxml",nameCreate);
     }
     public void cargarVistaVenta() {
-        cargarVista("Main-View.fxml");
+        cargarVista("Main-View.fxml",nameCreate);
+    }
+    public void cargarVistaBuscar() {
+        cargarVista("BuscarVenta-View.fxml",nameCreate);
     }
 
 
-    private void cargarVista(String fxmlFile) {
-        try {
 
-            double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
-            double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root = loader.load();
-
-
-            // Obtener la referencia al VBox principal en el archivo FXML principal
-            VBox mainContainer = (VBox) codeCreate.getScene().getRoot();
-            mainContainer.setPrefWidth(screenWidth);
-            mainContainer.setPrefHeight(screenHeight);
-
-            // Limpiar el contenedor principal y agregar la nueva vista
-            mainContainer.getChildren().clear();
-            mainContainer.getChildren().add(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Manejo de errores
-        }
-    }
 
 
 

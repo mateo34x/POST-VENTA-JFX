@@ -18,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -42,6 +43,8 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static com.example.tars01.Funtions.cargarVista;
 
 
 public class MainController {
@@ -73,13 +76,16 @@ public class MainController {
     @FXML
     public TextField precio;
     @FXML
-    public TextField textFieldPrice;
+    public TextField Nventa;
     @FXML
     public TextField textFieldTotalQuantity;
     @FXML
     public TextField textFieldTotalPaidAmount;
     @FXML
     public TextField textFieldChange;
+    @FXML
+    public TextArea ReciboViewVenta;
+
 
     JTextArea productosArea = new JTextArea();
 
@@ -250,9 +256,24 @@ public class MainController {
 
         tableView.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
 
+        String numeroFacturaFormateado = String.format("%03d", Funtions.obtenerNumeroFactura()+1);
+
+        Platform.runLater(()->Nventa.setText(numeroFacturaFormateado));
 
         //Ejecuta la función searchProduct cuando precionemos la tecla ENTER
         textFieldItem.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.ENTER) {
+                    String searchText = textFieldItem.getText();
+                    if (!searchText.isEmpty()) {
+                        searchProduct(searchText);
+                    }
+                }
+            }
+        });
+
+        precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (keyEvent.getCode() == KeyCode.ENTER) {
@@ -430,35 +451,42 @@ public class MainController {
 
             if (!productoEncontrado) {
 
-                if (productCounts.containsKey(textFieldItem.getText())) {
-                    int indice = 0;
+                if (precio.getText().isEmpty()){
+                    Platform.runLater(() -> info.setText("El campo de precio no puede estar vacío"));
+                }else{
+                    if (productCounts.containsKey(textFieldItem.getText())) {
+                        int indice = 0;
 
-                    for (Producto producto : tableView.getItems()) {
-                        // Verificar si el nombre del producto coincide con el nombre buscado
-                        if (producto.getName().equals(textFieldItem.getText())) {
-                            double antPrice = Double.parseDouble(producto.getPrice());
-                            double newPrice = Double.parseDouble(precio.getText());
-                            String precioFinal = String.valueOf(antPrice + newPrice);
-                            totalVenta += Double.parseDouble(precio.getText());
-                            tableView.getItems().get(indice).setPrice(precioFinal);
+                        for (Producto producto : tableView.getItems()) {
+                            // Verificar si el nombre del producto coincide con el nombre buscado
+                            if (producto.getName().equals(textFieldItem.getText())) {
+                                double antPrice = Double.parseDouble(producto.getPrice());
+                                double newPrice = Double.parseDouble(precio.getText());
+                                String precioFinal = String.valueOf(antPrice + newPrice);
+                                totalVenta += Double.parseDouble(precio.getText());
+                                tableView.getItems().get(indice).setPrice(precioFinal);
 
 
-                            // Refrescar la vista de la tabla para reflejar el cambio
-                            tableView.refresh();
+                                // Refrescar la vista de la tabla para reflejar el cambio
+                                tableView.refresh();
 
-                            // Salir del bucle una vez que se haya encontrado y actualizado el producto
-                            break;
+                                // Salir del bucle una vez que se haya encontrado y actualizado el producto
+                                break;
+                            }
+                            indice++;
+
                         }
-                        indice++;
+                    } else {
 
+                        tableView.getItems().add(new Producto(textFieldItem.getText(), precio.getText()));
+                        productCounts.put(textFieldItem.getText(), 1);
+                        totalVenta += Double.parseDouble(precio.getText());
+                        Platform.runLater(() -> info.setText("Producto no encontrado"));
                     }
-                } else {
-
-                    tableView.getItems().add(new Producto(textFieldItem.getText(), precio.getText()));
-                    productCounts.put(textFieldItem.getText(), 1);
-                    totalVenta += Double.parseDouble(precio.getText());
-                    Platform.runLater(() -> info.setText("Producto no encontrado"));
                 }
+
+
+
             } else {
                 Platform.runLater(() -> info.setText("Producto añadido"));
             }
@@ -555,30 +583,35 @@ public class MainController {
 
     private void generarRecibo(double result) throws IOException {
         int numeroFacturaActual = Funtions.obtenerNumeroFactura();
-
         int numeroFacturaSiguiente = numeroFacturaActual + 1;
-
         String numeroFacturaFormateado = String.format("%03d", numeroFacturaSiguiente);
-
         Funtions.guardarNumeroFactura(numeroFacturaSiguiente);
 
-        String contenidoRecibo = "        TIENDA LA BENDICIÓN DE DIOS\n" +
-                "-----------------------------------------\n" +
-                " Factura de venta: #" + numeroFacturaFormateado + "\n" +
-                " Fecha de venta: " + horaActual.getText() + "\n" +
-                " Atendido por: " + "usersesion" + "\n\n" +
-                " Productos comprados ↓\n\n" +
-                productosArea.getText() + "\n" +
-                " Total: $ " + format(String.valueOf(totalVenta)) + "\n" +
-                " Pago: $ " + format(String.valueOf(totalPagado)) + "\n" +
-                " Cambio: $" + format(String.valueOf(result)) + "\n" +
-                "-----------------------------------------\n\n" +
-                "           GRACIAS POR SU COMPRA\n";
+        StringBuilder reciboBuilder = new StringBuilder();
+        reciboBuilder.append("        TIENDA LA BENDICIÓN DE DIOS\n")
+                .append("-----------------------------------------\n")
+                .append(" Factura de venta: #").append(numeroFacturaFormateado).append("\n")
+                .append(" Fecha de venta: ").append(horaActual.getText()).append("\n")
+                .append(" Atendido por: usersesion\n\n")
+                .append(" Productos comprados ↓\n\n")
+                .append(productosArea.getText()).append("\n")
+                .append(" Total: $ ").append(format(String.valueOf(totalVenta))).append("\n")
+                .append(" Pago: $ ").append(format(String.valueOf(totalPagado))).append("\n")
+                .append(" Cambio: $").append(format(String.valueOf(result))).append("\n")
+                .append("-----------------------------------------\n\n")
+                .append("           GRACIAS POR SU COMPRA\n");
+
+        String contenidoRecibo = reciboBuilder.toString();
         String rutaArchivo = "/home/tars/Documentos/FACTURAS/" + UUID.randomUUID();
         FileWriter writer = new FileWriter(rutaArchivo);
         writer.write(contenidoRecibo);
         writer.close();
         DatabaseManager.SaveSold(numeroFacturaFormateado, horaActual.getText(), totalVenta, totalPagado, result, contenidoRecibo, info);
+        int actual = Funtions.obtenerNumeroFactura();
+        int sig = actual + 1;
+        String prox = String.format("%03d", sig);
+        Platform.runLater(()->Nventa.setText(prox));
+
     }
 
 
@@ -627,42 +660,26 @@ public class MainController {
 
     }
 
-    public void cargarVistaEditar() {
-        cargarVista("Editar-View.fxml");
+    public void cargarVistaEditar() throws IOException {
+
+        Logout("Editar-View.fxml",textFieldItem);
     }
-    public void cargarVistaCrear() {
-        cargarVista("CreateProducto-View.fxml");
+    public void cargarVistaCrear() throws IOException {
+
+        Logout("CreateProducto-View.fxml",textFieldItem);
+    }
+    public void cargarVistaBuscar() throws IOException {
+
+        Logout("BuscarVenta-View.fxml",textFieldItem);
     }
 
 
-    private void cargarVista(String fxmlFile) {
-        try {
 
-            double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
-            double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root = loader.load();
-
-
-            // Obtener la referencia al VBox principal en el archivo FXML principal
-            VBox mainContainer = (VBox) textFieldItem.getScene().getRoot();
-            mainContainer.setPrefWidth(screenWidth);
-            mainContainer.setPrefHeight(screenHeight);
-
-            // Limpiar el contenedor principal y agregar la nueva vista
-            mainContainer.getChildren().clear();
-            mainContainer.getChildren().add(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Manejo de errores
-        }
-    }
 
     public void actualizarProductosArea() {
 
 
-        Font font = new Font("Arial", Font.PLAIN, 7);
+        Font font = new Font("Monospaced", Font.PLAIN, 12);
         productosArea.setFont(font);
 
 
@@ -686,6 +703,22 @@ public class MainController {
             productosArea.append("|\n");
             productosArea.append("|---------------------------------------|\n");
         }
+
+
+    }
+
+    public void Logout(String fxml,TextField textField) throws IOException {
+
+        if (serverRunning) {
+            if (serverSocket != null) {
+                serverSocket.close();
+                Platform.runLater(() -> info.setText("Servidor cerrado"));
+            }
+
+        }
+
+        cargarVista(fxml,textField);
+
 
 
     }

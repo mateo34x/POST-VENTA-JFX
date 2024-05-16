@@ -15,6 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.swing.*;
@@ -26,6 +27,8 @@ import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static com.example.tars01.Funtions.cargarVista;
 
 public class EditController {
 
@@ -112,36 +115,20 @@ public class EditController {
         Platform.runLater(() -> saveChange.setDisable(isEmpty || !isPriceChanged));
     }
 
-    public void cargarVistaCreate() {
-        cargarVista("CreateProducto-View.fxml");
+    public void cargarVistaCreate() throws IOException {
+        Logout("CreateProducto-View.fxml",textFieldItemEdit);
     }
-    public void cargarVistaVenta() {
-        cargarVista("Main-View.fxml");
+    public void cargarVistaVenta() throws IOException {
+
+        Logout("Main-View.fxml",textFieldItemEdit);
+    }
+
+    public void cargarVistaBuscar() throws IOException {
+        Logout("BuscarVenta-View.fxml",textFieldItemEdit);
     }
 
 
-    public void cargarVista(String fxmlFile) {
-        try {
-            // Cargar el archivo FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root = loader.load();
-            double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
-            double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 
-            // Obtener la referencia al VBox principal en el archivo FXML principal
-            VBox mainContainer = (VBox) textFieldItemEdit.getScene().getRoot();
-            mainContainer.setPrefHeight(screenHeight);
-            mainContainer.setPrefWidth(screenWidth);
-
-            // Limpiar el contenedor principal y agregar la nueva vista
-            mainContainer.getChildren().clear();
-            mainContainer.getChildren().add(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Manejo de errores
-        }
-    }
 
     public void update(){
         String nameValue = name.getText();
@@ -257,6 +244,22 @@ public class EditController {
 
 
         }
+    }
+
+    public void Logout(String fxml,TextField textField) throws IOException {
+
+        if (serverRunning) {
+            if (serverSocket != null) {
+                serverSocket.close();
+                Platform.runLater(() -> info.setText("Servidor cerrado"));
+            }
+
+        }
+
+        cargarVista(fxml,textField);
+
+
+
     }
 
 
