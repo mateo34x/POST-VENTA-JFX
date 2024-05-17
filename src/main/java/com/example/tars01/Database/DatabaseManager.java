@@ -7,6 +7,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -230,9 +232,44 @@ public class DatabaseManager {
         }
     }
 
+    public static void ViewFactura(TextArea viewFactura,Label info,String idFactura) {
+        try (Connection connection = DriverManager.getConnection(Constans.URL3);
+             PreparedStatement statement = connection.prepareStatement("SELECT detallesVenta  FROM ventas WHERE idVenta = ?");
+        ) {
+            statement.setString(1, idFactura.replace(" ", ""));
+            ResultSet resultSet = statement.executeQuery();
+
+            boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
+
+            while (resultSet.next()) {
+                String facturaInfo = resultSet.getString("detallesVenta");
+                Platform.runLater(()->viewFactura.setText(facturaInfo));
+                Platform.runLater(()->info.setText("Factura encontrada"));
+
+
+
+                productoEncontrado = true; // Se encontró al menos un producto
+            }
+
+            if (!productoEncontrado) {
+
+                Platform.runLater(()->info.setText("No hemos encontrado la factura con ID: "+idFactura));
+                Platform.runLater(()->viewFactura.setText("No hay información sobre la factura solicitada"));
+
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void filtrarVenta(TableView tableView,TextArea info,String fechaI,String FechaE){
 
     }
 
-
 }
+
+
+

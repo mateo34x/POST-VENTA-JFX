@@ -55,7 +55,7 @@ public class CreateProductController {
     @FXML
     private void initialize() {
 
-        TableColumn<Producto,String> idColum = new TableColumn<>("Codigo");
+        TableColumn<Producto,String> idColum = new TableColumn<>("#Facura");
         idColum.setPrefWidth(300);
         idColum.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
 

@@ -2,6 +2,7 @@ package com.example.tars01;
 
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
+import com.example.tars01.Servidor.ServerManager;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -61,6 +62,8 @@ public class EditController {
 
     @FXML
     private void initialize() {
+
+        ServerManager.updateInfoExtern(textFieldItemEdit,info);
 
 
         textFieldItemEdit.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -130,6 +133,7 @@ public class EditController {
 
 
 
+
     public void update(){
         String nameValue = name.getText();
         String priceValue = price.getText();
@@ -181,70 +185,10 @@ public class EditController {
     private void OnServer() throws IOException {
 
 
-        if (seeEdit.getText().equals("Apagar")) {
-            serverSocket.close();
-            serverRunning = false;
-            seeEdit.setText("Encender");
-        } else if (seeEdit.getText().equals("Encender")) {
-            serverSocket = new ServerSocket(SERVER_PORT);
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                @Override
-                protected Void doInBackground() throws Exception {
-
-                    startServer();
-
-                    return null;
-                }
-            };
-
-            worker.execute();
-            seeEdit.setText("Apagar");
-        }
-
     }
 
 
-    public void startServer() {
-        try {
 
-
-            serverRunning = true;
-            Platform.runLater(() -> info.setText("Servidor iniciado. Esperando conexiones..."));
-
-
-            while (serverRunning) {
-                Socket clientSocket = serverSocket.accept();
-                Platform.runLater(() -> info.setText("Cliente conectado desde " + clientSocket.getInetAddress()));
-                System.out.println("Cliente conectado desde " + clientSocket.getInetAddress());
-
-
-                try {
-                    BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-
-                    String message;
-                    while ((message = inputReader.readLine()) != null) {
-                        String codigoP = message.trim();
-
-                        Platform.runLater(() -> info.setText("Mensaje recibido"));
-                        Platform.runLater(() -> textFieldItemEdit.setText(codigoP));
-                        searchProduct(codigoP);
-
-                        System.out.println(codigoP);
-
-                    }
-                } catch (IOException e) {
-                    Platform.runLater(() -> info.setText("Error al leer mensaje del cliente: " + e.getMessage()));
-
-
-                }
-            }
-        } catch (IOException e) {
-            Platform.runLater(() -> info.setText(e.getMessage()));
-
-
-        }
-    }
 
     public void Logout(String fxml,TextField textField) throws IOException {
 

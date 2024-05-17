@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXListView?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.BuscarVentasController">
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.BuscarVentasController">
    <children>
       <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
          <menus>
@@ -85,11 +76,11 @@
                   <Font name="Calibri" size="18.0" />
                </font>
             </Label>
-            <DatePicker editable="false" layoutX="402.0" layoutY="616.0" showWeekNumbers="true" />
-            <DatePicker editable="false" layoutX="608.0" layoutY="616.0" showWeekNumbers="true" />
-            <Button layoutX="888.0" layoutY="616.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="208.0" text="Mostras todas la ventas" />
+            <DatePicker fx:id="FechaStart" editable="false" layoutX="402.0" layoutY="616.0" />
+            <DatePicker fx:id="FechaEnd" editable="false" layoutX="608.0" layoutY="616.0" />
+            <Button fx:id="MostrarV" onAction="#getAllVentas" layoutX="888.0" layoutY="616.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="208.0" text="Mostras todas la ventas" />
             <TextArea fx:id="infoBuscar" layoutX="1114.0" layoutY="112.0" prefHeight="477.0" prefWidth="231.0" promptText="Sin novedades" wrapText="true" />
-            <Button fx:id="BuscarFilter" layoutX="814.0" layoutY="616.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="66.0" text="Buscar" />
+            <Button fx:id="BuscarFilter" onAction="#getFecha" layoutX="814.0" layoutY="616.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="66.0" text="Buscar" />
          </children>
       </AnchorPane>
    </children>

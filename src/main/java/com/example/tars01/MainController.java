@@ -3,6 +3,7 @@ package com.example.tars01;
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
+import com.example.tars01.Servidor.ServerManager;
 import io.github.palexdev.materialfx.controls.MFXListView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -22,6 +23,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -61,7 +63,7 @@ public class MainController {
     double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText;
-    String str;
+    String fecha, hora;
 
 
     @FXML
@@ -120,70 +122,11 @@ public class MainController {
     private void OnServer() throws IOException {
 
 
-        if (see.getText().equals("Apagar")) {
-            serverSocket.close();
-            serverRunning = false;
-            see.setText("Encender");
-        } else if (see.getText().equals("Encender")) {
-            serverSocket = new ServerSocket(SERVER_PORT);
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                @Override
-                protected Void doInBackground() throws Exception {
-
-                    startServer();
-
-                    return null;
-                }
-            };
-
-            worker.execute();
-            see.setText("Apagar");
-        }
+        ServerManager.OnServer(see,info,textFieldItem);
 
     }
 
 
-    public void startServer() {
-        try {
-
-
-            serverRunning = true;
-            Platform.runLater(() -> info.setText("Servidor iniciado. Esperando conexiones..."));
-
-
-            while (serverRunning) {
-                Socket clientSocket = serverSocket.accept();
-                Platform.runLater(() -> info.setText("Cliente conectado desde " + clientSocket.getInetAddress()));
-                System.out.println("Cliente conectado desde " + clientSocket.getInetAddress());
-
-
-                try {
-                    BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-
-                    String message;
-                    while ((message = inputReader.readLine()) != null) {
-                        String codigoP = message.trim();
-
-                        Platform.runLater(() -> info.setText("Mensaje recibido"));
-                        Platform.runLater(() -> textFieldItem.setText(codigoP));
-                        searchProduct(codigoP);
-
-                        System.out.println(codigoP);
-
-                    }
-                } catch (IOException e) {
-                    Platform.runLater(() -> info.setText("Error al leer mensaje del cliente: " + e.getMessage()));
-
-
-                }
-            }
-        } catch (IOException e) {
-            Platform.runLater(() -> info.setText(e.getMessage()));
-
-
-        }
-    }
 
     public void Logout() throws IOException {
 
@@ -215,6 +158,7 @@ public class MainController {
         textFieldTotalPaidAmount.clear();
         textFieldTotalQuantity.clear();
         textFieldChange.clear();
+        precio.clear();
         productCounts.clear();
         tableView.refresh();
         Platform.runLater(() -> info.setText("Venta cancelada con éxito"));
@@ -256,9 +200,9 @@ public class MainController {
 
         tableView.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
 
-        String numeroFacturaFormateado = String.format("%03d", Funtions.obtenerNumeroFactura()+1);
+        String numeroFacturaFormateado = String.format("%03d", Funtions.obtenerNumeroFactura() + 1);
 
-        Platform.runLater(()->Nventa.setText(numeroFacturaFormateado));
+        Platform.runLater(() -> Nventa.setText(numeroFacturaFormateado));
 
         //Ejecuta la función searchProduct cuando precionemos la tecla ENTER
         textFieldItem.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -268,9 +212,15 @@ public class MainController {
                     String searchText = textFieldItem.getText();
                     if (!searchText.isEmpty()) {
                         searchProduct(searchText);
+
                     }
                 }
             }
+        });
+
+        textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Aquí puedes actualizar la lista de nombres de productos según el nuevo valor del TextField
+            updateProductList(newValue);
         });
 
         precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -328,15 +278,32 @@ public class MainController {
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
+        DateTimeFormatter formatterOther = DateTimeFormatter.ofPattern("dd/MM/yy");
+        DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 
         timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
                     LocalDateTime now = LocalDateTime.now();
                     horaActual.setText(formatter.format(now));
+                    fecha = formatterOther.format(now);
+                    hora = formatterTime.format(now);
                 })
         );
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+
+        productListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                String selectedItem = productListView.getSelectionModel().getSelection().toString();
+                if (selectedItem != null) {
+                    // Extraer el ID del formato "nombre (ID: código_barras)"
+                    String id = selectedItem.substring(selectedItem.lastIndexOf("ID: ") + 4, selectedItem.length() - 2);
+                    searchProduct(id);
+                    System.out.println("Selected ID: " + id);
+                }
+            }
+        });
 
     }
 
@@ -424,7 +391,7 @@ public class MainController {
 //    }
 
 
-    private void searchProduct(String searchText) {
+    public void searchProduct(String searchText) {
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
         ) {
@@ -451,9 +418,9 @@ public class MainController {
 
             if (!productoEncontrado) {
 
-                if (precio.getText().isEmpty()){
+                if (precio.getText().isEmpty()) {
                     Platform.runLater(() -> info.setText("El campo de precio no puede estar vacío"));
-                }else{
+                } else {
                     if (productCounts.containsKey(textFieldItem.getText())) {
                         int indice = 0;
 
@@ -484,7 +451,6 @@ public class MainController {
                         Platform.runLater(() -> info.setText("Producto no encontrado"));
                     }
                 }
-
 
 
             } else {
@@ -591,7 +557,7 @@ public class MainController {
         reciboBuilder.append("        TIENDA LA BENDICIÓN DE DIOS\n")
                 .append("-----------------------------------------\n")
                 .append(" Factura de venta: #").append(numeroFacturaFormateado).append("\n")
-                .append(" Fecha de venta: ").append(horaActual.getText()).append("\n")
+                .append(" Fecha de venta: ").append(fecha).append(" ").append(hora).append("\n")
                 .append(" Atendido por: usersesion\n\n")
                 .append(" Productos comprados ↓\n\n")
                 .append(productosArea.getText()).append("\n")
@@ -606,11 +572,13 @@ public class MainController {
         FileWriter writer = new FileWriter(rutaArchivo);
         writer.write(contenidoRecibo);
         writer.close();
-        DatabaseManager.SaveSold(numeroFacturaFormateado, horaActual.getText(), totalVenta, totalPagado, result, contenidoRecibo, info);
+        DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, totalVenta, totalPagado, result, contenidoRecibo, info);
         int actual = Funtions.obtenerNumeroFactura();
         int sig = actual + 1;
         String prox = String.format("%03d", sig);
-        Platform.runLater(()->Nventa.setText(prox));
+        Platform.runLater(() -> Nventa.setText(prox));
+        Platform.runLater(() -> ReciboViewVenta.setText(String.valueOf(reciboBuilder)));
+
 
     }
 
@@ -662,18 +630,18 @@ public class MainController {
 
     public void cargarVistaEditar() throws IOException {
 
-        Logout("Editar-View.fxml",textFieldItem);
+        HelloEditProduct.go();
     }
+
     public void cargarVistaCrear() throws IOException {
 
-        Logout("CreateProducto-View.fxml",textFieldItem);
+        HelloCreateProduct.go();
     }
+
     public void cargarVistaBuscar() throws IOException {
 
-        Logout("BuscarVenta-View.fxml",textFieldItem);
+        HelloBuscar.go();
     }
-
-
 
 
     public void actualizarProductosArea() {
@@ -707,21 +675,48 @@ public class MainController {
 
     }
 
-    public void Logout(String fxml,TextField textField) throws IOException {
+    private void updateProductList(String searchText) {
+        // Limpiamos el ListView
+        productListView.getItems().clear();
 
-        if (serverRunning) {
-            if (serverSocket != null) {
-                serverSocket.close();
-                Platform.runLater(() -> info.setText("Servidor cerrado"));
-            }
-
+        // Si el campo está vacío, ocultamos el ListView
+        if (searchText.isEmpty()) {
+            productListView.setVisible(false);
+            return;
         }
 
-        cargarVista(fxml,textField);
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT nombre, codigo_barras FROM productos WHERE nombre LIKE ? OR codigo_barras LIKE ?")
+        ) {
+            // Hacemos la búsqueda en la base de datos utilizando LIKE para buscar por nombre o código de barras que contengan el texto ingresado
+            String searchPattern = "%" + searchText + "%";
+            statement.setString(1, searchPattern);
+            statement.setString(2, searchPattern);
+            ResultSet resultSet = statement.executeQuery();
 
+            // Si no se encuentran resultados, ocultamos el ListView
+            if (!resultSet.next()) {
+                productListView.setVisible(false);
+                return;
+            }
 
+            // Mostramos el ListView y agregamos los resultados
+            productListView.setVisible(true);
+            do {
+                String nombre = resultSet.getString("nombre");
+                String codigoBarras = resultSet.getString("codigo_barras");
+                productListView.getItems().add(nombre + " (ID: " + codigoBarras + ")");
+            } while (resultSet.next());
 
+            // Ajustamos el tamaño del ListView según la cantidad de elementos
+            productListView.setPrefHeight(200);
+            // 24 es la altura de cada elemento
+        } catch (SQLException e) {
+            System.err.println("Error al buscar productos: " + e.getMessage());
+        }
     }
+
 
 
 }

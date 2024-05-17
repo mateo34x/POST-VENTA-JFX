@@ -8,32 +8,24 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HelloMain extends Application {
-
-
+public class HelloBuscar extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        go("");
+        go();
     }
 
     public static void main(String[] args) {
         launch();
     }
 
-
-    public void go(String user) throws IOException {
+    public static void go() throws IOException {
         Stage stage = new Stage();
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Main-View.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("BuscarVenta-View.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setResizable(true);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-
-
-        System.out.println("H: "+screenHeight+"\n"+
-                "W: "+screenWidth);
-
-        stage.setTitle("Bienvenido "+user);
+        stage.setTitle("Buscar venta");
         stage.setWidth(screenWidth);
         stage.setHeight(screenHeight);
         stage.setScene(scene);
