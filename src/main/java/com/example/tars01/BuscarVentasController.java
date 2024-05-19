@@ -54,6 +54,9 @@ public class BuscarVentasController {
     @FXML
     private void initialize() {
 
+        FechaStart.setValue(LocalDate.now());
+        FechaEnd.setValue(LocalDate.now());
+
 
         TableColumn<Ventas,String> idColum = new TableColumn<>("Codigo");
         idColum.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
@@ -147,6 +150,7 @@ public class BuscarVentasController {
         if (!tableViewShowBuscar.getItems().isEmpty()){
             tableViewShowBuscar.getItems().clear();
             tableViewShowBuscar.refresh();
+            totalenCaja = 0.0;
         }
 
         LocalDate start = FechaStart.getValue();
@@ -193,6 +197,7 @@ public class BuscarVentasController {
         if (!tableViewShowBuscar.getItems().isEmpty()){
             tableViewShowBuscar.getItems().clear();
             tableViewShowBuscar.refresh();
+            totalenCaja = 0.0;
         }
 
 

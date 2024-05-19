@@ -27,12 +27,12 @@ public class HelloApplication extends Application {
     public static void go() throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(),600,400);
+        Scene scene = new Scene(fxmlLoader.load(),675,412);
 
         stage.setResizable(false);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-        stage.setTitle("Hello!");
+        stage.setTitle("TARS 01");
 //        stage.setWidth(screenWidth);
 //        stage.setHeight(screenHeight);
         stage.setScene(scene);

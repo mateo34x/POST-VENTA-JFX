@@ -15,7 +15,7 @@ import java.util.List;
 public class DatabaseManager {
 
 
-    public static void insertarProducto(Producto producto,Label info, TableView tableView) {
+    public static void insertarProducto(Producto producto, Label info, TableView tableView) {
         DatabaseManager.createTable();
         String sqlSelect = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
         String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio) VALUES (?, ?, ?)";
@@ -30,19 +30,19 @@ public class DatabaseManager {
             int count = resultSet.getInt("count");
 
             if (count > 0) {
-                Platform.runLater(()->info.setText("El id: "+producto.getId()+" pertenece a un producto existente"));
+                Platform.runLater(() -> info.setText("El id: " + producto.getId() + " pertenece a un producto existente"));
 
             } else {
                 insertStatement.setString(1, producto.getId());
                 insertStatement.setString(2, producto.getName());
                 insertStatement.setString(3, producto.getPrice());
                 insertStatement.executeUpdate();
-                obtenerTodosLosProductos(tableView,info);
+                obtenerTodosLosProductos(tableView, info);
             }
 
 
         } catch (SQLException e) {
-            Platform.runLater(()->info.setText("Error al guardar el producto: "+ e.getMessage()));
+            Platform.runLater(() -> info.setText("Error al guardar el producto: " + e.getMessage()));
 
         }
     }
@@ -65,7 +65,7 @@ public class DatabaseManager {
              Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS users (" +
                     "code TEXT PRIMARY KEY," +
-                    "name TEXT,"+
+                    "name TEXT," +
                     "user TEXT," +
                     "pass TEXT)");
         } catch (SQLException e) {
@@ -99,7 +99,7 @@ public class DatabaseManager {
 
             statement.setString(1, id);
             statement.setString(2, fecha);
-            statement.setDouble(3,totalVenta);
+            statement.setDouble(3, totalVenta);
             statement.setDouble(4, cantidadPagada);
             statement.setDouble(5, cambio);
             statement.setString(6, detalles);
@@ -107,12 +107,12 @@ public class DatabaseManager {
 
 
         } catch (SQLException e) {
-            Platform.runLater(()->info.setText("Error al insertar el producto: " + e.getMessage()));
+            Platform.runLater(() -> info.setText("Error al insertar el producto: " + e.getMessage()));
         }
     }
 
 
-    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name,TextField price, TextField code) {
+    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code) {
         // Construir la consulta SQL base
         String sqlUpdate = "UPDATE productos SET ";
 
@@ -137,7 +137,6 @@ public class DatabaseManager {
         }
 
 
-
         // Combinar las partes de la consulta SQL para construir la consulta final
         sqlUpdate += String.join(", ", updates);
         sqlUpdate += " WHERE codigo_barras = ?"; // Condición de actualización basada en el código de barras existente
@@ -158,24 +157,22 @@ public class DatabaseManager {
 
             // Verificar si se actualizaron filas
             if (rowsAffected > 0) {
-                Platform.runLater(()->info.setText("Producto actualizado correctamente."));
+                Platform.runLater(() -> info.setText("Producto actualizado correctamente."));
                 Platform.runLater(name::clear);
                 Platform.runLater(price::clear);
                 Platform.runLater(code::clear);
 
 
-
             } else {
-                Platform.runLater(()->info.setText("El producto a actualizar no existe.."));
+                Platform.runLater(() -> info.setText("El producto a actualizar no existe.."));
             }
         } catch (SQLException e) {
-            Platform.runLater(()->info.setText("Error al actualizar el producto: " + e.getMessage()));
+            Platform.runLater(() -> info.setText("Error al actualizar el producto: " + e.getMessage()));
         }
     }
 
 
-
-    public static void obtenerTodosLosProductos(TableView tableView,Label info) {
+    public static void obtenerTodosLosProductos(TableView tableView, Label info) {
         int cantidad = 0;
         String sql = "SELECT codigo_barras, nombre, precio FROM productos";
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
@@ -185,22 +182,22 @@ public class DatabaseManager {
                 String id = resultSet.getString("codigo_barras");
                 String name = resultSet.getString("nombre");
                 String price = resultSet.getString("precio");
-                Producto producto = new Producto(name,price);
+                Producto producto = new Producto(name, price);
                 producto.setId(id);
                 tableView.getItems().add(producto);
                 tableView.refresh();
                 cantidad++;
                 int finalCantidad = cantidad;
-                Platform.runLater(()->info.setText(finalCantidad +" productos obtenidos correctamente"));
+                Platform.runLater(() -> info.setText(finalCantidad + " productos obtenidos correctamente"));
             }
         } catch (SQLException e) {
-            Platform.runLater(()->info.setText("Error al obtener todos los productos"));
+            Platform.runLater(() -> info.setText("Error al obtener todos los productos"));
 
         }
 
     }
 
-    public static void searchFactura(TextArea viewFactura,TextArea info,String idFactura) {
+    public static void searchFactura(TextArea viewFactura, TextArea info, String idFactura) {
         try (Connection connection = DriverManager.getConnection(Constans.URL3);
              PreparedStatement statement = connection.prepareStatement("SELECT detallesVenta  FROM ventas WHERE idVenta = ?");
         ) {
@@ -211,9 +208,8 @@ public class DatabaseManager {
 
             while (resultSet.next()) {
                 String facturaInfo = resultSet.getString("detallesVenta");
-                Platform.runLater(()->viewFactura.setText(facturaInfo));
-                Platform.runLater(()->info.setText("Factura encontrada"));
-
+                Platform.runLater(() -> viewFactura.setText(facturaInfo));
+                Platform.runLater(() -> info.setText("Factura encontrada"));
 
 
                 productoEncontrado = true; // Se encontró al menos un producto
@@ -221,8 +217,8 @@ public class DatabaseManager {
 
             if (!productoEncontrado) {
 
-                Platform.runLater(()->info.setText("No hemos encontrado la factura con ID: "+idFactura));
-                Platform.runLater(()->viewFactura.setText("No hay información sobre la factura solicitada"));
+                Platform.runLater(() -> info.setText("No hemos encontrado la factura con ID: " + idFactura));
+                Platform.runLater(() -> viewFactura.setText("No hay información sobre la factura solicitada"));
 
             }
 
@@ -232,40 +228,26 @@ public class DatabaseManager {
         }
     }
 
-    public static void ViewFactura(TextArea viewFactura,Label info,String idFactura) {
+    public static int NVentas() {
+        int count = 0;
         try (Connection connection = DriverManager.getConnection(Constans.URL3);
-             PreparedStatement statement = connection.prepareStatement("SELECT detallesVenta  FROM ventas WHERE idVenta = ?");
+             PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) AS count FROM ventas");
         ) {
-            statement.setString(1, idFactura.replace(" ", ""));
+
             ResultSet resultSet = statement.executeQuery();
 
-            boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
 
-            while (resultSet.next()) {
-                String facturaInfo = resultSet.getString("detallesVenta");
-                Platform.runLater(()->viewFactura.setText(facturaInfo));
-                Platform.runLater(()->info.setText("Factura encontrada"));
-
-
-
-                productoEncontrado = true; // Se encontró al menos un producto
-            }
-
-            if (!productoEncontrado) {
-
-                Platform.runLater(()->info.setText("No hemos encontrado la factura con ID: "+idFactura));
-                Platform.runLater(()->viewFactura.setText("No hay información sobre la factura solicitada"));
-
-            }
+            count = resultSet.getInt("count");
 
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return count;
     }
 
 
-    public static void filtrarVenta(TableView tableView,TextArea info,String fechaI,String FechaE){
+    public static void filtrarVenta(TableView tableView, TextArea info, String fechaI, String FechaE) {
 
     }
 

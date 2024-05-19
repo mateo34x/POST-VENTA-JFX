@@ -2,11 +2,10 @@ package com.example.tars01;
 
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,15 +16,31 @@ public class LoginController {
     private TextField usernameField;
 
 
-
     @FXML
     private PasswordField passwordField;
 
     @FXML
-    private Label messageLabel;
+    private Label messageLabel, title,R;
     @FXML
-    private Button R;
+    private MFXButton I;
 
+
+
+
+    @FXML
+    private void initialize() {
+
+        usernameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            Check();
+        });
+        passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
+            Check();
+        });
+
+
+        Funtions.ChangeMessage(title, 0, "TARS 01");
+
+    }
 
 
     @FXML
@@ -36,14 +51,11 @@ public class LoginController {
 
         if (!username.isEmpty() && !password.isEmpty()) {
 
-            VerificarUser(username,password);
-
-        } else {
-            messageLabel.setText("Username and password are required");
+            VerificarUser(username, password);
 
         }
 
-       Funtions.HideMessage(messageLabel,0);
+
 
     }
 
@@ -56,10 +68,15 @@ public class LoginController {
         HelloRegistro.go();
 
 
-
     }
 
 
+    private void Check() {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        Platform.runLater(() -> I.setDisable(username.isEmpty() || password.isEmpty()));
+    }
 
     private void VerificarUser(String user, String pass) {
         DatabaseManager.createTableUser();
@@ -85,15 +102,15 @@ public class LoginController {
                     h.go(storedName);
                 } else {
                     messageLabel.setText("Contraseña incorrecta");
-                    Funtions.HideMessage(messageLabel, 0);
+                    Funtions.ChangeMessage(messageLabel, 0,"");
                 }
             } else {
                 messageLabel.setText("Usuario incorrecto");
-                Funtions.HideMessage(messageLabel, 0);
+                Funtions.ChangeMessage(messageLabel, 0,"");
             }
         } catch (SQLException e) {
             messageLabel.setText("Error al verificar el usuario");
-            Funtions.HideMessage(messageLabel, 0);
+            Funtions.ChangeMessage(messageLabel, 0,"");
             e.printStackTrace();
         } catch (IOException e) {
             throw new RuntimeException(e);

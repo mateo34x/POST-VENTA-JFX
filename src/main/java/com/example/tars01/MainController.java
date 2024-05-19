@@ -200,7 +200,8 @@ public class MainController {
 
         tableView.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
 
-        String numeroFacturaFormateado = String.format("%03d", Funtions.obtenerNumeroFactura() + 1);
+        String numeroFacturaFormateado = String.format("%03d", DatabaseManager.NVentas() + 1);
+
 
         Platform.runLater(() -> Nventa.setText(numeroFacturaFormateado));
 
@@ -297,10 +298,11 @@ public class MainController {
             public void handle(MouseEvent event) {
                 String selectedItem = productListView.getSelectionModel().getSelection().toString();
                 if (selectedItem != null) {
-                    // Extraer el ID del formato "nombre (ID: código_barras)"
                     String id = selectedItem.substring(selectedItem.lastIndexOf("ID: ") + 4, selectedItem.length() - 2);
                     searchProduct(id);
                     System.out.println("Selected ID: " + id);
+                    productListView.setVisible(false);
+                    textFieldItem.clear();
                 }
             }
         });
@@ -548,10 +550,10 @@ public class MainController {
     }
 
     private void generarRecibo(double result) throws IOException {
-        int numeroFacturaActual = Funtions.obtenerNumeroFactura();
+        int numeroFacturaActual = DatabaseManager.NVentas();
         int numeroFacturaSiguiente = numeroFacturaActual + 1;
         String numeroFacturaFormateado = String.format("%03d", numeroFacturaSiguiente);
-        Funtions.guardarNumeroFactura(numeroFacturaSiguiente);
+
 
         StringBuilder reciboBuilder = new StringBuilder();
         reciboBuilder.append("        TIENDA LA BENDICIÓN DE DIOS\n")
@@ -573,7 +575,7 @@ public class MainController {
         writer.write(contenidoRecibo);
         writer.close();
         DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, totalVenta, totalPagado, result, contenidoRecibo, info);
-        int actual = Funtions.obtenerNumeroFactura();
+        int actual = DatabaseManager.NVentas();
         int sig = actual + 1;
         String prox = String.format("%03d", sig);
         Platform.runLater(() -> Nventa.setText(prox));
@@ -710,7 +712,8 @@ public class MainController {
             } while (resultSet.next());
 
             // Ajustamos el tamaño del ListView según la cantidad de elementos
-            productListView.setPrefHeight(200);
+            productListView.setPrefHeight(productListView.getItems().size() * 24); // 24 es la altura de cada elemento
+
             // 24 es la altura de cada elemento
         } catch (SQLException e) {
             System.err.println("Error al buscar productos: " + e.getMessage());
