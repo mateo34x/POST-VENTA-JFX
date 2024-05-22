@@ -59,8 +59,8 @@ public class RegistreController {
     @FXML
     public void registrar(String name,String user,String pass){
         DatabaseManager.createTableUser();
-        String sqlSelect = "SELECT COUNT(*) AS count FROM users WHERE user = ?";
-        String sqlInsert = "INSERT INTO users (code, name, user, pass) VALUES (?, ?, ?, ?)";
+        String sqlSelect = "SELECT COUNT(*) AS count FROM users WHERE User = ?";
+        String sqlInsert = "INSERT INTO users (code, name, User, pass) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL2);
              PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
@@ -72,7 +72,7 @@ public class RegistreController {
             int count = resultSet.getInt("count");
 
             if (count > 0) {
-                String sqlCheckPass = "SELECT pass FROM users WHERE user = ?";
+                String sqlCheckPass = "SELECT pass FROM users WHERE User = ?";
                 PreparedStatement checkPassStatement = connection.prepareStatement(sqlCheckPass);
                 checkPassStatement.setString(1, user);
 
@@ -88,7 +88,8 @@ public class RegistreController {
                     insertStatement.setString(4, pass);
                     insertStatement.executeUpdate();
 
-                    messageLabel.setText("Usuario creado correctamente, inicie sesión");
+                    messageLabel.setText("Usuario creado correctamente");
+                    Funtions.ChangeMessage(messageLabel,0,"Cierre esta venta he inicie sesion");
 
             }
         } catch (SQLException e) {

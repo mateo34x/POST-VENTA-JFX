@@ -10,6 +10,8 @@ import java.io.IOException;
 
 public class HelloMain extends Application {
 
+    static String User;
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -29,14 +31,20 @@ public class HelloMain extends Application {
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 
+        MainController mainController = fxmlLoader.getController();
+        mainController.setUser(user);
+        System.out.println("H: " + screenHeight + "\n" +
+                "W: " + screenWidth);
 
-        System.out.println("H: "+screenHeight+"\n"+
-                "W: "+screenWidth);
 
-        stage.setTitle("Bienvenido "+user);
+        stage.setTitle("Bienvenido " + user);
         stage.setWidth(screenWidth);
         stage.setHeight(screenHeight);
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static String ShareData() {
+        return User;
     }
 }

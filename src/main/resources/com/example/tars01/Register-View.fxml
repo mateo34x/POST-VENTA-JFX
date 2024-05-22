@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.RegistreController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.RegistreController">
     <children>
-        <Label layoutX="270.0" layoutY="50.0" style="-fx-text-fill: #FFFFFF;" text="Registro" />
-        <TextField fx:id="nombreVerdaderoField" layoutX="200.0" layoutY="100.0" prefWidth="200.0" promptText="Nombre Verdadero" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
-        <TextField fx:id="nombreUsuarioField" layoutX="200.0" layoutY="150.0" prefWidth="200.0" promptText="Nombre de usuario" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
-        <PasswordField fx:id="passwordField" layoutX="200.0" layoutY="200.0" prefWidth="200.0" promptText="Contraseña" style="-fx-border-color: #FFFFFF; -fx-text-fill: #F5E8C7;" />
-        <Button layoutX="250.0" layoutY="250.0" mnemonicParsing="false" onAction="#guardar" prefWidth="100.0" text="Guardar" />
-        <Label fx:id="messageLabel" alignment="CENTER" layoutX="180.0" layoutY="300.0" prefHeight="18.0" prefWidth="250.0" style="-fx-text-fill: #ED2B2A;" textFill="RED" />
-        <Button fx:id="Volver" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#volver" prefWidth="75.0" text="Volver al login" />
+        <Label layoutX="87.0" layoutY="49.0" style="-fx-text-fill: #FFFFFF;" text="Sign Up">
+         <font>
+            <Font name="JetBrains Mono Bold" size="21.0" />
+         </font></Label>
+        <TextField fx:id="nombreVerdaderoField" layoutX="87.0" layoutY="99.0" prefWidth="200.0" promptText="Nombre Verdadero" style="-fx-text-fill: WHITE; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
+        <TextField fx:id="nombreUsuarioField" layoutX="87.0" layoutY="144.0" prefHeight="24.0" prefWidth="145.0" promptText="Nombre de usuario" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
+        <PasswordField fx:id="passwordField" layoutX="87.0" layoutY="188.0" prefHeight="24.0" prefWidth="145.0" promptText="Contraseña" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
+        <Label fx:id="messageLabel" layoutX="89.0" layoutY="237.0" prefHeight="18.0" prefWidth="250.0" style="-fx-text-fill: #ED2B2A;" textFill="RED" />
+      
+      <MFXButton layoutX="89.0" layoutY="270.0" onAction="#guardar" prefHeight="26.0" prefWidth="100.0" style="-fx-background-color: #545D6C; -fx-text-fill: WHITE;" text="Crear" />
+      <ImageView fitHeight="404.0" fitWidth="295.0" layoutX="353.0" pickOnBounds="true">
+         <image>
+            <Image url="https://i.pinimg.com/564x/53/93/91/5393911f9563d60d454b39ea5a2485be.jpg" />
+         </image></ImageView>
     </children>
+   <effect>
+      <DropShadow />
+   </effect>
 </AnchorPane>

@@ -63,7 +63,7 @@ public class MainController {
     double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText;
-    String fecha, hora;
+    String fecha, hora,NameUser;
 
 
     @FXML
@@ -183,9 +183,15 @@ public class MainController {
 
     }
 
+    public void setUser(String user) {
+        this.NameUser = user;
+        // Puedes usar el valor aquí, por ejemplo, actualizar una etiqueta
+        System.out.println("User in controller: " + NameUser);
+    }
 
     @FXML
     private void initialize() {
+
 
 
         TableColumn<Producto, String> nameColumn = new TableColumn<>("Nombre");
@@ -201,7 +207,6 @@ public class MainController {
         tableView.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
 
         String numeroFacturaFormateado = String.format("%03d", DatabaseManager.NVentas() + 1);
-
 
         Platform.runLater(() -> Nventa.setText(numeroFacturaFormateado));
 
@@ -219,10 +224,11 @@ public class MainController {
             }
         });
 
-        textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Aquí puedes actualizar la lista de nombres de productos según el nuevo valor del TextField
-            updateProductList(newValue);
-        });
+//        textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
+//            // Aquí puedes actualizar la lista de nombres de productos según el nuevo valor del TextField
+//
+//
+//        });
 
         precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -560,14 +566,16 @@ public class MainController {
                 .append("-----------------------------------------\n")
                 .append(" Factura de venta: #").append(numeroFacturaFormateado).append("\n")
                 .append(" Fecha de venta: ").append(fecha).append(" ").append(hora).append("\n")
-                .append(" Atendido por: usersesion\n\n")
+                .append(" Atendido por: ").append(NameUser).append("\n")
+                .append(" Pago: ").append("Efectivo").append("\n")
+                .append(" Observaciones: ").append("").append("\n\n")
                 .append(" Productos comprados ↓\n\n")
                 .append(productosArea.getText()).append("\n")
-                .append(" Total: $ ").append(format(String.valueOf(totalVenta))).append("\n")
-                .append(" Pago: $ ").append(format(String.valueOf(totalPagado))).append("\n")
-                .append(" Cambio: $").append(format(String.valueOf(result))).append("\n")
+                .append(" Total:$ ").append(format(String.valueOf(totalVenta))).append("\n")
+                .append(" Pago:$ ").append(format(String.valueOf(totalPagado))).append("\n")
+                .append(" Cambio:$ ").append(format(String.valueOf(result))).append("\n")
                 .append("-----------------------------------------\n\n")
-                .append("           GRACIAS POR SU COMPRA\n");
+                .append("           ¡GRACIAS POR SU COMPRA!\n");
 
         String contenidoRecibo = reciboBuilder.toString();
         String rutaArchivo = "/home/tars/Documentos/FACTURAS/" + UUID.randomUUID();

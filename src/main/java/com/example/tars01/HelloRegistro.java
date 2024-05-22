@@ -23,7 +23,7 @@ public class HelloRegistro extends Application {
     public static void go() throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("Register-View.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(),600,400);
+        Scene scene = new Scene(fxmlLoader.load(),648,404);
 
         stage.setResizable(false);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();

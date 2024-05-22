@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -30,13 +32,31 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(),675,412);
 
         stage.setResizable(false);
+
+        scene.setOnKeyPressed(event -> {
+            try {
+                Registro(event,stage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
-        stage.setTitle("TARS 01");
 //        stage.setWidth(screenWidth);
 //        stage.setHeight(screenHeight);
         stage.setScene(scene);
         stage.show();
+
+
+    }
+
+    public static void Registro(KeyEvent event,Stage stage) throws IOException {
+
+        if (event.isControlDown() && event.getCode() == KeyCode.K ) {
+            stage.toBack();
+            HelloRegistro.go();
+        }
+
 
 
     }

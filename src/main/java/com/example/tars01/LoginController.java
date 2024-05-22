@@ -59,16 +59,7 @@ public class LoginController {
 
     }
 
-    @FXML
-    public void Registro() throws IOException {
 
-        Stage stage = (Stage) R.getScene().getWindow();
-        stage.close();
-        messageLabel.setText("Yendo al registro");
-        HelloRegistro.go();
-
-
-    }
 
 
     private void Check() {
@@ -80,7 +71,7 @@ public class LoginController {
 
     private void VerificarUser(String user, String pass) {
         DatabaseManager.createTableUser();
-        String sqlSelect = "SELECT user, pass, name FROM users WHERE user = ?";
+        String sqlSelect = "SELECT User, pass, name FROM users WHERE User = ?";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL2);
              PreparedStatement selectStatement = connection.prepareStatement(sqlSelect)) {
@@ -89,14 +80,14 @@ public class LoginController {
             ResultSet resultSet = selectStatement.executeQuery();
 
             if (resultSet.next()) {
-                String storedUser = resultSet.getString("user");
+                String storedUser = resultSet.getString("User");
                 String storedPass = resultSet.getString("pass");
                 String storedName = resultSet.getString("name");
 
                 // Verificar si las contraseñas coinciden
                 if (pass.equals(storedPass)) {
 
-                    Stage stage = (Stage) R.getScene().getWindow();
+                    Stage stage = (Stage) I.getScene().getWindow();
                     stage.close();
                     HelloMain h = new HelloMain();
                     h.go(storedName);

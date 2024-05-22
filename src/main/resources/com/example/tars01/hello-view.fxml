@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.effect.ColorAdjust?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -18,8 +16,15 @@
           <font>
               <Font name="JetBrains Mono Bold" size="18.0" />
           </font></Label>
-        <TextField fx:id="usernameField" layoutX="84.0" layoutY="113.0" prefWidth="200.0" promptText="Username" style="-fx-border-color: #FFFFFF; -fx-text-fill: #000000;" />
-        <PasswordField fx:id="passwordField" layoutX="84.0" layoutY="163.0" prefHeight="30.0" prefWidth="200.0" promptText="Password" style="-fx-border-color: #FFFFFF; -fx-text-fill: #000000;" />
+        <TextField fx:id="usernameField" layoutX="84.0" layoutY="113.0" prefHeight="32.0" prefWidth="200.0" promptText="Username" style="-fx-background-color: #545D6C; -fx-text-fill: WHITE; -fx-font-family: JetBrains Mono; -fx-border-radius: 10; -fx-background-radius: 5;">
+         <font>
+            <Font name="JetBrains Mono Regular" size="13.0" />
+         </font></TextField>
+        <PasswordField fx:id="passwordField" layoutX="84.0" layoutY="163.0" prefHeight="32.0" prefWidth="200.0" promptText="Password" style="-fx-text-fill: WHITE; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" styleClass="styleTextField.css">
+            <font>
+                <Font name="JetBrains Mono Regular" size="13.0" />
+            </font>
+        </PasswordField>
         <Label fx:id="messageLabel" alignment="CENTER" layoutX="59.0" layoutY="298.0" prefHeight="18.0" prefWidth="250.0" style="-fx-text-fill: #ED2B2A;" textFill="RED" />
       <MFXButton fx:id="I" disable="true" layoutX="86.0" layoutY="226.0" onAction="#login" prefHeight="32.0" prefWidth="200.0" style="-fx-background-color: #545D6C; -fx-text-fill: WHITE; -fx-font-family: JetBrains Mono; -fx-border-radius: 40;" styleClass="mfx-button" text="Iniciar sesion" textFill="WHITE" />
       <ImageView fitHeight="412.0" fitWidth="296.0" layoutX="378.0" layoutY="-2.0" pickOnBounds="true">
@@ -31,21 +36,7 @@
          <font>
             <Font name="JetBrains Mono Bold" size="18.0" />
          </font></Label>
-      <Label fx:id="R" layoutX="238.0" layoutY="353.0" onMouseClicked="#Registro" text="Sign Up" textFill="#b7ceee" underline="true">
-         <font>
-            <Font name="JetBrains Mono Bold" size="13.0" />
-         </font>
-         <effect>
-            <Bloom threshold="0.72" />
-         </effect>
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor></Label>
-      <Label layoutX="70.0" layoutY="353.0" prefHeight="18.0" prefWidth="170.0" text="Don't have a account?" textFill="WHITE">
-          <font>
-              <Font name="JetBrains Mono Bold" size="13.0" />
-          </font>
-      </Label>
+
     </children>
    <effect>
       <ColorAdjust />
