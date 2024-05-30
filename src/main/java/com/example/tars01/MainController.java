@@ -10,11 +10,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,45 +23,39 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import static com.example.tars01.CreateProductController.OnView;
 
-import static com.example.tars01.Funtions.cargarVista;
 
 
 public class MainController {
 
     // TODO y vaciar este cuando se cierre la venta, tambien hacer algunas R al cerrar caja y sesión
 
-    private boolean serverRunning = false;
+
     boolean onTurno = false;
 
 
     public static final int SERVER_PORT = 8080;
     private ServerSocket serverSocket;
-    double totalVenta = 0.0;
+    static double totalVenta = 0.0;
     double totalPagado = 0.0;
     private Timeline timeline;
-    String cleanText;
+    String cleanText,PagoOption;
     String fecha, hora,NameUser;
 
 
@@ -99,6 +92,8 @@ public class MainController {
     private MFXListView productListView;
 
     private final Map<String, Integer> productCounts = new HashMap<>();
+    @FXML
+    private ComboBox optionSold = new ComboBox<>();
 
 
     @FXML
@@ -111,7 +106,7 @@ public class MainController {
     @FXML
     public MenuItem tOFF;
     @FXML
-    public Button buttonClear1;
+    public Button buttonClear1,buttonClear;
 
 
     public MainController() throws IOException {
@@ -122,7 +117,7 @@ public class MainController {
     private void OnServer() throws IOException {
 
 
-        ServerManager.OnServer(see,info,textFieldItem);
+        ServerManager.OnServer(see,info,textFieldItem,productCounts,tableView,precio,textFieldTotalQuantity);
 
     }
 
@@ -217,18 +212,14 @@ public class MainController {
                 if (keyEvent.getCode() == KeyCode.ENTER) {
                     String searchText = textFieldItem.getText();
                     if (!searchText.isEmpty()) {
-                        searchProduct(searchText);
+                        searchProductT(searchText);
 
                     }
                 }
             }
         });
 
-//        textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
-//            // Aquí puedes actualizar la lista de nombres de productos según el nuevo valor del TextField
-//
-//
-//        });
+
 
         precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -236,7 +227,7 @@ public class MainController {
                 if (keyEvent.getCode() == KeyCode.ENTER) {
                     String searchText = textFieldItem.getText();
                     if (!searchText.isEmpty()) {
-                        searchProduct(searchText);
+                        searchProductT(searchText);
                     }
                 }
             }
@@ -250,6 +241,15 @@ public class MainController {
                 Platform.runLater(() -> buttonSave.setDisable(true));
             }
         });
+
+        textFieldTotalQuantity.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                Platform.runLater(() -> textFieldTotalPaidAmount.setDisable(false));
+            } else {
+                Platform.runLater(() -> textFieldTotalPaidAmount.setDisable(true));
+            }
+        });
+
 
 
         tableView.setOnMouseClicked(event -> {
@@ -270,13 +270,13 @@ public class MainController {
         // Asignar el TextFormatter al TextField
         textFieldTotalPaidAmount.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
-                // Obtener el valor formateado
 
                 String formattedValue = jTextField1KeyTyped(newValue);
 
                 if (!formattedValue.equals(newValue)) {
 
                     textFieldTotalPaidAmount.setText(formattedValue);
+
 
 
                 }
@@ -305,7 +305,7 @@ public class MainController {
                 String selectedItem = productListView.getSelectionModel().getSelection().toString();
                 if (selectedItem != null) {
                     String id = selectedItem.substring(selectedItem.lastIndexOf("ID: ") + 4, selectedItem.length() - 2);
-                    searchProduct(id);
+                    searchProductT(id);
                     System.out.println("Selected ID: " + id);
                     productListView.setVisible(false);
                     textFieldItem.clear();
@@ -313,6 +313,17 @@ public class MainController {
             }
         });
 
+        optionSold.getItems().addAll(
+                "Efectivo",
+                "Nequi",
+                "Crédito"
+        );
+
+
+        optionSold.getSelectionModel().selectedItemProperty().addListener(( ov, t,  t1) -> {
+            PagoOption = t1.toString();
+
+        });
     }
 
     private void openDeleteDialog(int valueG, Producto producto) {
@@ -341,12 +352,16 @@ public class MainController {
 
                     productCounts.put(producto.getName(), r);
                     totalVenta -= minus * quantity;
-                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotal()));
+                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                     tableView.refresh();
                     System.out.println(totalVenta);
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
                             "Ingrese una cantidad válida entre 1 y " + valueG);
+                }
+
+                if (totalVenta == 0.0){
+                    Platform.runLater(() -> textFieldTotalQuantity.clear());
                 }
             } catch (NumberFormatException e) {
                 showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
@@ -399,7 +414,13 @@ public class MainController {
 //    }
 
 
-    public void searchProduct(String searchText) {
+    public static void searchProduct(String searchText,
+                                     Map<String,Integer> productCounts,
+                                     TableView<Producto>tableView,
+                                     TextField precio,
+                                     TextField textFieldItem,
+                                     TextField textFieldTotalQuantity,
+                                     Label info) {
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
         ) {
@@ -466,20 +487,95 @@ public class MainController {
             }
 
             tableView.refresh();
-            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotal()));
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setGroupingSeparator('\'');
+            DecimalFormat df = new DecimalFormat("#,##0", symbols);
+            Platform.runLater(() -> textFieldTotalQuantity.setText(df.format(totalVenta)));
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
 
-    public String getTotal() {
+
+    public void searchProductT(String searchText) {
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
+        ) {
+            statement.setString(1, searchText.replace(" ", ""));
+            ResultSet resultSet = statement.executeQuery();
+
+            boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
+
+            while (resultSet.next()) {
+                String productName = resultSet.getString("nombre");
+                String productPrice = resultSet.getString("precio");
+
+                if (productCounts.containsKey(productName)) {
+                    productCounts.put(productName, productCounts.get(productName) + 1);
+                } else {
+                    // Agregar el producto a la tabla
+                    tableView.getItems().add(new Producto(productName, productPrice));
+                    productCounts.put(productName, 1);
+                }
+
+                totalVenta += Double.parseDouble(productPrice);
+                productoEncontrado = true; // Se encontró al menos un producto
+            }
+
+            if (!productoEncontrado) {
+
+                if (precio.getText().isEmpty()) {
+                    Platform.runLater(() -> info.setText("El campo de precio no puede estar vacío"));
+                } else {
+                    if (productCounts.containsKey(textFieldItem.getText())) {
+                        int indice = 0;
+
+                        for (Producto producto : tableView.getItems()) {
+                            // Verificar si el nombre del producto coincide con el nombre buscado
+                            if (producto.getName().equals(textFieldItem.getText())) {
+
+                                totalVenta += Double.parseDouble(precio.getText());
+                                tableView.getItems().get(indice).setPrice(precio.getText());
+                                productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
+                                tableView.refresh();
+
+                                break;
+                            }
+                            indice++;
+
+                        }
+                    } else {
+
+                        tableView.getItems().add(new Producto(textFieldItem.getText(), precio.getText()));
+                        productCounts.put(textFieldItem.getText(), 1);
+                        totalVenta += Double.parseDouble(precio.getText());
+                        Platform.runLater(() -> info.setText("Producto no encontrado"));
+                    }
+                }
+
+
+            } else {
+                Platform.runLater(() -> info.setText("Producto añadido"));
+            }
+
+            tableView.refresh();
+            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public String getTotalT() {
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('\'');
         DecimalFormat df = new DecimalFormat("#,##0", symbols);
         return df.format(totalVenta);
     }
+
 
 
     public String getChange(double result) {
@@ -517,7 +613,8 @@ public class MainController {
                 // Agregar los separadores de miles nuevamente
                 return formattedText.replace(",", "','");
             } catch (NumberFormatException e) {
-                // Manejar la excepción si el texto no es un número válido
+
+                textFieldTotalPaidAmount.clear();
                 e.printStackTrace();
             }
         }
@@ -567,7 +664,7 @@ public class MainController {
                 .append(" Factura de venta: #").append(numeroFacturaFormateado).append("\n")
                 .append(" Fecha de venta: ").append(fecha).append(" ").append(hora).append("\n")
                 .append(" Atendido por: ").append(NameUser).append("\n")
-                .append(" Pago: ").append("Efectivo").append("\n")
+                .append(" Pago: ").append(PagoOption).append("\n")
                 .append(" Observaciones: ").append("").append("\n\n")
                 .append(" Productos comprados ↓\n\n")
                 .append(productosArea.getText()).append("\n")
@@ -602,10 +699,11 @@ public class MainController {
         tOFF.setDisable(false);
         textFieldItem.setDisable(false);
         precio.setDisable(false);
-        textFieldTotalPaidAmount.setDisable(false);
         textFieldTotalQuantity.setDisable(false);
         tableView.setDisable(false);
         buttonClear1.setDisable(false);
+        buttonClear.setDisable(false);
+        see.setDisable(false);
         info.setText("Turno iniciado correctamente");
 
 
@@ -616,21 +714,29 @@ public class MainController {
 
         System.out.println(productCounts.size());
 
-        if (productCounts.isEmpty()) {
-            onTurno = false;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            tON.setDisable(false);
-            tOFF.setDisable(true);
-            textFieldItem.setDisable(true);
-            precio.setDisable(true);
-            buttonSave.setDisable(true);
-            textFieldTotalPaidAmount.setDisable(true);
-            textFieldTotalQuantity.setDisable(true);
-            tableView.setDisable(true);
-            buttonClear1.setDisable(true);
-            logArea.setText("El usuario ha terminado el turno a las: " + formatter.format(now));
-            Platform.runLater(() -> info.setText("Turno terminado correctamente"));
+
+        if (productCounts.isEmpty()) {           if (!ServerManager.serverRunning){
+                onTurno = false;
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                LocalDateTime now = LocalDateTime.now();
+                tON.setDisable(false);
+                tOFF.setDisable(true);
+                textFieldItem.setDisable(true);
+                precio.setDisable(true);
+                buttonSave.setDisable(true);
+                textFieldTotalPaidAmount.setDisable(true);
+                textFieldTotalQuantity.setDisable(true);
+                tableView.setDisable(true);
+                buttonClear1.setDisable(true);
+                see.setDisable(true);
+                textFieldChange.setDisable(true);
+                buttonClear.setDisable(true);
+                logArea.setText("El usuario ha terminado el turno a las: " + formatter.format(now));
+                Platform.runLater(() -> info.setText("Turno terminado correctamente"));
+            }else{
+                Platform.runLater(() -> info.setText("Para finalizar su turno, apague el servidor"));
+            }
+
         } else {
             Platform.runLater(() -> info.setText("No puede terminar su turno hay una venta en curso"));
         }
@@ -685,48 +791,8 @@ public class MainController {
 
     }
 
-    private void updateProductList(String searchText) {
-        // Limpiamos el ListView
-        productListView.getItems().clear();
 
-        // Si el campo está vacío, ocultamos el ListView
-        if (searchText.isEmpty()) {
-            productListView.setVisible(false);
-            return;
-        }
 
-        try (Connection connection = DriverManager.getConnection(Constans.URL1);
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT nombre, codigo_barras FROM productos WHERE nombre LIKE ? OR codigo_barras LIKE ?")
-        ) {
-            // Hacemos la búsqueda en la base de datos utilizando LIKE para buscar por nombre o código de barras que contengan el texto ingresado
-            String searchPattern = "%" + searchText + "%";
-            statement.setString(1, searchPattern);
-            statement.setString(2, searchPattern);
-            ResultSet resultSet = statement.executeQuery();
-
-            // Si no se encuentran resultados, ocultamos el ListView
-            if (!resultSet.next()) {
-                productListView.setVisible(false);
-                return;
-            }
-
-            // Mostramos el ListView y agregamos los resultados
-            productListView.setVisible(true);
-            do {
-                String nombre = resultSet.getString("nombre");
-                String codigoBarras = resultSet.getString("codigo_barras");
-                productListView.getItems().add(nombre + " (ID: " + codigoBarras + ")");
-            } while (resultSet.next());
-
-            // Ajustamos el tamaño del ListView según la cantidad de elementos
-            productListView.setPrefHeight(productListView.getItems().size() * 24); // 24 es la altura de cada elemento
-
-            // 24 es la altura de cada elemento
-        } catch (SQLException e) {
-            System.err.println("Error al buscar productos: " + e.getMessage());
-        }
-    }
 
 
 

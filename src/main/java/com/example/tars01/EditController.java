@@ -63,7 +63,7 @@ public class EditController {
     @FXML
     private void initialize() {
 
-        ServerManager.updateInfoExtern(textFieldItemEdit,info);
+
 
 
         textFieldItemEdit.setOnKeyPressed(new EventHandler<KeyEvent>() {

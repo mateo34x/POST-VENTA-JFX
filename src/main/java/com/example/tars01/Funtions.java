@@ -13,6 +13,9 @@ import javafx.util.Duration;
 import java.io.*;
 
 public class Funtions {
+
+
+
     public static void HideMessage(Label messageLabel,int d){
         PauseTransition pause;
         if (d==0){

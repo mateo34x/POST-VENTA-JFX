@@ -8,28 +8,6 @@
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.BuscarVentasController">
    <children>
-      <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
-         <menus>
-            <Menu mnemonicParsing="false" text="Vistas">
-               <items>
-                  <MenuItem fx:id="crearBuscar" mnemonicParsing="false" onAction="#cargarVistaCrear" text="Crear Producto" />
-                  <MenuItem fx:id="editarBuscar" mnemonicParsing="false" onAction="#cargarVistaEditar" text="Editar Producto" />
-                  <MenuItem fx:id="ventaBuscar" mnemonicParsing="false" onAction="#cargarVistaVenta" text="Nueva venta" />
-
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Servidor">
-               <items>
-                  <MenuItem fx:id="seeBuscar" mnemonicParsing="false" text="Encender" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Coming soon" />
-               </items>
-            </Menu>
-         </menus>
-      </MenuBar>
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
          <children>
             <Label fx:id="horaBuscar" layoutX="416.0" layoutY="25.0" prefHeight="16.0" prefWidth="208.0" style="-fx-text-fill: white;">
@@ -41,13 +19,13 @@
                </opaqueInsets>
             </Label>
             <MFXListView layoutX="62.0" layoutY="50.0" prefHeight="0.0" prefWidth="368.0" />
-            <TextField fx:id="codeBuscar" layoutX="32.0" layoutY="43.0" prefHeight="35.0" prefWidth="223.0" />
+            <TextField fx:id="codeBuscar" layoutX="32.0" layoutY="43.0" prefHeight="35.0" prefWidth="223.0" promptText="001" />
             <Label layoutX="32.0" layoutY="16.0" prefHeight="27.0" prefWidth="139.0" style="-fx-text-fill: WHITE;" text="ID de factura" textFill="WHITE">
                <font>
                   <Font name="Calibri" size="18.0" />
                </font>
             </Label>
-            <TextArea fx:id="ReciboView" layoutX="32.0" layoutY="111.0" prefHeight="530.0" prefWidth="345.0" wrapText="true">
+            <TextArea fx:id="ReciboView" editable="false" layoutX="32.0" layoutY="111.0" prefHeight="530.0" prefWidth="345.0" wrapText="true">
                <font>
                   <Font name="Monospaced Regular" size="12.0" />
                </font></TextArea>
@@ -78,9 +56,9 @@
             </Label>
             <DatePicker fx:id="FechaStart" editable="false" layoutX="402.0" layoutY="616.0" />
             <DatePicker fx:id="FechaEnd" editable="false" layoutX="608.0" layoutY="616.0" />
-            <Button fx:id="MostrarV" onAction="#getAllVentas" layoutX="888.0" layoutY="616.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="208.0" text="Mostras todas la ventas" />
-            <TextArea fx:id="infoBuscar" layoutX="1114.0" layoutY="112.0" prefHeight="477.0" prefWidth="231.0" promptText="Sin novedades" wrapText="true" />
-            <Button fx:id="BuscarFilter" onAction="#getFecha" layoutX="814.0" layoutY="616.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="66.0" text="Buscar" />
+            <Button fx:id="MostrarV" layoutX="888.0" layoutY="616.0" mnemonicParsing="false" onAction="#getAllVentas" prefHeight="22.0" prefWidth="208.0" text="Mostras todas la ventas" />
+            <TextArea fx:id="infoBuscar" layoutX="1114.0" layoutY="112.0" prefHeight="173.0" prefWidth="231.0" promptText="Sin novedades" wrapText="true" />
+            <Button fx:id="BuscarFilter" layoutX="814.0" layoutY="616.0" mnemonicParsing="false" onAction="#getFecha" prefHeight="24.0" prefWidth="66.0" text="Buscar" />
          </children>
       </AnchorPane>
    </children>

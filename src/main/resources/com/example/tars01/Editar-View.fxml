@@ -8,27 +8,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.EditController">
    <children>
-      <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
-         <Menu mnemonicParsing="false" text="Vistas">
-            <items>
-               <MenuItem mnemonicParsing="false" onAction="#cargarVistaCreate" text="Crear Producto" />
-               <MenuItem disable="true" mnemonicParsing="false" text="Editar Producto" />
-               <MenuItem mnemonicParsing="false" onAction="#cargarVistaVenta" text="Nueva venta" />
-               <MenuItem mnemonicParsing="false" onAction="#cargarVistaBuscar" text="Buscar venta" />
 
-            </items>
-         </Menu>
-         <Menu mnemonicParsing="false" text="Servidor">
-            <items>
-               <MenuItem fx:id="seeEdit" mnemonicParsing="false" onAction="#OnServer" text="Encender" />
-            </items>
-         </Menu>
-         <Menu mnemonicParsing="false" text="Help">
-            <items>
-               <MenuItem mnemonicParsing="false" text="Coming soon" />
-            </items>
-         </Menu>
-      </MenuBar>
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
          <children>
             <TextField fx:id="textFieldItemEdit" layoutX="78.0" layoutY="18.0" prefHeight="23.0" prefWidth="324.0" />

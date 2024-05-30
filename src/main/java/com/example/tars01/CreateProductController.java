@@ -3,59 +3,66 @@ package com.example.tars01;
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
+import com.example.tars01.Servidor.ServerData;
+import com.example.tars01.Servidor.ServerManager;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.EventHandler;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static com.example.tars01.Funtions.cargarVista;
+import static com.example.tars01.Servidor.ServerManager.*;
 
 
 public class CreateProductController {
 
 
-    public static final int SERVER_PORT = 8080;
-    private ServerSocket serverSocket;
-    private boolean serverRunning = false;
+    public static Boolean OnView = false;
+
+
     private Timeline timeline;
-    @FXML
-    MenuItem seeCreate,editar,venta;
-    @FXML
-    TextField nameCreate,priceCreate,codeCreate;
-    @FXML
-    Label infoCreate,horaCreate;
-    @FXML
-    Button saveCreate;
-    @FXML
-    TableView tableViewShow;
-
+    String code;
 
     @FXML
-    private void initialize() {
+    public TextField nameCreate, priceCreate, codeCreate;
+    @FXML
+    public Label infoCreate, horaCreate;
+    @FXML
+    public Button saveCreate;
+    @FXML
+    public TableView tableViewShow;
 
-        TableColumn<Producto,String> idColum = new TableColumn<>("#Facura");
+    private ServerData serverData;
+
+
+
+
+
+
+
+
+
+    @FXML
+    public void initialize() {
+
+
+
+
+        TableColumn<Producto, String> idColum = new TableColumn<>("#Factura");
         idColum.setPrefWidth(300);
         idColum.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
 
@@ -67,7 +74,7 @@ public class CreateProductController {
         TableColumn<Producto, String> priceColumn = new TableColumn<>("Precio");
         priceColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
 
-        tableViewShow.getColumns().addAll(idColum,nameColumn, priceColumn);
+        tableViewShow.getColumns().addAll(idColum, nameColumn, priceColumn);
 
 
         //Ejecuta la función searchProduct cuando precionemos la tecla ENTER
@@ -97,92 +104,23 @@ public class CreateProductController {
         });
 
 
-
-
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
 
         timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
                     LocalDateTime now = LocalDateTime.now();
                     horaCreate.setText(formatter.format(now));
+                    ServerManager.GetCode(codeCreate);
                 })
         );
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
-    }
-
-
-    @FXML
-    private void OnServer() throws IOException {
-
-
-        if (seeCreate.getText().equals("Apagar")) {
-            serverSocket.close();
-            serverRunning = false;
-            seeCreate.setText("Encender");
-        } else if (seeCreate.getText().equals("Encender")) {
-            serverSocket = new ServerSocket(SERVER_PORT);
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                @Override
-                protected Void doInBackground() throws Exception {
-
-                    startServer();
-
-                    return null;
-                }
-            };
-
-            worker.execute();
-            seeCreate.setText("Apagar");
-        }
-
-    }
-
-
-    public void startServer() {
-        try {
-
-
-            serverRunning = true;
-            Platform.runLater(() -> infoCreate.setText("Servidor iniciado. Esperando conexiones..."));
-
-
-            while (serverRunning) {
-                Socket clientSocket = serverSocket.accept();
-                Platform.runLater(() -> infoCreate.setText("Cliente conectado desde " + clientSocket.getInetAddress()));
-                System.out.println("Cliente conectado desde " + clientSocket.getInetAddress());
-
-
-                try {
-                    BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-
-                    String message;
-                    while ((message = inputReader.readLine()) != null) {
-                        String codigoP = message.trim();
-
-                        Platform.runLater(() -> infoCreate.setText("Mensaje recibido"));
-//                      Platform.runLater(() -> textFieldItemCreate.setText(codigoP));
-                        Platform.runLater(() -> codeCreate.setText(codigoP));
-                        save();
-
-                        System.out.println(codigoP);
-
-                    }
-                } catch (IOException e) {
-                    Platform.runLater(() -> infoCreate.setText("Error al leer mensaje del cliente: " + e.getMessage()));
-
-
-                }
-            }
-        } catch (IOException e) {
-            Platform.runLater(() -> infoCreate.setText(e.getMessage()));
 
 
 
-        }
+
+
     }
 
 
@@ -190,13 +128,13 @@ public class CreateProductController {
         String name = nameCreate.getText();
         String price = priceCreate.getText();
         String id = codeCreate.getText();
-        Producto p = new Producto(name,price);
+        Producto p = new Producto(name, price);
         p.setId(id);
-        DatabaseManager.insertarProducto(p,infoCreate,tableViewShow);
+        DatabaseManager.insertarProducto(p, infoCreate, tableViewShow);
     }
 
 
-    public  void obtenerTodosLosProductos() {
+    public void obtenerTodosLosProductos() {
         int cantidad = 0;
         String sql = "SELECT codigo_barras, nombre, precio FROM productos";
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
@@ -206,16 +144,16 @@ public class CreateProductController {
                 String id = resultSet.getString("codigo_barras");
                 String name = resultSet.getString("nombre");
                 String price = resultSet.getString("precio");
-                Producto producto = new Producto(name,price);
+                Producto producto = new Producto(name, price);
                 producto.setId(id);
                 tableViewShow.getItems().add(producto);
                 tableViewShow.refresh();
                 cantidad++;
                 int finalCantidad = cantidad;
-                Platform.runLater(()->infoCreate.setText(finalCantidad +" productos obtenidos correctamente"));
+                Platform.runLater(() -> infoCreate.setText(finalCantidad + " productos obtenidos correctamente"));
             }
         } catch (SQLException e) {
-            Platform.runLater(()->infoCreate.setText("Error al obtener todos los productos"));
+            Platform.runLater(() -> infoCreate.setText("Error al obtener todos los productos"));
 
         }
 
@@ -229,9 +167,9 @@ public class CreateProductController {
         boolean isEmpty = nameValue.isEmpty() || priceValue.isEmpty() || codeValue.isEmpty();
 
 
-        if (isEmpty){
+        if (isEmpty) {
             Platform.runLater(() -> infoCreate.setText("Hay campos vacios, complételos"));
-        }else{
+        } else {
             Platform.runLater(() -> infoCreate.setText("Listo para crear el producto"));
         }
 
@@ -241,18 +179,16 @@ public class CreateProductController {
 
 
     public void cargarVistaEditar() {
-        cargarVista("Editar-View.fxml",nameCreate);
+        cargarVista("Editar-View.fxml", nameCreate);
     }
+
     public void cargarVistaVenta() {
-        cargarVista("Main-View.fxml",nameCreate);
+        cargarVista("Main-View.fxml", nameCreate);
     }
+
     public void cargarVistaBuscar() {
-        cargarVista("BuscarVenta-View.fxml",nameCreate);
+        cargarVista("BuscarVenta-View.fxml", nameCreate);
     }
-
-
-
-
 
 
 }

@@ -8,28 +8,6 @@
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.CreateProductController">
    <children>
-      <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
-         <menus>
-            <Menu mnemonicParsing="false" text="Vistas">
-               <items>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Crear Producto" />
-                  <MenuItem fx:id="editar" mnemonicParsing="false" onAction="#cargarVistaEditar" text="Editar Producto" />
-                  <MenuItem fx:id="venta" mnemonicParsing="false" onAction="#cargarVistaVenta" text="Nueva venta" />
-                  <MenuItem fx:id="buscar" mnemonicParsing="false" onAction="#cargarVistaBuscar"  text="Buscar venta" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Servidor">
-               <items>
-                  <MenuItem fx:id="seeCreate" mnemonicParsing="false" onAction="#OnServer" text="Encender" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Coming soon" />
-               </items>
-            </Menu>
-         </menus>
-      </MenuBar>
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
          <children>
             <Button fx:id="saveCreate" disable="true" layoutX="46.0" layoutY="252.0" mnemonicParsing="false" onAction="#save" prefHeight="35.0" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Crear" textAlignment="CENTER" textFill="WHITE">
