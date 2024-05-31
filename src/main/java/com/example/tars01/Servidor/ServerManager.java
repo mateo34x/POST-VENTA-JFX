@@ -1,13 +1,7 @@
 package com.example.tars01.Servidor;
 
-import com.example.tars01.BuscarVentasController;
-import com.example.tars01.CreateProductController;
 import com.example.tars01.Database.Producto;
-import com.example.tars01.HelloMain;
-import com.example.tars01.MainController;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
@@ -20,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.example.tars01.CreateProductController.OnView;

@@ -1,6 +1,5 @@
 package com.example.tars01;
 
-import com.example.tars01.Servidor.ServerData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

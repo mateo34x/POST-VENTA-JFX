@@ -2,7 +2,6 @@ package com.example.tars01;
 
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
-import com.example.tars01.Database.Producto;
 import com.example.tars01.Database.Ventas;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;

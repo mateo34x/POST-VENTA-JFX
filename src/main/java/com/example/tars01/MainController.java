@@ -10,7 +10,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -38,8 +37,6 @@ import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import static com.example.tars01.CreateProductController.OnView;
-
 
 
 public class MainController {
@@ -377,41 +374,7 @@ public class MainController {
         alert.setContentText(content);
         alert.showAndWait();
     }
-//    private void updateProductList(String searchText) {
-//        // Limpiamos el ListView
-//        productListView.getItems().clear();
 //
-//        // Si el campo está vacío, ocultamos el ListView
-//        if (searchText.isEmpty()) {
-//            productListView.setVisible(false);
-//            return;
-//        }
-//
-//        try (Connection connection = DriverManager.getConnection(Constans.URL1);
-//             PreparedStatement statement = connection.prepareStatement("SELECT nombre FROM productos WHERE codigo_barras LIKE ?");
-//        ) {
-//            // Hacemos la búsqueda en la base de datos
-//            statement.setString(1, "%" + searchText + "%");
-//            ResultSet resultSet = statement.executeQuery();
-//
-//            // Si no se encuentran resultados, ocultamos el ListView
-//            if (!resultSet.next()) {
-//                productListView.setVisible(false);
-//                return;
-//            }
-//
-//            // Mostramos el ListView y agregamos los resultados
-//            productListView.setVisible(true);
-//            do {
-//                productListView.getItems().add(resultSet.getString("nombre"));
-//            } while (resultSet.next());
-//
-//            // Ajustamos el tamaño del ListView según la cantidad de elementos
-//            productListView.setPrefHeight(productListView.getItems().size() * 22); // 24 es la altura de cada elemento
-//        }  catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
 
     public static void searchProduct(String searchText,
