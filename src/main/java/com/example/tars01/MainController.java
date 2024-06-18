@@ -10,9 +10,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -41,19 +47,16 @@ import java.util.*;
 
 public class MainController {
 
-    // TODO y vaciar este cuando se cierre la venta, tambien hacer algunas R al cerrar caja y sesión
-
 
     boolean onTurno = false;
 
 
-    public static final int SERVER_PORT = 8080;
     private ServerSocket serverSocket;
     static double totalVenta = 0.0;
     double totalPagado = 0.0;
     private Timeline timeline;
-    String cleanText,PagoOption;
-    String fecha, hora,NameUser;
+    String cleanText, PagoOption;
+    String fecha, hora, NameUser;
 
 
     @FXML
@@ -77,6 +80,15 @@ public class MainController {
     public TextField textFieldChange;
     @FXML
     public TextArea ReciboViewVenta;
+    @FXML
+    public AnchorPane busquedaB;
+
+    @FXML
+    public TextField QueryInput;
+    @FXML
+    public TableView<Producto> tableSearchQuery = new TableView<>();
+
+    private BuscarProductoController vista2Controller;
 
 
     JTextArea productosArea = new JTextArea();
@@ -95,7 +107,6 @@ public class MainController {
 
     @FXML
     public Button buttonSave;
-
     @FXML
     public MenuItem see;
     @FXML
@@ -103,21 +114,16 @@ public class MainController {
     @FXML
     public MenuItem tOFF;
     @FXML
-    public Button buttonClear1,buttonClear;
-
-
-    public MainController() throws IOException {
-    }
+    public Button buttonClear1, buttonClear;
 
 
     @FXML
     private void OnServer() throws IOException {
 
 
-        ServerManager.OnServer(see,info,textFieldItem,productCounts,tableView,precio,textFieldTotalQuantity);
+        ServerManager.OnServer(see, info, textFieldItem, productCounts, tableView, precio, textFieldTotalQuantity);
 
     }
-
 
 
     public void Logout() throws IOException {
@@ -181,9 +187,9 @@ public class MainController {
         System.out.println("User in controller: " + NameUser);
     }
 
+
     @FXML
     private void initialize() {
-
 
 
         TableColumn<Producto, String> nameColumn = new TableColumn<>("Nombre");
@@ -217,7 +223,6 @@ public class MainController {
         });
 
 
-
         precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -248,7 +253,6 @@ public class MainController {
         });
 
 
-
         tableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 1 && tableView.getSelectionModel().getSelectedItem() != null) {
                 Producto selectedProduct = tableView.getSelectionModel().getSelectedItem();
@@ -275,7 +279,6 @@ public class MainController {
                     textFieldTotalPaidAmount.setText(formattedValue);
 
 
-
                 }
             }
         });
@@ -291,10 +294,13 @@ public class MainController {
                     horaActual.setText(formatter.format(now));
                     fecha = formatterOther.format(now);
                     hora = formatterTime.format(now);
+
+
                 })
         );
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+
 
         productListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -317,10 +323,119 @@ public class MainController {
         );
 
 
-        optionSold.getSelectionModel().selectedItemProperty().addListener(( ov, t,  t1) -> {
+        optionSold.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             PagoOption = t1.toString();
 
         });
+
+
+        TableColumn<Producto, String> nameColumnS = new TableColumn<>("Code");
+        nameColumnS.setPrefWidth(142);
+        nameColumnS.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
+
+        TableColumn<Producto, String> priceColumnS = new TableColumn<>("Nombre");
+        priceColumnS.setPrefWidth(142);
+        priceColumnS.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+
+        TableColumn<Producto, String> quantityColumnS = new TableColumn<>("Precio");
+        quantityColumnS.setPrefWidth(142);
+        quantityColumnS.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
+
+        tableSearchQuery.getColumns().addAll(nameColumnS, priceColumnS, quantityColumnS);
+
+        QueryInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                updateProductList(newValue);
+            } else {
+                tableSearchQuery.getItems().clear();
+            }
+        });
+
+        tableSearchQuery.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 1 && tableSearchQuery.getSelectionModel().getSelectedItem() != null) {
+                Producto selectedProduct = tableSearchQuery.getSelectionModel().getSelectedItem();
+                System.out.println(selectedProduct.getId());
+                Platform.runLater(() -> textFieldItem.setText(selectedProduct.getId()));
+                searchProductT(selectedProduct.getId());
+
+            }
+        });
+
+        QueryInput.setOnKeyPressed(event ->{
+            if (event.getCode() == KeyCode.DOWN){
+                tableSearchQuery.requestFocus();
+            }
+
+        });
+
+//        tableSearchQuery.setOnKeyPressed(event->{
+//            if (event.getCode() == KeyCode.DOWN) {
+////                int selectedIndex = tableSearchQuery.getSelectionModel().getSelectedIndex();
+////                if (selectedIndex < tableSearchQuery.getItems().size() - 1) {
+////                    tableSearchQuery.getSelectionModel().selectNext();
+////                    System.out.println("Position: " + (selectedIndex + 1));
+////                }
+//                QueryInput.requestFocus();
+//                System.out.println("hola");
+//            } else if (event.getCode() == KeyCode.UP) {
+////                int selectedIndex = tableSearchQuery.getSelectionModel().getSelectedIndex();
+////                if (selectedIndex > 0) {
+////                    tableSearchQuery.getSelectionModel().selectPrevious();
+////                    System.out.println("Position: " + (selectedIndex - 1));
+////                } else {
+////                    System.out.println("Already at position 0, do something special here.");
+////                }
+//                System.out.println("adios");
+//            }
+//        });
+
+        tableSearchQuery.setOnKeyPressed(event ->{
+            if (event.getCode() == KeyCode.ENTER && tableSearchQuery.getSelectionModel().getSelectedItem() != null){
+
+                Producto selectedProduct = tableSearchQuery.getSelectionModel().getSelectedItem();
+                System.out.println(selectedProduct.getId());
+                Platform.runLater(() -> textFieldItem.setText(selectedProduct.getId()));
+                searchProductT(selectedProduct.getId());
+            }
+        });
+
+    }
+
+    private void updateProductList(String searchText) {
+        tableSearchQuery.getItems().clear();
+
+        if (searchText.isEmpty()) {
+            tableSearchQuery.getItems().clear();
+            return;
+        }
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT nombre, codigo_barras, precio FROM productos WHERE nombre LIKE ? OR codigo_barras LIKE ?")
+        ) {
+            String searchPattern = "%" + searchText + "%";
+            statement.setString(1, searchPattern);
+            statement.setString(2, searchPattern);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (!resultSet.next()) {
+                tableSearchQuery.getItems().clear();
+                return;
+            }
+
+
+            do {
+                String nombre = resultSet.getString("nombre");
+                String codigoBarras = resultSet.getString("codigo_barras");
+                String precio = resultSet.getString("precio");
+                Producto p = new Producto(nombre, precio);
+                p.setId(codigoBarras);
+                tableSearchQuery.getItems().add(p);
+            } while (resultSet.next());
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar productos: " + e.getMessage());
+        }
     }
 
     private void openDeleteDialog(int valueG, Producto producto) {
@@ -357,7 +472,7 @@ public class MainController {
                             "Ingrese una cantidad válida entre 1 y " + valueG);
                 }
 
-                if (totalVenta == 0.0){
+                if (totalVenta == 0.0) {
                     Platform.runLater(() -> textFieldTotalQuantity.clear());
                 }
             } catch (NumberFormatException e) {
@@ -378,8 +493,8 @@ public class MainController {
 
 
     public static void searchProduct(String searchText,
-                                     Map<String,Integer> productCounts,
-                                     TableView<Producto>tableView,
+                                     Map<String, Integer> productCounts,
+                                     TableView<Producto> tableView,
                                      TextField precio,
                                      TextField textFieldItem,
                                      TextField textFieldTotalQuantity,
@@ -461,12 +576,11 @@ public class MainController {
     }
 
 
-
     public void searchProductT(String searchText) {
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
         ) {
-            statement.setString(1, searchText.replace(" ", ""));
+            statement.setString(1, searchText);
             ResultSet resultSet = statement.executeQuery();
 
             boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
@@ -538,7 +652,6 @@ public class MainController {
         DecimalFormat df = new DecimalFormat("#,##0", symbols);
         return df.format(totalVenta);
     }
-
 
 
     public String getChange(double result) {
@@ -620,6 +733,10 @@ public class MainController {
         int numeroFacturaSiguiente = numeroFacturaActual + 1;
         String numeroFacturaFormateado = String.format("%03d", numeroFacturaSiguiente);
 
+        if (PagoOption == null) {
+            PagoOption = "Efectivo";
+        }
+
 
         StringBuilder reciboBuilder = new StringBuilder();
         reciboBuilder.append("        TIENDA LA BENDICIÓN DE DIOS\n")
@@ -678,7 +795,8 @@ public class MainController {
         System.out.println(productCounts.size());
 
 
-        if (productCounts.isEmpty()) {           if (!ServerManager.serverRunning){
+        if (productCounts.isEmpty()) {
+            if (!ServerManager.serverRunning) {
                 onTurno = false;
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
@@ -694,9 +812,9 @@ public class MainController {
                 see.setDisable(true);
                 textFieldChange.setDisable(true);
                 buttonClear.setDisable(true);
-                logArea.setText("El usuario ha terminado el turno a las: " + formatter.format(now));
+                logArea.setText("El usuario ha terminado su turno a las: " + formatter.format(now));
                 Platform.runLater(() -> info.setText("Turno terminado correctamente"));
-            }else{
+            } else {
                 Platform.runLater(() -> info.setText("Para finalizar su turno, apague el servidor"));
             }
 
@@ -753,10 +871,6 @@ public class MainController {
 
 
     }
-
-
-
-
 
 
 }

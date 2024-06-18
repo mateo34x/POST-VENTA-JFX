@@ -55,7 +55,7 @@ public class CreateProductController {
 
 
 
-        TableColumn<Producto, String> idColum = new TableColumn<>("#Factura");
+        TableColumn<Producto, String> idColum = new TableColumn<>("Code");
         idColum.setPrefWidth(300);
         idColum.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
 
@@ -108,6 +108,8 @@ public class CreateProductController {
         );
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+
+
 
 
 

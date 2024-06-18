@@ -1,5 +1,6 @@
 package com.example.tars01.Servidor;
 
+import br.com.adilson.util.PrinterMatrix;
 import com.example.tars01.Database.Producto;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -26,7 +27,11 @@ public class ServerManager {
     public static boolean serverRunning = false;
     public static final int SERVER_PORT = 8080;
     public static ServerSocket serverSocket;
-    public static String codigoP,mensaje;
+    public static String codigoP,mensaje,buscar;
+
+    PrinterMatrix printerMatrix = new PrinterMatrix();
+
+
 
 
 
@@ -120,6 +125,7 @@ public class ServerManager {
 
     public static void GetCode(TextField code){
         Platform.runLater(()->code.setText(codigoP));
+
     }
 
 

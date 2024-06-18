@@ -1,7 +1,9 @@
 package com.example.tars01;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,6 +30,7 @@ public class HelloMain extends Application {
     public void go(String user) throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Main-View.fxml"));
+
         Scene scene = new Scene(fxmlLoader.load());
         stage.setResizable(true);
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
@@ -35,12 +38,15 @@ public class HelloMain extends Application {
 
         MainController mainController = fxmlLoader.getController();
         mainController.setUser(user);
-        System.out.println("H: " + screenHeight + "\n" +
-                "W: " + screenWidth);
+
+
+
+
+
 
         scene.setOnKeyPressed(event -> {
             try {
-                BuscarProducto(event,stage);
+                BuscarProducto(event,stage,mainController);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -53,16 +59,25 @@ public class HelloMain extends Application {
         stage.show();
     }
 
-    public static String ShareData() {
-        return User;
-    }
 
-    public static void BuscarProducto(KeyEvent event, Stage stage) throws IOException {
+    public static void BuscarProducto(KeyEvent event, Stage stage,MainController mainController) throws IOException {
 
-        if (event.isControlDown() && event.getCode() == KeyCode.Q) {
 
-            HelloBuscarProducto.go();
+        if (mainController.onTurno){
+            if (event.isControlDown() && event.getCode() == KeyCode.Q) {
+
+                if (mainController.busquedaB.isVisible()){
+                    mainController.busquedaB.setVisible(false);
+                }else{
+                    mainController.busquedaB.setVisible(true);
+                    mainController.QueryInput.requestFocus();
+                }
+
+
+
+            }
         }
+
 
     }
 }
