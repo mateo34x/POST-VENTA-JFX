@@ -183,7 +183,7 @@ public class MainController {
 
     public void setUser(String user) {
         this.NameUser = user;
-        // Puedes usar el valor aquí, por ejemplo, actualizar una etiqueta
+        //Obtener permisos del usuario
         System.out.println("User in controller: " + NameUser);
     }
 
@@ -603,20 +603,22 @@ public class MainController {
 
             if (!productoEncontrado) {
 
+                precio.setDisable(false);
                 if (precio.getText().isEmpty()) {
-                    Platform.runLater(() -> info.setText("El campo de precio no puede estar vacío"));
+                    Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
                 } else {
                     if (productCounts.containsKey(textFieldItem.getText())) {
                         int indice = 0;
 
                         for (Producto producto : tableView.getItems()) {
-                            // Verificar si el nombre del producto coincide con el nombre buscado
                             if (producto.getName().equals(textFieldItem.getText())) {
 
                                 totalVenta += Double.parseDouble(precio.getText());
                                 tableView.getItems().get(indice).setPrice(precio.getText());
                                 productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
                                 tableView.refresh();
+                                precio.clear();
+                                precio.setDisable(true);
 
                                 break;
                             }
@@ -628,7 +630,8 @@ public class MainController {
                         tableView.getItems().add(new Producto(textFieldItem.getText(), precio.getText()));
                         productCounts.put(textFieldItem.getText(), 1);
                         totalVenta += Double.parseDouble(precio.getText());
-                        Platform.runLater(() -> info.setText("Producto no encontrado"));
+                        precio.setDisable(true);
+
                     }
                 }
 
@@ -755,7 +758,7 @@ public class MainController {
                 .append("           ¡GRACIAS POR SU COMPRA!\n");
 
         String contenidoRecibo = reciboBuilder.toString();
-        String rutaArchivo = "/home/tars/Documentos/FACTURAS/" + UUID.randomUUID();
+        String rutaArchivo = "/home/matt/Documentos/FACTURAS/" + UUID.randomUUID();
         FileWriter writer = new FileWriter(rutaArchivo);
         writer.write(contenidoRecibo);
         writer.close();
@@ -765,6 +768,7 @@ public class MainController {
         String prox = String.format("%03d", sig);
         Platform.runLater(() -> Nventa.setText(prox));
         Platform.runLater(() -> ReciboViewVenta.setText(String.valueOf(reciboBuilder)));
+        Platform.runLater(() -> ReciboViewVenta.setVisible(true));
 
 
     }
@@ -777,8 +781,8 @@ public class MainController {
         logArea.setText(formatter.format(now));
         tON.setDisable(true);
         tOFF.setDisable(false);
+        optionSold.setDisable(false);
         textFieldItem.setDisable(false);
-        precio.setDisable(false);
         textFieldTotalQuantity.setDisable(false);
         tableView.setDisable(false);
         buttonClear1.setDisable(false);
@@ -812,6 +816,7 @@ public class MainController {
                 see.setDisable(true);
                 textFieldChange.setDisable(true);
                 buttonClear.setDisable(true);
+                optionSold.setDisable(true);
                 logArea.setText("El usuario ha terminado su turno a las: " + formatter.format(now));
                 Platform.runLater(() -> info.setText("Turno terminado correctamente"));
             } else {

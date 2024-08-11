@@ -31,7 +31,7 @@ public class CreateProductController {
     String code;
 
     @FXML
-    public TextField nameCreate, priceCreate, codeCreate;
+    public TextField nameCreate, priceCreate, codeCreate, CStock;
     @FXML
     public Label infoCreate, horaCreate;
     @FXML
@@ -120,12 +120,21 @@ public class CreateProductController {
 
 
     public void save() {
+
         String name = nameCreate.getText();
         String price = priceCreate.getText();
         String id = codeCreate.getText();
-        Producto p = new Producto(name, price);
-        p.setId(id);
-        DatabaseManager.insertarProducto(p, infoCreate, tableViewShow);
+        String stock = CStock.getText();
+        if (!name.isEmpty()&&!price.isEmpty()&&!id.isEmpty()&&!stock.isEmpty()){
+            Producto p = new Producto(name, price);
+            p.setId(id);
+            p.setStock(stock);
+            DatabaseManager.insertarProducto(p, infoCreate, tableViewShow);
+        }else{
+            Platform.runLater(() -> infoCreate.setText("Hay campos vacios"));
+
+        }
+
     }
 
 

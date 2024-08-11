@@ -32,14 +32,23 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?import io.github.palexdev.materialfx.controls.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Blend?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.MainController">
+<?import io.github.palexdev.materialfx.controls.MFXListView?>
+<VBox xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.MainController">
     <children>
         <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
             <menus>
@@ -110,7 +119,7 @@
                         <Font name="JetBrains Mono Bold" size="16.0" />
                     </font>
                 </Label>
-                <Label fx:id="logArea" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="673.0" layoutY="47.0" style="-fx-text-fill: white;" text="No hay un turno activo">
+                <Label fx:id="logArea" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="610.0" layoutY="47.0" style="-fx-text-fill: white;" text="No hay un turno activo">
                     <font>
                         <Font name="JetBrains Mono Bold" size="16.0" />
                     </font>

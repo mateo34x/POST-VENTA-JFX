@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class Producto {
     private String id;
+    private String stock;
     private final SimpleStringProperty name;
     private final SimpleStringProperty price;
     private final SimpleIntegerProperty quantity;
@@ -24,6 +25,14 @@ public class Producto {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getStock() {
+        return stock;
+    }
+
+    public void setStock(String stock) {
+        this.stock = stock;
     }
 
     public String getName() {

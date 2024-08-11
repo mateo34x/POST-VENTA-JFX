@@ -16,7 +16,7 @@ public class DatabaseManager {
     public static void insertarProducto(Producto producto, Label info, TableView tableView) {
         DatabaseManager.createTable();
         String sqlSelect = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
-        String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio) VALUES (?, ?, ?)";
+        String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio, stock) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
@@ -34,8 +34,10 @@ public class DatabaseManager {
                 insertStatement.setString(1, producto.getId());
                 insertStatement.setString(2, producto.getName());
                 insertStatement.setString(3, producto.getPrice());
+                insertStatement.setString(4, producto.getStock());
                 insertStatement.executeUpdate();
                 obtenerTodosLosProductos(tableView, info);
+                Platform.runLater(() -> info.setText("Producto creado correctamente"));
             }
 
 
@@ -52,7 +54,8 @@ public class DatabaseManager {
             statement.execute("CREATE TABLE IF NOT EXISTS productos (" +
                     "codigo_barras TEXT PRIMARY KEY," +
                     "nombre TEXT," +
-                    "precio REAL)");
+                    "precio REAL," +
+                    "stock  TEXT)");
         } catch (SQLException e) {
             System.err.println("Error al crear la tabla de productos: " + e.getMessage());
         }

@@ -10,7 +10,7 @@
    <children>
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
          <children>
-            <Button fx:id="saveCreate" disable="true" layoutX="46.0" layoutY="252.0" mnemonicParsing="false" onAction="#save" prefHeight="35.0" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Crear" textAlignment="CENTER" textFill="WHITE">
+            <Button fx:id="saveCreate" disable="true" layoutX="46.0" layoutY="320.0" mnemonicParsing="false" onAction="#save" prefHeight="35.0" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Crear" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
@@ -36,13 +36,13 @@
                   <Font name="Calibri" size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="codeCreate" layoutX="46.0" layoutY="193.0" prefHeight="35.0" prefWidth="223.0" />
-            <Label layoutX="46.0" layoutY="166.0" prefHeight="27.0" prefWidth="66.0" style="-fx-text-fill: WHITE;" text="Codigo" textFill="WHITE">
+            <TextField fx:id="codeCreate" layoutX="46.0" layoutY="263.0" prefHeight="35.0" prefWidth="223.0" />
+            <Label layoutX="46.0" layoutY="236.0" prefHeight="27.0" prefWidth="66.0" style="-fx-text-fill: WHITE;" text="Codigo" textFill="WHITE">
                <font>
                   <Font name="Calibri" size="18.0" />
                </font>
             </Label>
-            <Label fx:id="infoCreate" alignment="TOP_LEFT" layoutX="46.0" layoutY="312.0" prefHeight="172.0" prefWidth="313.0" style="-fx-text-fill: white;" text="Sin novedades">
+            <Label fx:id="infoCreate" alignment="TOP_LEFT" layoutX="46.0" layoutY="389.0" prefHeight="172.0" prefWidth="313.0" style="-fx-text-fill: white;" text="Sin novedades">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -60,6 +60,12 @@
                   <Font name="System Bold" size="13.0" />
                </font>
             </Button>
+            <TextField fx:id="CStock" layoutX="46.0" layoutY="197.0" prefHeight="35.0" prefWidth="223.0" promptText="Cantidad disponible en almacen" />
+            <Label layoutX="46.0" layoutY="170.0" text="Stock" textFill="WHITE">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
    </children>
