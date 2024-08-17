@@ -46,7 +46,7 @@ public class HelloMain extends Application {
 
         scene.setOnKeyPressed(event -> {
             try {
-                BuscarProducto(event,stage,mainController);
+                EventosC(event,stage,mainController);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -60,7 +60,7 @@ public class HelloMain extends Application {
     }
 
 
-    public static void BuscarProducto(KeyEvent event, Stage stage,MainController mainController) throws IOException {
+    public static void EventosC(KeyEvent event, Stage stage,MainController mainController) throws IOException {
 
 
         if (mainController.onTurno){
@@ -73,8 +73,25 @@ public class HelloMain extends Application {
                     mainController.QueryInput.requestFocus();
                 }
 
+            }
 
 
+            if (event.isControlDown() && event.getCode() == KeyCode.O){
+                if (mainController.obser.isVisible()){
+                    mainController.obser.setVisible(false);
+                    mainController.labelItem121.setVisible(false);
+
+                }else{
+                    mainController.obser.setVisible(true);
+                    mainController.labelItem121.setVisible(true);
+                    mainController.obser.requestFocus();
+                }
+            }
+
+            if (event.getCode() == KeyCode.F){
+                if (mainController.ReciboViewVenta.isVisible()){
+                    mainController.ReciboViewVenta.setVisible(false);
+                }
             }
         }
 

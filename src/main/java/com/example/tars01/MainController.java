@@ -60,7 +60,7 @@ public class MainController {
 
 
     @FXML
-    public Label logArea;
+    public Label logArea, labelItem121, Tpago, TCambio;
     @FXML
     public Label info;
     @FXML
@@ -79,7 +79,7 @@ public class MainController {
     @FXML
     public TextField textFieldChange;
     @FXML
-    public TextArea ReciboViewVenta;
+    public TextArea ReciboViewVenta, obser;
     @FXML
     public AnchorPane busquedaB;
 
@@ -149,6 +149,8 @@ public class MainController {
 
 
     public void ClearSould() {
+
+
         tableView.getItems().clear();
         totalVenta = 0.0;
         totalPagado = 0.0;
@@ -301,7 +303,9 @@ public class MainController {
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
-
+        if (!productCounts.isEmpty()) {
+            buttonClear1.setDisable(false);
+        }
         productListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -324,6 +328,28 @@ public class MainController {
 
 
         optionSold.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
+
+            /*
+            Cuando se precione el boton de cerrar venta se muestre un mensaje de
+            seleccionar un método de pago si se escoge efectivo se muestran
+            las casillas para poner el valor pagado y el cambio si se escoge otro
+            metodo estos deben permanecer ocultos de igual forma si se paga en efectivo cuando
+            se termine la venta se deben ocultar nuevamente las casillas
+
+
+             */
+            if (t1.toString().equals("Efectivo")) {
+                textFieldTotalPaidAmount.setVisible(true);
+                textFieldChange.setVisible(true);
+                Tpago.setVisible(true);
+                TCambio.setVisible(true);
+            }else{
+                textFieldTotalPaidAmount.setVisible(false);
+                textFieldChange.setVisible(false);
+                Tpago.setVisible(false);
+                TCambio.setVisible(false);
+            }
+
             PagoOption = t1.toString();
 
         });
@@ -361,8 +387,8 @@ public class MainController {
             }
         });
 
-        QueryInput.setOnKeyPressed(event ->{
-            if (event.getCode() == KeyCode.DOWN){
+        QueryInput.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DOWN) {
                 tableSearchQuery.requestFocus();
             }
 
@@ -389,8 +415,8 @@ public class MainController {
 //            }
 //        });
 
-        tableSearchQuery.setOnKeyPressed(event ->{
-            if (event.getCode() == KeyCode.ENTER && tableSearchQuery.getSelectionModel().getSelectedItem() != null){
+        tableSearchQuery.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER && tableSearchQuery.getSelectionModel().getSelectedItem() != null) {
 
                 Producto selectedProduct = tableSearchQuery.getSelectionModel().getSelectedItem();
                 System.out.println(selectedProduct.getId());
@@ -748,12 +774,12 @@ public class MainController {
                 .append(" Fecha de venta: ").append(fecha).append(" ").append(hora).append("\n")
                 .append(" Atendido por: ").append(NameUser).append("\n")
                 .append(" Pago: ").append(PagoOption).append("\n")
-                .append(" Observaciones: ").append("").append("\n\n")
+                .append(" Observaciones: ").append(" ").append("\n").append(" "+obser.getText().toString()).append("\n\n")
                 .append(" Productos comprados ↓\n\n")
                 .append(productosArea.getText()).append("\n")
-                .append(" Total:$ ").append(format(String.valueOf(totalVenta))).append("\n")
-                .append(" Pago:$ ").append(format(String.valueOf(totalPagado))).append("\n")
-                .append(" Cambio:$ ").append(format(String.valueOf(result))).append("\n")
+                .append(" TOTAL:$ ").append(format(String.valueOf(totalVenta))).append("\n")
+                .append(" RECIBIDO:$ ").append(format(String.valueOf(totalPagado))).append("\n")
+                .append(" CAMBIO:$ ").append(format(String.valueOf(result))).append("\n")
                 .append("-----------------------------------------\n\n")
                 .append("           ¡GRACIAS POR SU COMPRA!\n");
 
