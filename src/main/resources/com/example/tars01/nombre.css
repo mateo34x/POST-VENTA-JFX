@@ -1,0 +1,31 @@
+.jfx-tree-table-view {
+    -fx-background-color: #191A19; /* Color de fondo de la tabla */
+    -fx-background-radius: 10; /* Radio de redondeo del fondo */
+    -fx-border-radius: 10; /* Radio de redondeo del borde */
+    -fx-border-color: #cccccc; /* Color del borde */
+    -fx-border-width: 0.7px; /* Grosor del borde */
+    -fx-padding: 7; /* Espacio entre el contenido y el borde */
+}
+
+.jfx-tree-table-view .tree-table-cell {
+    -fx-pref-height: 30px;
+    -fx-background-color: #191A19;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "JetBrains Mono"; /* Cambia "Arial" por la fuente que desees */
+
+
+}
+
+.jfx-tree-table-view .column-header .label {
+    -fx-text-fill: #B8E1DD;
+    -fx-padding: 10 0 10 0;
+    -fx-font-weight: bold;
+}
+
+.jfx-tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected {
+    -fx-background-color: WHITE;
+    -fx-table-cell-border-color: -fx-tree-table-color;
+    -fx-text-fill: WHITE;
+}
+
+

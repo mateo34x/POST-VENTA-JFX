@@ -68,6 +68,7 @@ public class HelloMain extends Application {
 
                 if (mainController.busquedaB.isVisible()){
                     mainController.busquedaB.setVisible(false);
+                    mainController.textFieldItem.requestFocus();
                 }else{
                     mainController.busquedaB.setVisible(true);
                     mainController.QueryInput.requestFocus();

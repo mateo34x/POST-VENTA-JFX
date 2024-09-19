@@ -13,7 +13,7 @@ import java.util.List;
 public class DatabaseManager {
 
 
-    public static void insertarProducto(Producto producto, Label info, TableView tableView) {
+    public static void insertarProducto(Producto producto, Label info, TableView tableView,TextField n,TextField p,TextField c,TextField cs) {
         DatabaseManager.createTable();
         String sqlSelect = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
         String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio, stock) VALUES (?, ?, ?, ?)";
@@ -37,12 +37,64 @@ public class DatabaseManager {
                 insertStatement.setString(4, producto.getStock());
                 insertStatement.executeUpdate();
                 obtenerTodosLosProductos(tableView, info);
-                Platform.runLater(() -> info.setText("Producto creado correctamente"));
+                Platform.runLater(() -> {
+                    info.setText("Producto creado correctamente");
+                    n.clear();
+                    p.clear();
+                    c.clear();
+                    cs.clear();
+                });
             }
 
 
         } catch (SQLException e) {
             Platform.runLater(() -> info.setText("Error al guardar el producto: " + e.getMessage()));
+
+        }
+    }
+
+
+    public static void insertarCliente(Cliente cliente, Label info, TextField n,TextField l,TextField i,TextField p,TextField c,TextField a) {
+        DatabaseManager.createTableClients();
+        String sqlSelect = "SELECT COUNT(*) AS count FROM clientes WHERE CC = ?";
+        String sqlInsert = "INSERT INTO clientes (CC, Name, lastName, Address, Number, Email) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL4);
+             PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
+             PreparedStatement insertStatement = connection.prepareStatement(sqlInsert)) {
+
+            selectStatement.setString(1, cliente.getId());
+            ResultSet resultSet = selectStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt("count");
+
+            if (count > 0) {
+                Platform.runLater(() -> info.setText("La cédula: " + cliente.getId() + " pertenece a un cliente ya existente"));
+
+            } else {
+                insertStatement.setString(1, cliente.getId());
+                insertStatement.setString(2, cliente.getName());
+                insertStatement.setString(3, cliente.getLastname());
+                insertStatement.setString(4, cliente.getAddress());
+                insertStatement.setString(5, cliente.getPhone());
+                insertStatement.setString(6, cliente.getEmail());
+                insertStatement.executeUpdate();
+                //obtenerTodosLosProductos(tableView, info);
+                Platform.runLater(() -> {
+                    info.setText("Cliente guardado correctamente");
+                    n.clear();
+                    l.clear();
+                    i.clear();
+                    p.clear();
+                    c.clear();
+                    a.clear();
+                });
+            }
+
+
+        } catch (SQLException e) {
+            Platform.runLater(() -> info.setText("Error al crear el cliente: " + e.getMessage()));
+            System.out.println(e.getMessage());
 
         }
     }
@@ -54,7 +106,7 @@ public class DatabaseManager {
             statement.execute("CREATE TABLE IF NOT EXISTS productos (" +
                     "codigo_barras TEXT PRIMARY KEY," +
                     "nombre TEXT," +
-                    "precio REAL," +
+                    "precio TEXT," +
                     "stock  TEXT)");
         } catch (SQLException e) {
             System.err.println("Error al crear la tabla de productos: " + e.getMessage());
@@ -87,6 +139,20 @@ public class DatabaseManager {
                     "detallesVenta TEXT)");
         } catch (SQLException e) {
             System.err.println("Error al crear la tabla de Ventas: " + e.getMessage());
+        }
+    }
+    public static void createTableClients(){
+        try (Connection connection = DriverManager.getConnection(Constans.URL4);
+             Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE IF NOT EXISTS clientes (" +
+                    "CC TEXT PRIMARY KEY," +
+                    "Name TEXT," +
+                    "lastName TEXT," +
+                    "Address TEXT," +
+                    "Number TEXT," +
+                    "Email TEXT)");
+        } catch (SQLException e) {
+            System.err.println("Error al crear la tabla de Clientes: " + e.getMessage());
         }
     }
 
@@ -251,6 +317,8 @@ public class DatabaseManager {
     public static void filtrarVenta(TableView tableView, TextArea info, String fechaI, String FechaE) {
 
     }
+
+
 
 }
 

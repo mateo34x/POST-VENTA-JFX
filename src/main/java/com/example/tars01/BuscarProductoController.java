@@ -44,11 +44,11 @@ public class BuscarProductoController {
 
         TableColumn<Producto, String> priceColumn = new TableColumn<>("Nombre");
         priceColumn.setPrefWidth(204);
-        priceColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        priceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
 
         TableColumn<Producto, String> quantityColumn = new TableColumn<>("Precio");
         quantityColumn.setPrefWidth(204);
-        quantityColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
+        quantityColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPrice()));
 
         tableSearchQuery.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
 

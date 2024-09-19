@@ -4,5 +4,6 @@ public class Constans {
     public static final String URL1 = "jdbc:sqlite:productos.db";
     public static final String URL2 = "jdbc:sqlite:users.db";
     public static final String URL3 = "jdbc:sqlite:ventas.db";
+    public static final String URL4 = "jdbc:sqlite:clientes.db";
 
 }

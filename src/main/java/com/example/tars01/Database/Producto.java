@@ -1,22 +1,23 @@
 package com.example.tars01.Database;
 
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Producto {
+public class Producto extends RecursiveTreeObject<Producto> {
     private String id;
     private String stock;
-    private final SimpleStringProperty name;
-    private final SimpleStringProperty price;
-    private final SimpleIntegerProperty quantity;
+    private String name;
+    private String price;
+    private String quantity;
 
 
-
+    public Producto() {
+    }
 
     public Producto(String name, String price) {
-        this.name = new SimpleStringProperty(name);
-        this.price = new SimpleStringProperty(price);
-        this.quantity = new SimpleIntegerProperty(1); // Cantidad inicial es 1
+        this.name = name;
+        this.price = price;
     }
 
     public String getId() {
@@ -36,35 +37,26 @@ public class Producto {
     }
 
     public String getName() {
-        return name.get();
-    }
-
-    public SimpleStringProperty nameProperty() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getPrice() {
-        return price.get();
-    }
-
-    public void setPrice(String newPrice){
-        price.set(newPrice);
-
-    }
-
-    public SimpleStringProperty priceProperty() {
         return price;
     }
 
-    public int getQuantity() {
-        return quantity.get();
+    public void setPrice(String price) {
+        this.price = price;
     }
 
-    public void setQuantity(int newQuantity) {
-        quantity.set(newQuantity);
-    }
-
-    public SimpleIntegerProperty quantityProperty() {
+    public String getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
     }
 }

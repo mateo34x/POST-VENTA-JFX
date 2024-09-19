@@ -62,10 +62,10 @@ public class CreateProductController {
 
         TableColumn<Producto, String> nameColumn = new TableColumn<>("Nombre");
         nameColumn.setPrefWidth(240);
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
 
         TableColumn<Producto, String> priceColumn = new TableColumn<>("Precio");
-        priceColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
+        priceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPrice()));
 
         tableViewShow.getColumns().addAll(idColum, nameColumn, priceColumn);
 
@@ -103,7 +103,7 @@ public class CreateProductController {
                 new KeyFrame(Duration.seconds(1), event -> {
                     LocalDateTime now = LocalDateTime.now();
                     horaCreate.setText(formatter.format(now));
-                    ServerManager.GetCode(codeCreate);
+
                 })
         );
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -129,7 +129,7 @@ public class CreateProductController {
             Producto p = new Producto(name, price);
             p.setId(id);
             p.setStock(stock);
-            DatabaseManager.insertarProducto(p, infoCreate, tableViewShow);
+            DatabaseManager.insertarProducto(p, infoCreate, tableViewShow,nameCreate,priceCreate,codeCreate,CStock);
         }else{
             Platform.runLater(() -> infoCreate.setText("Hay campos vacios"));
 
@@ -139,27 +139,30 @@ public class CreateProductController {
 
 
     public void obtenerTodosLosProductos() {
-        int cantidad = 0;
-        String sql = "SELECT codigo_barras, nombre, precio FROM productos";
-        try (Connection connection = DriverManager.getConnection(Constans.URL1);
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                String id = resultSet.getString("codigo_barras");
-                String name = resultSet.getString("nombre");
-                String price = resultSet.getString("precio");
-                Producto producto = new Producto(name, price);
-                producto.setId(id);
-                tableViewShow.getItems().add(producto);
-                tableViewShow.refresh();
-                cantidad++;
-                int finalCantidad = cantidad;
-                Platform.runLater(() -> infoCreate.setText(finalCantidad + " productos obtenidos correctamente"));
-            }
-        } catch (SQLException e) {
-            Platform.runLater(() -> infoCreate.setText("Error al obtener todos los productos"));
+        if (tableViewShow.getItems().isEmpty()){
+            int cantidad = 0;
+            String sql = "SELECT codigo_barras, nombre, precio FROM productos";
+            try (Connection connection = DriverManager.getConnection(Constans.URL1);
+                 PreparedStatement statement = connection.prepareStatement(sql);
+                 ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String id = resultSet.getString("codigo_barras");
+                    String name = resultSet.getString("nombre");
+                    String price = resultSet.getString("precio");
+                    Producto producto = new Producto(name, price);
+                    producto.setId(id);
+                    tableViewShow.getItems().add(producto);
+                    tableViewShow.refresh();
+                    cantidad++;
+                    int finalCantidad = cantidad;
+                    Platform.runLater(() -> infoCreate.setText(finalCantidad + " productos obtenidos correctamente"));
+                }
+            } catch (SQLException e) {
+                Platform.runLater(() -> infoCreate.setText("Error al obtener todos los productos"));
 
+            }
         }
+
 
     }
 
@@ -177,7 +180,6 @@ public class CreateProductController {
             Platform.runLater(() -> infoCreate.setText("Listo para crear el producto"));
         }
 
-        // Desactiva el botón si alguno de los campos está vacío o si el precio no ha cambiado
         Platform.runLater(() -> saveCreate.setDisable(isEmpty));
     }
 
