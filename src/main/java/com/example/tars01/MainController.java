@@ -4,8 +4,6 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
 import com.example.tars01.Printer.Command;
-import com.example.tars01.Printer.ImageP;
-import com.example.tars01.Printer.PicturePrinterThermal;
 import com.example.tars01.Printer.PrinterCommand;
 import com.example.tars01.Servidor.ServerManager;
 import com.jfoenix.controls.JFXTreeTableView;
@@ -16,14 +14,10 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,22 +25,16 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import zj.com.customize.sdk.Other;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.usb.UsbException;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +44,6 @@ import java.text.DecimalFormatSymbols;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
@@ -78,7 +65,7 @@ public class MainController {
     double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText, PagoOption;
-    String fecha, hora, NameUser;
+    String fecha, hora, NameUser,Permission;
 
 
     @FXML
@@ -178,6 +165,18 @@ public class MainController {
         productCounts.clear();
         tableView.refresh();
         Platform.runLater(() -> info.setText("Venta cancelada con éxito"));
+        optionSold.setValue("Tipo de pago");
+        optionSold.setButtonCell(new ListCell<String>(){
+            @Override
+            protected void updateItem(String s, boolean b) {
+                super.updateItem(s, b);
+                if (b || s == null) {
+                    setText("Select Subject");
+                } else {
+                    setText(s);
+                }
+            }
+        } );
 
 
     }
@@ -216,10 +215,12 @@ public class MainController {
 
     }
 
-    public void setUser(String user) {
+    public void setUser(String user,String per) {
         this.NameUser = user;
+        this.Permission = per;
         //Obtener permisos del usuario
         System.out.println("User in controller: " + NameUser);
+        System.out.println("User permission: " + Permission);
     }
 
 
@@ -388,17 +389,28 @@ public class MainController {
 
         optionSold.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 
-            if (t1.equals("Efectivo")) {
-                textFieldTotalPaidAmount.setVisible(true);
-                textFieldChange.setVisible(true);
-                Tpago.setVisible(true);
-                TCambio.setVisible(true);
-            } else {
-                textFieldTotalPaidAmount.setVisible(false);
-                textFieldChange.setVisible(false);
-                Tpago.setVisible(false);
-                TCambio.setVisible(false);
+            switch (t1){
+                case "Efectivo":
+                    textFieldTotalPaidAmount.setVisible(true);
+                    textFieldChange.setVisible(true);
+                    textFieldTotalPaidAmount.requestFocus();
+                    Tpago.setVisible(true);
+                    TCambio.setVisible(true);
+                    break;
+                case "Nequi":
+
+                    buttonSave.setDisable(false);
+                    totalPagado = totalVenta;
+                    break;
+                default:
+                    textFieldTotalPaidAmount.setVisible(false);
+                    textFieldChange.setVisible(false);
+                    Tpago.setVisible(false);
+                    TCambio.setVisible(false);
+                    break;
             }
+
+
 
             PagoOption = t1;
 
@@ -582,6 +594,7 @@ public class MainController {
                                      TextField textFieldItem,
                                      TextField textFieldTotalQuantity,
                                      Label info) {
+        DatabaseManager.createTable();
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
         ) {
@@ -658,6 +671,7 @@ public class MainController {
 
 
     public void searchProductT(String searchText) {
+        DatabaseManager.createTable();
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
              PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
         ) {
@@ -691,6 +705,7 @@ public class MainController {
                 precio.setDisable(false);
                 if (precio.getText().isEmpty()) {
                     Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
+                    precio.requestFocus();
                 } else {
                     if (productCounts.containsKey(textFieldItem.getText())) {
                         int indice = 0;
@@ -701,7 +716,7 @@ public class MainController {
                                 totalVenta += Double.parseDouble(precio.getText());
                                 TreeItem<Producto> itemToUpdate = tableView.getRoot().getChildren().get(indice);
                                 Producto producto = itemToUpdate.getValue();
-                                producto.setPrice(df.format(precio.getText()));
+                                producto.setPrice(precio.getText());
                                 productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
                                 tableView.refresh();
                                 precio.clear();
@@ -717,10 +732,11 @@ public class MainController {
                         tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(textFieldItem.getText(), precio.getText())));
                         productCounts.put(textFieldItem.getText(), 1);
                         totalVenta += Double.parseDouble(precio.getText());
-                        precio.setDisable(true);
+                        Platform.runLater(()->precio.clear());
 
                     }
                     textFieldItem.clear();
+                    textFieldItem.requestFocus();
                 }
 
 
@@ -789,33 +805,42 @@ public class MainController {
     }
 
 
-    public void entregar() {
+    public void entregar() throws IOException {
+
+        if (PagoOption.equals("Nequi")){
+            double result = totalPagado - totalVenta;
+            actualizarProductosArea();
+            generarRecibo(result);
+            productCounts.clear();
+            ClearSouldV();
+        } else if (PagoOption.equals("Efectivo")) {
+            cleanText = textFieldTotalPaidAmount.getText().replaceAll("'", "");
+            try {
+                totalPagado = Double.parseDouble(cleanText);
+                if (totalPagado >= totalVenta) {
+                    double result = totalPagado - totalVenta;
+                    actualizarProductosArea();
+                    generarRecibo(result);
+                    Platform.runLater(() -> textFieldChange.setText(getChange(result)));
+                    System.out.println("Valor a devolver: " + (totalPagado - totalVenta));
+                    productCounts.clear();
+                    ClearSouldV();
 
 
-        cleanText = textFieldTotalPaidAmount.getText().replaceAll("'", "");
-        try {
-            totalPagado = Double.parseDouble(cleanText);
-            if (totalPagado >= totalVenta) {
-                double result = totalPagado - totalVenta;
-                actualizarProductosArea();
-                generarRecibo(result);
-                Platform.runLater(() -> textFieldChange.setText(getChange(result)));
-                System.out.println("Valor a devolver: " + (totalPagado - totalVenta));
-                productCounts.clear();
-                ClearSouldV();
+                } else {
+                    info.setText("El valor pagado debe ser mayor al total de venta");
+                }
 
+            } catch (NumberFormatException e) {
+                // Manejar la excepción si el texto no es un número válido
+                e.printStackTrace();
 
-            } else {
-                info.setText("El valor pagado debe ser mayor al total de venta");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-
-        } catch (NumberFormatException e) {
-            // Manejar la excepción si el texto no es un número válido
-            e.printStackTrace();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+
+
 
     }
 
@@ -851,7 +876,7 @@ public class MainController {
         writer.write(contenidoRecibo);
         writer.close();
         DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, totalVenta, totalPagado, result, contenidoRecibo, info);
-        //Print_Ex(result);
+        Print_Ex(result);
 
 
         int actual = DatabaseManager.NVentas();
@@ -971,7 +996,8 @@ public class MainController {
             }
 
 
-            productosArea.append(String.format("| %-11s", "$ " + format(item.getValue().getPrice()))); // Ajusta el ancho de la columna "Precio"
+
+            productosArea.append(String.format("| %-11s", "$ " + item.getValue().getPrice())); // Ajusta el ancho de la columna "Precio"
             productosArea.append(String.format("| %-8s", "  x " + productCounts.get(item.getValue().getName()))); // Ajusta el ancho de la columna "Cantidad"
             productosArea.append("Ý\n");
             contando++;
@@ -1015,7 +1041,7 @@ public class MainController {
 
         String Nfactura2 = " Factura: #" + String.format("%03d", numeroFacturaActual) + "\n" +
                 " Fecha:" + fecha + " " + hora + "\n" +
-                " Atendido por: " + "Dra.Erika" + "\n\n" +
+                " Atendido por: " + NameUser + "\n\n" +
 
                 " Cliente: Josefina \n" +
                 " Observaciones: " + " " + "\n" + " " + "* Ninguna" + "\n\n" +
@@ -1028,23 +1054,30 @@ public class MainController {
             sendData(out, IniciarImpresora());
             sendData(out, SetCodePageOEM850());
             //byte[] qrcode = PrinterCommand.getBarCommand("Zijiang Electronic Thermal Receipt Printer!", 1, 3, 8);
-            sendData(out, Aling(1));
-            printImage(ImageIO.read(new File("/home/matt/Downloads/logoa.png")), out, false);
+            Command.ESC_Align[2] = 0x01;
+            sendData(out,Command.ESC_Align);
+            printImage(ImageIO.read(new File("/home/matt/Downloads/logoa.jpg")), out, false);
             sendData(out, setBold(true));
             sendData(out, ("VITAL CLINICA VETERINARIA\n" +
                     "&\n" +
-                    "PET SHOP\n\n").getBytes());
+                    "PET SHOP\n").getBytes());
+            sendData(out,"NIT: 1110482049-8\n".getBytes());
+            sendData(out,"Dir: MZ2 CS23 1etp.Jordan IBAGUE-TOLIMA\n".getBytes());
+            sendData(out,"TEL: 3144658553\n\n".getBytes());
+
             sendData(out, setBold(false));
 
 
-            sendData(out,Aling(0));
+            Command.ESC_Align[2] = 0x00;
+            sendData(out,Command.ESC_Align);
             sendData(out, Nfactura2.getBytes(StandardCharsets.ISO_8859_1));
 
             sendData(out, Objects.requireNonNull(printMixedText("TOTAL:$ ", format(String.valueOf(totalVenta)) + "\n")));
             sendData(out, Objects.requireNonNull(printMixedText("RECIBIDO:$ ", format(String.valueOf(totalPagado)) + "\n")));
             sendData(out, Objects.requireNonNull(printMixedText("CAMBIO:$ ", format(String.valueOf(result)) + "\n")));
             sendData(out, "-----------------------------------------\n\n".getBytes());
-            sendData(out,Aling(1));
+            Command.ESC_Align[2] = 0x01;
+            sendData(out,Command.ESC_Align);
 
 
             byte[] code = PrinterCommand.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
@@ -1060,7 +1093,6 @@ public class MainController {
             ArrayList<String> Banner = new ArrayList<>();
             Banner.add("/home/matt/Downloads/cat1.png");
             Banner.add("/home/matt/Downloads/cats2.jpg");
-            Banner.add("/home/matt/Downloads/dogs.jpg");
             Banner.add("/home/matt/Downloads/dogs2.jpg");
             printImage(ImageIO.read(new File(RandomImageBannerDown(Banner))), out, true);
 

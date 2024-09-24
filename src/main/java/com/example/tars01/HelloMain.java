@@ -19,7 +19,7 @@ public class HelloMain extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        go("");
+        go("","");
     }
 
     public static void main(String[] args) {
@@ -27,7 +27,7 @@ public class HelloMain extends Application {
     }
 
 
-    public void go(String user) throws IOException {
+    public void go(String user,String permision) throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Main-View.fxml"));
 
@@ -37,7 +37,7 @@ public class HelloMain extends Application {
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 
         MainController mainController = fxmlLoader.getController();
-        mainController.setUser(user);
+        mainController.setUser(user,permision);
 
 
 

@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.RegistreController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #101015;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.RegistreController">
     <children>
-        <Label layoutX="87.0" layoutY="49.0" style="-fx-text-fill: #FFFFFF;" text="Sign Up">
+        <Label layoutX="87.0" layoutY="49.0" style="-fx-text-fill: #FFFFFF;" text="Registro">
          <font>
             <Font name="JetBrains Mono Bold" size="21.0" />
          </font></Label>
         <TextField fx:id="nombreVerdaderoField" layoutX="87.0" layoutY="99.0" prefWidth="200.0" promptText="Nombre Verdadero" style="-fx-text-fill: WHITE; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
-        <TextField fx:id="nombreUsuarioField" layoutX="87.0" layoutY="144.0" prefHeight="24.0" prefWidth="145.0" promptText="Nombre de usuario" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
-        <PasswordField fx:id="passwordField" layoutX="87.0" layoutY="188.0" prefHeight="24.0" prefWidth="145.0" promptText="Contraseña" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
-        <Label fx:id="messageLabel" layoutX="89.0" layoutY="237.0" prefHeight="18.0" prefWidth="250.0" style="-fx-text-fill: #ED2B2A;" textFill="RED" />
+        <TextField fx:id="nombreUsuarioField" layoutX="87.0" layoutY="146.0" prefHeight="24.0" prefWidth="145.0" promptText="Nombre de usuario" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
+        <PasswordField fx:id="passwordField" layoutX="87.0" layoutY="182.0" prefHeight="24.0" prefWidth="145.0" promptText="Contraseña" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" />
+        <PasswordField fx:id="MasterField" layoutX="87.0" layoutY="255.0" prefHeight="24.0" prefWidth="145.0" promptText="Clave Maestra" style="-fx-text-fill: #F5E8C7; -fx-background-color: #545D6C; -fx-background-radius: 5; -fx-border-radius: 10;" visible="false" />
+
+        <Label fx:id="messageLabel" layoutX="89.0" layoutY="305.0" prefHeight="18.0" prefWidth="250.0" style="-fx-text-fill: #daff53;" textFill="#daff53">
+         <font>
+            <Font name="JetBrains Mono Regular" size="13.0" />
+         </font></Label>
       
-      <MFXButton layoutX="89.0" layoutY="270.0" onAction="#guardar" prefHeight="26.0" prefWidth="100.0" style="-fx-background-color: #545D6C; -fx-text-fill: WHITE;" text="Crear" />
+      <MFXButton fx:id="saveUser" disable="true" layoutX="89.0" layoutY="331.0" onAction="#guardar" prefHeight="26.0" prefWidth="100.0" style="-fx-background-color: #545D6C; -fx-text-fill: WHITE;" text="Crear" />
       <ImageView fitHeight="404.0" fitWidth="295.0" layoutX="353.0" pickOnBounds="true">
          <image>
             <Image url="https://i.pinimg.com/564x/53/93/91/5393911f9563d60d454b39ea5a2485be.jpg" />
          </image></ImageView>
+      <ComboBox fx:id="optionsPer" layoutX="88.0" layoutY="218.0" prefWidth="150.0" promptText="Permisos" />
+
     </children>
    <effect>
       <DropShadow />

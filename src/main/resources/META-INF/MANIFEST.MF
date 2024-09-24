@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.example.tars01.Launcher
+Main-Class: com.example.tars01.HelloApplication
 

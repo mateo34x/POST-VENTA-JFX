@@ -71,7 +71,7 @@ public class LoginController {
 
     private void VerificarUser(String user, String pass) {
         DatabaseManager.createTableUser();
-        String sqlSelect = "SELECT User, pass, name FROM users WHERE User = ?";
+        String sqlSelect = "SELECT user, pass, name, per FROM users WHERE User = ?";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL2);
              PreparedStatement selectStatement = connection.prepareStatement(sqlSelect)) {
@@ -80,9 +80,10 @@ public class LoginController {
             ResultSet resultSet = selectStatement.executeQuery();
 
             if (resultSet.next()) {
-                String storedUser = resultSet.getString("User");
+                String storedUser = resultSet.getString("user");
                 String storedPass = resultSet.getString("pass");
                 String storedName = resultSet.getString("name");
+                String storedPermission = resultSet.getString("per");
 
                 // Verificar si las contraseñas coinciden
                 if (pass.equals(storedPass)) {
@@ -90,7 +91,7 @@ public class LoginController {
                     Stage stage = (Stage) I.getScene().getWindow();
                     stage.close();
                     HelloMain h = new HelloMain();
-                    h.go(storedName);
+                    h.go(storedName,storedPermission);
                 } else {
                     messageLabel.setText("Contraseña incorrecta");
                     Funtions.ChangeMessage(messageLabel, 0,"");

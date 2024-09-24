@@ -120,6 +120,7 @@ public class DatabaseManager {
                     "code TEXT PRIMARY KEY," +
                     "name TEXT," +
                     "user TEXT," +
+                    "per TEXT," +
                     "pass TEXT)");
         } catch (SQLException e) {
             System.err.println("Error al crear la tabla de users: " + e.getMessage());
