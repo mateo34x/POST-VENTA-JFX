@@ -101,8 +101,8 @@ public class BuscarProductoController {
                 String nombre = resultSet.getString("nombre");
                 String codigoBarras = resultSet.getString("codigo_barras");
                 String precio = resultSet.getString("precio");
-                Producto p = new Producto(nombre, precio);
-                p.setId(codigoBarras);
+                Producto p = new Producto(codigoBarras,nombre, precio);
+
                 tableSearchQuery.getItems().add(p);
             } while (resultSet.next());
 

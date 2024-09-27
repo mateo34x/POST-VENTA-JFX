@@ -126,8 +126,8 @@ public class CreateProductController {
         String id = codeCreate.getText();
         String stock = CStock.getText();
         if (!name.isEmpty()&&!price.isEmpty()&&!id.isEmpty()&&!stock.isEmpty()){
-            Producto p = new Producto(name, price);
-            p.setId(id);
+            Producto p = new Producto(id,name, price);
+
             p.setStock(stock);
             DatabaseManager.insertarProducto(p, infoCreate, tableViewShow,nameCreate,priceCreate,codeCreate,CStock);
         }else{
@@ -149,7 +149,7 @@ public class CreateProductController {
                     String id = resultSet.getString("codigo_barras");
                     String name = resultSet.getString("nombre");
                     String price = resultSet.getString("precio");
-                    Producto producto = new Producto(name, price);
+                    Producto producto = new Producto(id,name, price);
                     producto.setId(id);
                     tableViewShow.getItems().add(producto);
                     tableViewShow.refresh();

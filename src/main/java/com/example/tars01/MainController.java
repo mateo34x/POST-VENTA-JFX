@@ -65,7 +65,7 @@ public class MainController {
     double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText, PagoOption;
-    String fecha, hora, NameUser,Permission;
+    String fecha, hora, NameUser, Permission;
 
 
     @FXML
@@ -166,7 +166,7 @@ public class MainController {
         tableView.refresh();
         Platform.runLater(() -> info.setText("Venta cancelada con éxito"));
         optionSold.setValue("Tipo de pago");
-        optionSold.setButtonCell(new ListCell<String>(){
+        optionSold.setButtonCell(new ListCell<String>() {
             @Override
             protected void updateItem(String s, boolean b) {
                 super.updateItem(s, b);
@@ -176,7 +176,7 @@ public class MainController {
                     setText(s);
                 }
             }
-        } );
+        });
 
 
     }
@@ -198,7 +198,7 @@ public class MainController {
         productCounts.clear();
         tableView.refresh();
         optionSold.setValue("Tipo de pago");
-        optionSold.setButtonCell(new ListCell<String>(){
+        optionSold.setButtonCell(new ListCell<String>() {
             @Override
             protected void updateItem(String s, boolean b) {
                 super.updateItem(s, b);
@@ -208,14 +208,14 @@ public class MainController {
                     setText(s);
                 }
             }
-        } );
+        });
         Platform.runLater(() -> info.setText("Venta realizada con éxito"));
         Funtions.ClearMessage(textFieldChange, 0);
 
 
     }
 
-    public void setUser(String user,String per) {
+    public void setUser(String user, String per) {
         this.NameUser = user;
         this.Permission = per;
         //Obtener permisos del usuario
@@ -232,6 +232,14 @@ public class MainController {
         df = new DecimalFormat("#,##0", symbols);
 
 
+        TreeTableColumn<Producto, String> codeColumn = new TreeTableColumn<>("CODE");
+        codeColumn.setPrefWidth(163);
+        codeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().getId()));
+        codeColumn.setResizable(false);
+        codeColumn.setReorderable(false);
+        codeColumn.setVisible(false);
+
+
         TreeTableColumn<Producto, String> nameColumn = new TreeTableColumn<>("NOMBRE");
         nameColumn.setPrefWidth(163);
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().getName()));
@@ -239,27 +247,22 @@ public class MainController {
         nameColumn.setReorderable(false);
 
 
-        TreeTableColumn<Producto, String> priceColumn = new TreeTableColumn<>("PRECIO");
-        priceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().getPrice()));
-        priceColumn.setPrefWidth(163);
-        priceColumn.setResizable(false);
-        priceColumn.setReorderable(false);
-        priceColumn.setStyle("-fx-alignment: CENTER;");
+        TreeTableColumn<Producto, String> priceColumn = getProductoStringTreeTableColumn();
 
         TreeTableColumn<Producto, Integer> quantityColumn = new TreeTableColumn<>("CANTIDAD");
-        quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(productCounts.getOrDefault(cellData.getValue().getValue().getName(), 0)).asObject());
+        quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(productCounts.get(cellData.getValue().getValue().getId())).asObject());
         quantityColumn.setPrefWidth(163);
         quantityColumn.setResizable(false);
         quantityColumn.setReorderable(false);
         quantityColumn.setStyle("-fx-alignment: CENTER;");
 
-        tableView.getColumns().addAll(nameColumn, priceColumn, quantityColumn);
+        tableView.getColumns().addAll(codeColumn, nameColumn, priceColumn, quantityColumn);
         ScrollPane scrollPane = (ScrollPane) tableView.lookup(".scroll-pane");
         if (scrollPane != null) {
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         }
 
-        TreeItem<Producto> root = new TreeItem<>(new Producto("Root", "Item"));
+        TreeItem<Producto> root = new TreeItem<>(new Producto("code", "Root", "Item"));
         tableView.setRoot(root);
         tableView.setShowRoot(false);
 
@@ -303,6 +306,7 @@ public class MainController {
             }
         });
 
+
         textFieldTotalQuantity.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
                 Platform.runLater(() -> textFieldTotalPaidAmount.setDisable(false));
@@ -318,10 +322,11 @@ public class MainController {
                 if (event.getClickCount() == 1 && !row.isEmpty()) {
                     Producto rowData = row.getItem();
                     System.out.println(rowData.getName());
+                    System.out.println(rowData.getId());
 
-                    if (productCounts.containsKey(rowData.getName())) {
+                    if (productCounts.containsKey(rowData.getId())) {
                         System.out.println(productCounts.get(rowData.getName()));
-                        openDeleteDialog(productCounts.get(rowData.getName()), rowData);
+                        openDeleteDialog(productCounts.get(rowData.getId()), rowData);
                     }
                 }
             });
@@ -343,6 +348,21 @@ public class MainController {
                 }
             }
         });
+
+        precio.textProperty().addListener((observable, oldValue, newValue) ->{
+            if (!newValue.isEmpty()) {
+
+                String formattedValue = jTextField1KeyTyped(newValue);
+
+                if (!formattedValue.equals(newValue)) {
+
+                    precio.setText(formattedValue);
+
+
+                }
+            }
+        });
+
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
@@ -386,10 +406,9 @@ public class MainController {
         );
 
 
-
         optionSold.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 
-            switch (t1){
+            switch (t1) {
                 case "Efectivo":
                     textFieldTotalPaidAmount.setVisible(true);
                     textFieldChange.setVisible(true);
@@ -409,7 +428,6 @@ public class MainController {
                     TCambio.setVisible(false);
                     break;
             }
-
 
 
             PagoOption = t1;
@@ -487,6 +505,34 @@ public class MainController {
 
     }
 
+    private static TreeTableColumn<Producto, String> getProductoStringTreeTableColumn() {
+        TreeTableColumn<Producto, String> priceColumn = new TreeTableColumn<>("PRECIO");
+        priceColumn.setCellFactory(column -> {
+            return new TreeTableCell<Producto, String>() {
+                @Override
+                protected void updateItem(String price, boolean empty) {
+                    super.updateItem(price, empty);
+                    if (empty || price == null) {
+                        setText(null);
+                    } else {
+                        try {
+                            double parsedPrice = Double.parseDouble(price);
+                            setText(df.format(parsedPrice));
+                        } catch (NumberFormatException e) {
+                            setText(price);
+                        }
+                    }
+                }
+            };
+        });
+        priceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().getPrice()));
+        priceColumn.setPrefWidth(163);
+        priceColumn.setResizable(false);
+        priceColumn.setReorderable(false);
+        priceColumn.setStyle("-fx-alignment: CENTER;");
+        return priceColumn;
+    }
+
     private void updateProductList(String searchText) {
         tableSearchQuery.getItems().clear();
 
@@ -514,7 +560,7 @@ public class MainController {
                 String nombre = resultSet.getString("nombre");
                 String codigoBarras = resultSet.getString("codigo_barras");
                 String precio = resultSet.getString("precio");
-                Producto p = new Producto(nombre, precio);
+                Producto p = new Producto(codigoBarras, nombre, precio);
                 p.setId(codigoBarras);
                 tableSearchQuery.getItems().add(p);
             } while (resultSet.next());
@@ -530,17 +576,26 @@ public class MainController {
         dialog.setHeaderText("Eliminar productos de la venta");
         dialog.setContentText("Ingrese la cantidad de elementos a eliminar:");
 
-
         // Mostrar el diálogo y esperar a que el usuario ingrese la cantidad
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(quantityStr -> {
             try {
+                // Verificar si la entrada no está vacía
+                if (quantityStr.trim().isEmpty()) {
+                    System.out.println("vacia");
+                }
+
+                // Verificar si la entrada es un número entero válido
+                if (!quantityStr.matches("\\d+")) {
+                    System.out.println("Entrada no numérica");
+                }
+
                 int quantity = Integer.parseInt(quantityStr);
                 int r = valueG - quantity;
                 double minus = Double.parseDouble(producto.getPrice());
 
                 if (quantity > 0 && quantity == valueG) {
-                    Platform.runLater(() -> productCounts.remove(producto.getName()));
+                    Platform.runLater(() -> productCounts.remove(producto.getId()));
                     TreeItem<Producto> itemToRemove = null;
                     for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
                         if (item.getValue().equals(producto)) {
@@ -551,14 +606,14 @@ public class MainController {
                     if (itemToRemove != null) {
                         tableView.getRoot().getChildren().remove(itemToRemove);
                     }
+                    totalVenta = 0.0;
+                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                    Platform.runLater(()->info.setText("Producto borrado correctamente"));
                     tableView.refresh();
-
-                }
-                if (quantity > 0 && quantity <= valueG) {
-
-
-                    productCounts.put(producto.getName(), r);
+                } else if (quantity > 0 && quantity <= valueG) {
+                    productCounts.put(producto.getId(), r);
                     totalVenta -= minus * quantity;
+                    Platform.runLater(()->info.setText(quantityStr+" producto(s) borrados correctamente"));
                     Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                     tableView.refresh();
                     System.out.println(totalVenta);
@@ -587,93 +642,10 @@ public class MainController {
 //
 
 
-    public static void searchProduct(String searchText,
-                                     Map<String, Integer> productCounts,
-                                     TableView<Producto> tableView,
-                                     TextField precio,
-                                     TextField textFieldItem,
-                                     TextField textFieldTotalQuantity,
-                                     Label info) {
-        DatabaseManager.createTable();
-        try (Connection connection = DriverManager.getConnection(Constans.URL1);
-             PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
-        ) {
-            statement.setString(1, searchText.replace(" ", ""));
-            ResultSet resultSet = statement.executeQuery();
-
-
-            boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
-
-            while (resultSet.next()) {
-                String productName = resultSet.getString("nombre");
-                String productPrice = resultSet.getString("precio");
-
-                if (productCounts.containsKey(productName)) {
-                    productCounts.put(productName, productCounts.get(productName) + 1);
-                } else {
-                    // Agregar el producto a la tabla
-                    tableView.getItems().add(new Producto(productName, df.format(productPrice)));
-                    productCounts.put(productName, 1);
-                }
-
-                totalVenta += Double.parseDouble(productPrice);
-                productoEncontrado = true; // Se encontró al menos un producto
-            }
-
-            if (!productoEncontrado) {
-
-                if (precio.getText().isEmpty()) {
-                    Platform.runLater(() -> info.setText("El campo de precio no puede estar vacío"));
-                } else {
-                    if (productCounts.containsKey(textFieldItem.getText())) {
-                        int indice = 0;
-
-                        for (Producto producto : tableView.getItems()) {
-                            // Verificar si el nombre del producto coincide con el nombre buscado
-                            if (producto.getName().equals(textFieldItem.getText())) {
-                                double antPrice = Double.parseDouble(producto.getPrice());
-                                double newPrice = Double.parseDouble(precio.getText());
-                                String precioFinal = String.valueOf(antPrice + newPrice);
-                                totalVenta += Double.parseDouble(precio.getText());
-                                tableView.getItems().get(indice).setPrice(precioFinal);
-
-
-                                // Refrescar la vista de la tabla para reflejar el cambio
-                                tableView.refresh();
-
-                                // Salir del bucle una vez que se haya encontrado y actualizado el producto
-                                break;
-                            }
-                            indice++;
-
-                        }
-                    } else {
-
-                        tableView.getItems().add(new Producto(textFieldItem.getText(), precio.getText()));
-                        productCounts.put(textFieldItem.getText(), 1);
-                        totalVenta += Double.parseDouble(precio.getText());
-                        Platform.runLater(() -> info.setText("Producto no encontrado"));
-                    }
-                }
-
-
-            } else {
-                Platform.runLater(() -> info.setText("Producto añadido"));
-            }
-
-            tableView.refresh();
-            Platform.runLater(() -> textFieldTotalQuantity.setText(df.format(totalVenta)));
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     public void searchProductT(String searchText) {
         DatabaseManager.createTable();
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
-             PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio FROM productos WHERE codigo_barras = ?");
+             PreparedStatement statement = connection.prepareStatement("SELECT nombre, precio, codigo_barras FROM productos WHERE codigo_barras = ?");
         ) {
             statement.setString(1, searchText);
             ResultSet resultSet = statement.executeQuery();
@@ -683,69 +655,73 @@ public class MainController {
             while (resultSet.next()) {
                 String productName = resultSet.getString("nombre");
                 String productPrice = resultSet.getString("precio");
+                String code = resultSet.getString("codigo_barras");
 
-                if (productCounts.containsKey(productName)) {
-                    productCounts.put(productName, productCounts.get(productName) + 1);
+
+                if (productCounts.containsKey(code)) {
+                    productCounts.put(code, productCounts.get(code) + 1);
                 } else {
-                    double fPrice = Double.parseDouble(productPrice);
-
-
-                    tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(productName,String.valueOf(df.format(fPrice)
-                    ))));
-                    productCounts.put(productName, 1);
+                    tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(code, productName, productPrice)));
+                    productCounts.put(code, 1);
+                    tableView.refresh();
                 }
 
                 totalVenta += Double.parseDouble(productPrice);
                 textFieldItem.clear();
-                productoEncontrado = true; // Se encontró al menos un producto
+                productoEncontrado = true;
+                System.out.println("Codigo obtenido " + code + " N°items " + productCounts.get(code));// Se encontró al menos un producto
             }
 
             if (!productoEncontrado) {
 
-                precio.setDisable(false);
-                if (precio.getText().isEmpty()) {
-                    Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
-                    precio.requestFocus();
-                } else {
-                    if (productCounts.containsKey(textFieldItem.getText())) {
-                        int indice = 0;
+                if (productCounts.containsKey(textFieldItem.getText())) {
+                    for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
+                        if (item.getValue().getName().equals(textFieldItem.getText())) {
+                            double priceEq = Double.parseDouble(item.getValue().getPrice());
+                            System.out.println(priceEq);
+                            totalVenta += priceEq;
+//                            TreeItem<Producto> itemToUpdate = tableView.getRoot().getChildren().get(indice);
+//                            Producto producto = itemToUpdate.getValue();
+//                            producto.setPrice(precio.getText());
+                            productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
+                            Platform.runLater(() -> info.setText("Producto añadido"));
+                            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                            tableView.refresh();
 
-                        for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
-                            if (item.getValue().getName().equals(textFieldItem.getText())) {
 
-                                totalVenta += Double.parseDouble(precio.getText());
-                                TreeItem<Producto> itemToUpdate = tableView.getRoot().getChildren().get(indice);
-                                Producto producto = itemToUpdate.getValue();
-                                producto.setPrice(precio.getText());
-                                productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
-                                tableView.refresh();
-                                precio.clear();
-                                precio.setDisable(true);
-
-                                break;
-                            }
-                            indice++;
-
+                            break;
                         }
-                    } else {
-
-                        tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(textFieldItem.getText(), precio.getText())));
-                        productCounts.put(textFieldItem.getText(), 1);
-                        totalVenta += Double.parseDouble(precio.getText());
-                        Platform.runLater(()->precio.clear());
 
                     }
-                    textFieldItem.clear();
-                    textFieldItem.requestFocus();
+
+                } else {
+
+                    Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
+                    String cleanTextPrecio = precio.getText().replaceAll("'","");
+                    precio.setDisable(false);
+                    precio.requestFocus();
+                    if (!precio.getText().isEmpty()) {
+                        tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(textFieldItem.getText(), textFieldItem.getText(), cleanTextPrecio)));
+                        productCounts.put(textFieldItem.getText(), 1);
+                        totalVenta += Double.parseDouble(cleanTextPrecio);
+                        Platform.runLater(() -> precio.clear());
+                        precio.setDisable(true);
+                        Platform.runLater(() -> info.setText("Producto añadido"));
+                        textFieldItem.clear();
+                        textFieldItem.requestFocus();
+                        Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                    }
+
                 }
 
 
             } else {
                 Platform.runLater(() -> info.setText("Producto añadido"));
+                tableView.refresh();
+                Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
             }
 
-            tableView.refresh();
-            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -798,6 +774,10 @@ public class MainController {
             } catch (NumberFormatException e) {
 
                 textFieldTotalPaidAmount.clear();
+                Platform.runLater(() -> {
+                    info.setText("Valor no númerico ingresado");
+                    Funtions.ChangeMessage(info, 0, "");
+                });
                 e.printStackTrace();
             }
         }
@@ -807,7 +787,7 @@ public class MainController {
 
     public void entregar() throws IOException {
 
-        if (PagoOption.equals("Nequi")){
+        if (PagoOption.equals("Nequi")) {
             double result = totalPagado - totalVenta;
             actualizarProductosArea();
             generarRecibo(result);
@@ -839,7 +819,6 @@ public class MainController {
                 throw new RuntimeException(e);
             }
         }
-
 
 
     }
@@ -996,7 +975,6 @@ public class MainController {
             }
 
 
-
             productosArea.append(String.format("| %-11s", "$ " + item.getValue().getPrice())); // Ajusta el ancho de la columna "Precio"
             productosArea.append(String.format("| %-8s", "  x " + productCounts.get(item.getValue().getName()))); // Ajusta el ancho de la columna "Cantidad"
             productosArea.append("Ý\n");
@@ -1055,21 +1033,21 @@ public class MainController {
             sendData(out, SetCodePageOEM850());
             //byte[] qrcode = PrinterCommand.getBarCommand("Zijiang Electronic Thermal Receipt Printer!", 1, 3, 8);
             Command.ESC_Align[2] = 0x01;
-            sendData(out,Command.ESC_Align);
+            sendData(out, Command.ESC_Align);
             printImage(ImageIO.read(new File("/home/matt/Downloads/logoa.jpg")), out, false);
             sendData(out, setBold(true));
             sendData(out, ("VITAL CLINICA VETERINARIA\n" +
                     "&\n" +
                     "PET SHOP\n").getBytes());
-            sendData(out,"NIT: 1110482049-8\n".getBytes());
-            sendData(out,"Dir: MZ2 CS23 1etp.Jordan IBAGUE-TOLIMA\n".getBytes());
-            sendData(out,"TEL: 3144658553\n\n".getBytes());
+            sendData(out, "NIT: 1110482049-8\n".getBytes());
+            sendData(out, "Dir: MZ2 CS23 1etp.Jordan IBAGUE-TOLIMA\n".getBytes());
+            sendData(out, "TEL: 3144658553\n\n".getBytes());
 
             sendData(out, setBold(false));
 
 
             Command.ESC_Align[2] = 0x00;
-            sendData(out,Command.ESC_Align);
+            sendData(out, Command.ESC_Align);
             sendData(out, Nfactura2.getBytes(StandardCharsets.ISO_8859_1));
 
             sendData(out, Objects.requireNonNull(printMixedText("TOTAL:$ ", format(String.valueOf(totalVenta)) + "\n")));
@@ -1077,7 +1055,7 @@ public class MainController {
             sendData(out, Objects.requireNonNull(printMixedText("CAMBIO:$ ", format(String.valueOf(result)) + "\n")));
             sendData(out, "-----------------------------------------\n\n".getBytes());
             Command.ESC_Align[2] = 0x01;
-            sendData(out,Command.ESC_Align);
+            sendData(out, Command.ESC_Align);
 
 
             byte[] code = PrinterCommand.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);

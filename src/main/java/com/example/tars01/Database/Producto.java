@@ -15,9 +15,10 @@ public class Producto extends RecursiveTreeObject<Producto> {
     public Producto() {
     }
 
-    public Producto(String name, String price) {
+    public Producto(String code,String name, String price) {
         this.name = name;
         this.price = price;
+        this.id = code;
     }
 
     public String getId() {

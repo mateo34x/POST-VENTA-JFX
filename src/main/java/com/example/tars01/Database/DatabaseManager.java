@@ -250,8 +250,7 @@ public class DatabaseManager {
                 String id = resultSet.getString("codigo_barras");
                 String name = resultSet.getString("nombre");
                 String price = resultSet.getString("precio");
-                Producto producto = new Producto(name, price);
-                producto.setId(id);
+                Producto producto = new Producto(id,name, price);
                 tableView.getItems().add(producto);
                 tableView.refresh();
                 cantidad++;
