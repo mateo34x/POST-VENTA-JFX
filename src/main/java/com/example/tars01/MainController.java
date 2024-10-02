@@ -4,7 +4,7 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
 import com.example.tars01.Printer.Command;
-import com.example.tars01.Printer.PrinterCommand;
+import com.example.tars01.Printer.PrinterCommandsAct;
 import com.example.tars01.Servidor.ServerManager;
 import com.jfoenix.controls.JFXTreeTableView;
 import io.github.palexdev.materialfx.controls.MFXListView;
@@ -48,10 +48,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
 
-import static com.example.tars01.Printer.PicturePrinterThermal.*;
 import static com.example.tars01.Printer.PrinterCommandsAct.*;
-import static com.example.tars01.TextToBinaryConverter.SendDataByte;
-import static com.example.tars01.TextToBinaryConverter.SendDataString;
 
 
 public class MainController {
@@ -103,8 +100,6 @@ public class MainController {
 
     public JFXTreeTableView<Producto> tableView = new JFXTreeTableView<>();
 
-    @FXML
-    private MFXListView<Producto> productListView;
 
     private final Map<String, Integer> productCounts = new HashMap<>();
     @FXML
@@ -285,6 +280,22 @@ public class MainController {
         });
 
 
+        textFieldItem.textProperty().addListener((observable, oldValue, newValue)->{
+            if (!newValue.isEmpty()&&!newValue.matches("\\d+")) {
+                busquedaB.setVisible(true);
+                updateProductList(newValue);
+                QueryInput.setText(newValue);
+
+            }else{
+                tableSearchQuery.getItems().clear();
+                busquedaB.setVisible(false);
+                textFieldItem.requestFocus();
+
+
+            }
+        });
+
+
         precio.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -385,19 +396,7 @@ public class MainController {
         if (!productCounts.isEmpty()) {
             buttonClear1.setDisable(false);
         }
-        productListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                String selectedItem = productListView.getSelectionModel().getSelection().toString();
-                if (selectedItem != null) {
-                    String id = selectedItem.substring(selectedItem.lastIndexOf("ID: ") + 4, selectedItem.length() - 2);
-                    searchProductT(id);
-                    System.out.println("Selected ID: " + id);
-                    productListView.setVisible(false);
-                    textFieldItem.clear();
-                }
-            }
-        });
+
 
         optionSold.getItems().addAll(
                 "Efectivo",
@@ -1058,7 +1057,7 @@ public class MainController {
             sendData(out, Command.ESC_Align);
 
 
-            byte[] code = PrinterCommand.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
+            byte[] code = PrinterCommandsAct.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
 
             if (code != null) {
                 sendData(out, code);

@@ -1,22 +1,11 @@
 package com.example.tars01;
 
-import com.example.tars01.Printer.Command;
-import com.example.tars01.Printer.PrinterCommand;
-import com.zj.usbsdk.UsbController;
-import javafx.fxml.FXML;
-
 import javax.usb.*;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class TextToBinaryConverter {
 
-    static UsbController usbCtrl = null;
     private static UsbPipe usbPipe;
     private static UsbInterface usbInterface;
     private static UsbDevice usbDevice;

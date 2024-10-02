@@ -113,4 +113,46 @@ public class PrinterCommandsAct {
     public static String RandomImageBannerDown(ArrayList<String> imgs){
         return imgs.get(new Random().nextInt(imgs.size()));
     }
+    public static byte[] getCodeBarCommand(String str, int nType, int nWidthX, int nHeight,
+                                           int nHriFontType, int nHriFontPosition){
+
+        if (nType < 0x41 | nType > 0x49 | nWidthX < 2 | nWidthX > 6
+                | nHeight < 1 | nHeight > 255 | str.length() == 0)
+            return null;
+
+        byte[] bCodeData = null;
+        try
+        {
+            bCodeData = str.getBytes("GBK");
+
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+
+        byte[] command = new byte[bCodeData.length + 16];
+
+        command[0] = 29;
+        command[1] = 119;
+        command[2] = ((byte)nWidthX);
+        command[3] = 29;
+        command[4] = 104;
+        command[5] = ((byte)nHeight);
+        command[6] = 29;
+        command[7] = 102;
+        command[8] = ((byte)(nHriFontType & 0x01));
+        command[9] = 29;
+        command[10] = 72;
+        command[11] = ((byte)(nHriFontPosition & 0x03));
+        command[12] = 29;
+        command[13] = 107;
+        command[14] = ((byte)nType);
+        command[15] = (byte)(byte) bCodeData.length;
+        System.arraycopy(bCodeData, 0, command, 16, bCodeData.length);
+
+
+        return command;
+    }
 }

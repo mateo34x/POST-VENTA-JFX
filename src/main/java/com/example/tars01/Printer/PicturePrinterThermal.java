@@ -7,6 +7,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
+import java.io.UnsupportedEncodingException;
+
 public class PicturePrinterThermal {
 
     // Método para convertir una imagen a escala de grises
@@ -79,4 +81,6 @@ public class PicturePrinterThermal {
 
         return data;
     }
+
+
 }
