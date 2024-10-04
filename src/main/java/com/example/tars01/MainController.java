@@ -33,6 +33,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
+import javax.print.*;
+import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -798,7 +800,7 @@ public class MainController {
     }
 
 
-    public void entregar() throws IOException {
+    public void entregar() throws IOException, PrintException {
 
         if (PagoOption.equals("Nequi")) {
             double result = totalPagado - totalVenta;
@@ -836,7 +838,7 @@ public class MainController {
 
     }
 
-    private void generarRecibo(double result) throws IOException {
+    private void generarRecibo(double result) throws IOException, PrintException {
         int numeroFacturaActual = DatabaseManager.NVentas();
         int numeroFacturaSiguiente = numeroFacturaActual + 1;
         String numeroFacturaFormateado = String.format("%03d", numeroFacturaSiguiente);
@@ -863,10 +865,10 @@ public class MainController {
                 .append("           ¡GRACIAS POR SU COMPRA!\n");
 
         String contenidoRecibo = reciboBuilder.toString();
-        String rutaArchivo = "/home/matt/Documents/FACTURAS/" + UUID.randomUUID();
-        FileWriter writer = new FileWriter(rutaArchivo);
-        writer.write(contenidoRecibo);
-        writer.close();
+//        String rutaArchivo = "/home/matt/Documents/FACTURAS/" + UUID.randomUUID();
+//        FileWriter writer = new FileWriter(rutaArchivo);
+//        writer.write(contenidoRecibo);
+//        writer.close();
         DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, totalVenta, totalPagado, result, contenidoRecibo, info);
         Print_Ex(result);
 
@@ -989,7 +991,7 @@ public class MainController {
 
 
             productosArea.append(String.format("| %-11s", "$ " + item.getValue().getPrice())); // Ajusta el ancho de la columna "Precio"
-            productosArea.append(String.format("| %-8s", "  x " + productCounts.get(item.getValue().getName()))); // Ajusta el ancho de la columna "Cantidad"
+            productosArea.append(String.format("| %-8s", "  x " + productCounts.get(item.getValue().getId()))); // Ajusta el ancho de la columna "Cantidad"
             productosArea.append("Ý\n");
             contando++;
 
@@ -1005,18 +1007,49 @@ public class MainController {
     }
 
 
-    public void Print_Ex(Double result) throws IOException {
 
-        String USB_PRINTER_PATH = "/dev/usb/lp0";
+    public void Print_Ex(Double result) throws IOException, PrintException {
 
+        String USB_PRINTER_PATH = "/dev/usb/lp0"; // Ruta predeterminada para Linux
+        OutputStream out = null; // Flujo de salida inicializado como null
+
+        // Detectar sistema operativo
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            // En Windows, seleccionar la impresora conectada
+            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+            PrintService selectedService = (PrintService) JOptionPane.showInputDialog(null, "Seleccione una impresora",
+                    "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
+
+            if (selectedService != null) {
+                // Crear un flujo de salida hacia la impresora seleccionada
+                DocPrintJob printJob = selectedService.createPrintJob();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                out = outputStream;  // Redirigir la salida al ByteArrayOutputStream
+            } else {
+                throw new IOException("No se seleccionó ninguna impresora.");
+            }
+        } else if (os.contains("nix") || os.contains("nux")) {
+            // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
+            FileDialog dialog = new FileDialog((Frame) null, "Seleccionar archivo de impresora", FileDialog.LOAD);
+            dialog.setVisible(true);
+            String selectedFile = dialog.getFile();
+            if (selectedFile != null) {
+                USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
+                out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
+            } else {
+                throw new IOException("No se seleccionó ninguna ruta.");
+            }
+        }
+
+        // Aquí se sigue tu código original para preparar los datos a imprimir
         SimpleDateFormat formatter = new SimpleDateFormat(" yyyy/MM/dd/ HH:mm:ss ");
         Date curDate = new Date(System.currentTimeMillis());
         String str = formatter.format(curDate);
         String date = str + "\n\n\n\n\n\n";
 
         int numeroFacturaActual = DatabaseManager.NVentas();
-
-//
 
         String Nfactura = " Factura de venta: #" + String.format("%03d", numeroFacturaActual) + "\n" +
                 " Fecha: " + fecha + " " + hora + "\n" +
@@ -1033,21 +1066,18 @@ public class MainController {
         String Nfactura2 = " Factura: #" + String.format("%03d", numeroFacturaActual) + "\n" +
                 " Fecha:" + fecha + " " + hora + "\n" +
                 " Atendido por: " + NameUser + "\n\n" +
-
                 " Cliente: Josefina \n" +
                 " Observaciones: " + " " + "\n" + " " + "* Ninguna" + "\n\n" +
                 " Productos comprados  " + "\n\n" +
                 productosArea.getText() + "\n";
 
-        try (FileOutputStream out = new FileOutputStream(USB_PRINTER_PATH)) {
-
-
+        // Enviar datos a la impresora o a la ruta en Linux
+        if (out != null) {
             sendData(out, IniciarImpresora());
             sendData(out, SetCodePageOEM850());
-            //byte[] qrcode = PrinterCommand.getBarCommand("Zijiang Electronic Thermal Receipt Printer!", 1, 3, 8);
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
-            printImage(ImageIO.read(new File("/home/matt/Downloads/logoa.jpg")), out, false);
+            printImage(ImageIO.read(new File("C:\\Users\\danin\\Downloads\\logoa.jpg")), out, false);
             sendData(out, setBold(true));
             sendData(out, ("VITAL CLINICA VETERINARIA\n" +
                     "&\n" +
@@ -1057,7 +1087,6 @@ public class MainController {
             sendData(out, "TEL: 3144658553\n\n".getBytes());
 
             sendData(out, setBold(false));
-
 
             Command.ESC_Align[2] = 0x00;
             sendData(out, Command.ESC_Align);
@@ -1070,7 +1099,6 @@ public class MainController {
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-
             byte[] code = PrinterCommandsAct.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
 
             if (code != null) {
@@ -1081,15 +1109,23 @@ public class MainController {
 
             sendData(out, "\nGRACIAS POR SU COMPRA!\n".getBytes());
 
-            ArrayList<String> Banner = new ArrayList<>();
-            Banner.add("/home/matt/Downloads/cat1.png");
-            Banner.add("/home/matt/Downloads/cats2.jpg");
-            Banner.add("/home/matt/Downloads/dogs2.jpg");
-            printImage(ImageIO.read(new File(RandomImageBannerDown(Banner))), out, true);
+//            ArrayList<String> Banner = new ArrayList<>();
+//            Banner.add("/home/matt/Downloads/cat1.png");
+//            Banner.add("/home/matt/Downloads/cats2.jpg");
+//            Banner.add("/home/matt/Downloads/dogs2.jpg");
+//            printImage(ImageIO.read(new File(RandomImageBannerDown(Banner))), out, true);
 
+            out.close();  // Cerrar el flujo de salida
+        }
 
+        // Si es Windows, enviar el contenido del ByteArrayOutputStream a la impresora seleccionada
+        if (os.contains("win") && out instanceof ByteArrayOutputStream) {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
+            Doc doc = new SimpleDoc(inputStream, DocFlavor.INPUT_STREAM.AUTOSENSE, null);
+            PrintService selectedService = PrintServiceLookup.lookupPrintServices(null, null)[0];
+            DocPrintJob printJob = selectedService.createPrintJob();
+            printJob.print(doc, new HashPrintRequestAttributeSet());
         }
     }
-
 
 }

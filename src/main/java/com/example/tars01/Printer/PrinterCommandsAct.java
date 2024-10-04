@@ -3,6 +3,7 @@ package com.example.tars01.Printer;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -76,14 +77,14 @@ public class PrinterCommandsAct {
 
     }
 
-    public static void sendData(FileOutputStream out, byte[] data) throws IOException {
+    public static void sendData(OutputStream out, byte[] data) throws IOException {
         if (data.length > 0) {
             out.write(data);
         }
     }
 
 
-    public static void printImage(BufferedImage image, FileOutputStream out, boolean banner) throws IOException {
+    public static void printImage(BufferedImage image, OutputStream out, boolean banner) throws IOException {
         int[][] pixels = new ImageP().getPixelsSlow(image);
         for (int y = 0; y < pixels.length; y += 24) {
             sendData(out, SET_LINE_SPACE_24);
