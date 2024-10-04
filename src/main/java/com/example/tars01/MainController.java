@@ -283,7 +283,7 @@ public class MainController {
         textFieldItem.textProperty().addListener((observable, oldValue, newValue)->{
             if (!newValue.isEmpty()&&!newValue.matches("\\d+")) {
                 busquedaB.setVisible(true);
-                updateProductList(newValue);
+                updateProductList(newValue,1);
                 QueryInput.setText(newValue);
 
             }else{
@@ -450,7 +450,7 @@ public class MainController {
 
         QueryInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
-                updateProductList(newValue);
+                updateProductList(newValue,0);
             } else {
                 tableSearchQuery.getItems().clear();
             }
@@ -532,7 +532,7 @@ public class MainController {
         return priceColumn;
     }
 
-    private void updateProductList(String searchText) {
+    private void updateProductList(String searchText,int origin) {
         tableSearchQuery.getItems().clear();
 
         if (searchText.isEmpty()) {
@@ -549,9 +549,22 @@ public class MainController {
             statement.setString(2, searchPattern);
             ResultSet resultSet = statement.executeQuery();
 
+
             if (!resultSet.next()) {
-                tableSearchQuery.getItems().clear();
-                return;
+                if (origin==1){
+                    tableSearchQuery.getItems().clear();
+                    busquedaB.setVisible(false);
+                }else{
+                    tableSearchQuery.getItems().clear();
+                    return;
+                }
+
+            }
+
+            if (origin==0){
+
+            } else if (origin==1) {
+
             }
 
 
@@ -716,6 +729,7 @@ public class MainController {
 
             } else {
                 Platform.runLater(() -> info.setText("Producto añadido"));
+                precio.setDisable(true);
                 tableView.refresh();
                 Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
             }

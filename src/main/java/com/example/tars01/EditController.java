@@ -39,6 +39,7 @@ public class EditController {
 
     String priceOriginal;
     String codeOriginal;
+    String nameOriginal;
 
     @FXML
     MenuItem seeEdit;
@@ -101,24 +102,19 @@ public class EditController {
 
         boolean isEmpty = nameValue.isEmpty() || priceValue.isEmpty() || codeValue.isEmpty();
 
-        boolean isPriceChanged = !priceValue.equals(priceOriginal);
 
+        if (!isEmpty){
+            if (!nameOriginal.equals(nameValue)||!priceOriginal.equals(priceValue)||!codeOriginal.equals(codeValue)){
+                Platform.runLater(()-> saveChange.setDisable(false));
+            }else{
+                Platform.runLater(()-> saveChange.setDisable(true));
 
-        // Desactiva el botón si alguno de los campos está vacío o si el precio no ha cambiado
-        Platform.runLater(() -> saveChange.setDisable(isEmpty || !isPriceChanged));
+            }
+
+        }
+
     }
 
-    public void cargarVistaCreate() throws IOException {
-        Logout("CreateProducto-View.fxml",textFieldItemEdit);
-    }
-    public void cargarVistaVenta() throws IOException {
-
-        Logout("Main-View.fxml",textFieldItemEdit);
-    }
-
-    public void cargarVistaBuscar() throws IOException {
-        Logout("BuscarVenta-View.fxml",textFieldItemEdit);
-    }
 
 
 
@@ -128,7 +124,7 @@ public class EditController {
         String nameValue = name.getText();
         String priceValue = price.getText();
         String codeValue = code.getText();
-        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,codeOriginal,info,name,price,code);
+        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,codeOriginal,info,name,price,code,textFieldItemEdit);
     }
 
 
@@ -148,6 +144,7 @@ public class EditController {
                 productoEncontrado = true;
                 priceOriginal = productPrice;
                 codeOriginal = id;
+                nameOriginal = productName;
 
                 Platform.runLater(() -> name.setText(productName));
                 Platform.runLater(() -> price.setText(productPrice));
@@ -171,30 +168,10 @@ public class EditController {
     }
 
 
-    @FXML
-    private void OnServer() throws IOException {
-
-
-    }
 
 
 
 
-    public void Logout(String fxml,TextField textField) throws IOException {
-
-        if (serverRunning) {
-            if (serverSocket != null) {
-                serverSocket.close();
-                Platform.runLater(() -> info.setText("Servidor cerrado"));
-            }
-
-        }
-
-        cargarVista(fxml,textField);
-
-
-
-    }
 
 
 

@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.EditController">
+<VBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.EditController">
    <children>
 
       <AnchorPane prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #31363F;" VBox.vgrow="ALWAYS">
@@ -14,16 +14,15 @@
             <TextField fx:id="textFieldItemEdit" layoutX="78.0" layoutY="18.0" prefHeight="23.0" prefWidth="324.0" />
             <Label layoutX="21.0" layoutY="15.0" prefHeight="27.0" prefWidth="54.0" style="-fx-text-fill: WHITE;" text="CODE" textFill="WHITE">
                <font>
-                  <Font name="Calibri" size="18.0" />
+                  <Font name="JetBrains Mono Bold" size="18.0" />
                </font>
             </Label>
-            <Button layoutX="416.0" layoutY="17.0" mnemonicParsing="false" style="-fx-background-color: #5C5470;" text="Limpiar" textFill="WHITE" />
             <Button fx:id="saveChange" disable="true" layoutX="46.0" layoutY="288.0" mnemonicParsing="false" onAction="#update" prefHeight="35.0" prefWidth="149.0" style="-fx-background-color: #20615B;" text="Guardar cambios" textAlignment="CENTER" textFill="WHITE">
                <font>
-                  <Font name="System Bold" size="13.0" />
+                  <Font name="JetBrains Mono Bold" size="13.0" />
                </font>
             </Button>
-            <Label fx:id="hora" layoutX="502.0" layoutY="22.0" prefHeight="16.0" prefWidth="208.0" style="-fx-text-fill: white;" text="HH:mm:ss">
+            <Label fx:id="hora" layoutX="408.0" layoutY="22.0" prefHeight="16.0" prefWidth="208.0" style="-fx-text-fill: white;" text="HH:mm:ss">
                <font>
                   <Font size="14.0" />
                </font>
@@ -35,24 +34,24 @@
             <TextField fx:id="name" layoutX="48.0" layoutY="90.0" prefHeight="35.0" prefWidth="223.0" />
             <Label layoutX="48.0" layoutY="63.0" prefHeight="27.0" prefWidth="95.0" style="-fx-text-fill: WHITE;" text="Nombre" textFill="WHITE">
                <font>
-                  <Font name="Calibri" size="18.0" />
+                  <Font name="JetBrains Mono Bold" size="18.0" />
                </font>
             </Label>
             <TextField fx:id="price" layoutX="48.0" layoutY="162.0" prefHeight="35.0" prefWidth="223.0" />
             <Label layoutX="48.0" layoutY="135.0" prefHeight="27.0" prefWidth="66.0" style="-fx-text-fill: WHITE;" text="Precio" textFill="WHITE">
                <font>
-                  <Font name="Calibri" size="18.0" />
+                  <Font name="JetBrains Mono Bold" size="18.0" />
                </font>
             </Label>
             <TextField fx:id="code" layoutX="48.0" layoutY="231.0" prefHeight="35.0" prefWidth="223.0" />
-            <Label layoutX="48.0" layoutY="204.0" prefHeight="27.0" prefWidth="66.0" style="-fx-text-fill: WHITE;" text="Codigo" textFill="WHITE">
+            <Label layoutX="48.0" layoutY="204.0" prefHeight="27.0" prefWidth="66.0" style="-fx-text-fill: WHITE;" text="Código" textFill="WHITE">
                <font>
-                  <Font name="Calibri" size="18.0" />
+                  <Font name="JetBrains Mono Bold" size="18.0" />
                </font>
             </Label>
-            <Label fx:id="info" layoutX="45.0" layoutY="341.0" prefHeight="16.0" prefWidth="303.0" style="-fx-text-fill: white;" text="Sin novedades">
+            <Label fx:id="info" layoutX="46.0" layoutY="341.0" prefHeight="20.0" prefWidth="531.0" style="-fx-text-fill: white;" text="Sin novedades">
                <font>
-                  <Font name="System Bold" size="14.0" />
+                  <Font name="JetBrains Mono Bold" size="14.0" />
                </font>
                <opaqueInsets>
                   <Insets />

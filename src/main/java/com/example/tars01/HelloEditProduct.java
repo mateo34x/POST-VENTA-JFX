@@ -24,7 +24,7 @@ public class HelloEditProduct extends Application {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Editar-View.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setResizable(true);
+        stage.setResizable(false);
 //        double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
 //        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 

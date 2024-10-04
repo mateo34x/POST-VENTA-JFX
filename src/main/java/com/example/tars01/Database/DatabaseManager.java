@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.w3c.dom.Text;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -180,60 +181,51 @@ public class DatabaseManager {
     }
 
 
-    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code) {
-        // Construir la consulta SQL base
-        String sqlUpdate = "UPDATE productos SET ";
+    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code, TextField CODE) {
 
-        // Lista para almacenar las partes de la consulta SQL que necesitan ser actualizadas
-        List<String> updates = new ArrayList<>();
+        String sqlConsult = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
+        String sqlUpdate = "UPDATE productos SET nombre = ?, precio = ?, codigo_barras = ? WHERE codigo_barras = ?";
 
-        // Lista para almacenar los valores de los parámetros a establecer en la consulta preparada
-        List<Object> parameters = new ArrayList<>();
-
-        // Comprobar y construir la parte de la consulta SQL para cada campo que se quiere actualizar
-        if (nombre != null) {
-            updates.add("nombre = ?");
-            parameters.add(nombre);
-        }
-        if (precio != null) {
-            updates.add("precio = ?");
-            parameters.add(precio);
-        }
-        if (nuevoCodigo != null) {
-            updates.add("codigo_barras = ?");
-            parameters.add(nuevoCodigo);
-        }
-
-
-        // Combinar las partes de la consulta SQL para construir la consulta final
-        sqlUpdate += String.join(", ", updates);
-        sqlUpdate += " WHERE codigo_barras = ?"; // Condición de actualización basada en el código de barras existente
 
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement consultStatement = connection.prepareStatement(sqlConsult);
              PreparedStatement updateStatement = connection.prepareStatement(sqlUpdate)) {
 
-            // Establecer los valores de los parámetros en la consulta preparada
-            for (int i = 0; i < parameters.size(); i++) {
-                updateStatement.setObject(i + 1, parameters.get(i));
+
+            consultStatement.setString(1, nuevoCodigo);
+            ResultSet resultSet = consultStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt("count");
+
+
+            if (count>0){
+                Platform.runLater(() -> info.setText("El nuevo código ya pertenece a otro producto"));
+
+            }else{
+                updateStatement.setString(1, nombre);
+                updateStatement.setString(2, precio);
+                updateStatement.setString(3, nuevoCodigo);
+                updateStatement.setString(4, codigoExistente);
+
+
+                // Ejecutar la consulta SQL y obtener el número de filas afectadas
+                int rowsAffected = updateStatement.executeUpdate();
+
+                // Verificar si se actualizaron filas
+                if (rowsAffected > 0) {
+                    Platform.runLater(() -> info.setText("Producto actualizado correctamente."));
+                    Platform.runLater(name::clear);
+                    Platform.runLater(price::clear);
+                    Platform.runLater(code::clear);
+                    Platform.runLater(CODE::clear);
+                    Platform.runLater(CODE::requestFocus);
+
+
+                } else {
+                    Platform.runLater(() -> info.setText("El producto a actualizar no existe.."));
+                }
             }
 
-            // Establecer el código de barras existente como último parámetro
-            updateStatement.setString(parameters.size() + 1, codigoExistente);
-
-            // Ejecutar la consulta SQL y obtener el número de filas afectadas
-            int rowsAffected = updateStatement.executeUpdate();
-
-            // Verificar si se actualizaron filas
-            if (rowsAffected > 0) {
-                Platform.runLater(() -> info.setText("Producto actualizado correctamente."));
-                Platform.runLater(name::clear);
-                Platform.runLater(price::clear);
-                Platform.runLater(code::clear);
-
-
-            } else {
-                Platform.runLater(() -> info.setText("El producto a actualizar no existe.."));
-            }
         } catch (SQLException e) {
             Platform.runLater(() -> info.setText("Error al actualizar el producto: " + e.getMessage()));
         }
