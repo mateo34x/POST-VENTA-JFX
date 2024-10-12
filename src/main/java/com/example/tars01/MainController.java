@@ -27,6 +27,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -332,7 +333,7 @@ public class MainController {
         tableView.setRowFactory(tv -> {
             TreeTableRow<Producto> row = new TreeTableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1 && !row.isEmpty()) {
+                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1 && !row.isEmpty()) {
                     Producto rowData = row.getItem();
                     System.out.println(rowData.getName());
                     System.out.println(rowData.getId());
@@ -341,6 +342,19 @@ public class MainController {
                         System.out.println(productCounts.get(rowData.getName()));
                         openDeleteDialog(productCounts.get(rowData.getId()), rowData);
                     }
+                } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 1) {
+                    for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
+                            double priceEq = Double.parseDouble(item.getValue().getPrice());
+                            System.out.println(priceEq);
+                            totalVenta += priceEq;
+                            productCounts.put(item.getValue().getId(), productCounts.get(item.getValue().getId()) + 1);
+                            Platform.runLater(() -> info.setText("Producto añadido"));
+                            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                            tableView.refresh();
+                            break;
+
+                    }
+
                 }
             });
             return row;
@@ -990,7 +1004,7 @@ public class MainController {
             }
 
 
-            productosArea.append(String.format("| %-11s", "$ " + item.getValue().getPrice())); // Ajusta el ancho de la columna "Precio"
+            productosArea.append(String.format("| %-11s", "$ " + format(item.getValue().getPrice()))); // Ajusta el ancho de la columna "Precio"
             productosArea.append(String.format("| %-8s", "  x " + productCounts.get(item.getValue().getId()))); // Ajusta el ancho de la columna "Cantidad"
             productosArea.append("Ý\n");
             contando++;
@@ -1023,10 +1037,7 @@ public class MainController {
                     "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
 
             if (selectedService != null) {
-                // Crear un flujo de salida hacia la impresora seleccionada
-                DocPrintJob printJob = selectedService.createPrintJob();
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                out = outputStream;  // Redirigir la salida al ByteArrayOutputStream
+                out = new ByteArrayOutputStream();
             } else {
                 throw new IOException("No se seleccionó ninguna impresora.");
             }
@@ -1050,18 +1061,6 @@ public class MainController {
         String date = str + "\n\n\n\n\n\n";
 
         int numeroFacturaActual = DatabaseManager.NVentas();
-
-        String Nfactura = " Factura de venta: #" + String.format("%03d", numeroFacturaActual) + "\n" +
-                " Fecha: " + fecha + " " + hora + "\n" +
-                " Atendido por: " + NameUser + "\n" +
-                " Pago: " + PagoOption + "\n" +
-                " Observaciones: " + " " + "\n" + " " + obser.getText().toString() + "\n\n" +
-                " Productos comprados: " + "\n\n" +
-                productosArea.getText() + "\n" +
-                " TOTAL:$ " + format(String.valueOf(totalVenta)) + "\n" +
-                " RECIBIDO:$ " + format(String.valueOf(totalPagado)) + "\n" +
-                " CAMBIO:$ " + format(String.valueOf(result)) + "\n" +
-                "-----------------------------------------\n";
 
         String Nfactura2 = " Factura: #" + String.format("%03d", numeroFacturaActual) + "\n" +
                 " Fecha:" + fecha + " " + hora + "\n" +
@@ -1108,6 +1107,8 @@ public class MainController {
             }
 
             sendData(out, "\nGRACIAS POR SU COMPRA!\n".getBytes());
+            sendData(out, Command.GS_i);//Comando para cortar el papel por completo
+
 
 //            ArrayList<String> Banner = new ArrayList<>();
 //            Banner.add("/home/matt/Downloads/cat1.png");
