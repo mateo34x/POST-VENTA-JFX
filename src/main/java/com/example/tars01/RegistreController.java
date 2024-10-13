@@ -2,7 +2,6 @@ package com.example.tars01;
 
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
-import com.example.tars01.Utils.EmailValidator;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -47,7 +46,22 @@ public class RegistreController {
                 "Invitado"
         );
         optionsPer.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
-            permisos = t1;
+
+
+            switch (t1){
+                case "Administrador":
+                    permisos = "ADMIN";
+                break;
+
+                case "Trabajador":
+                    permisos = "EMPLOYED";
+                break;
+
+                case "Invitado":
+                    permisos = "GUEST";
+                break;
+            }
+
             Platform.runLater(() -> MasterField.setVisible(t1.equals("Administrador")));
 
 
@@ -73,8 +87,10 @@ public class RegistreController {
         String Master = MasterField.getText();
 
 
+
+
         if (!nombreVerdadero.isEmpty() && !nombreUsuario.isEmpty() && !password.isEmpty()) {
-            registrar(nombreVerdadero, nombreUsuario, password);
+            registrar(nombreVerdadero, nombreUsuario, password, Master);
         } else {
             messageLabel.setText("Todos los campos son requeridos");
         }
@@ -92,10 +108,10 @@ public class RegistreController {
 
 
     @FXML
-    public void registrar(String name, String user, String pass) {
+    public void registrar(String name, String user, String pass,String Master) {
         DatabaseManager.createTableUser();
         String sqlSelect = "SELECT COUNT(*) AS count FROM users WHERE User = ?";
-        String sqlInsert = "INSERT INTO users (code, name, user, per, pass) VALUES (?, ?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO users (code, name, user, per, pass, passM) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL2);
              PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
@@ -122,6 +138,7 @@ public class RegistreController {
                 insertStatement.setString(3, user);
                 insertStatement.setString(4, permisos);
                 insertStatement.setString(5, pass);
+                insertStatement.setString(6, Master);
                 insertStatement.executeUpdate();
 
                 messageLabel.setText("Usuario creado correctamente");
@@ -139,7 +156,7 @@ public class RegistreController {
 
         if (permisosSeleccionado != null) {
             switch (permisosSeleccionado) {
-                case "Administrador":
+                case "ADMIN":
                     if (nombreUsuarioField.getText().isEmpty() || nombreVerdaderoField.getText().isEmpty() ||
                             passwordField.getText().isEmpty() || MasterField.getText().isEmpty()) {
                         Platform.runLater(() -> saveUser.setDisable(true));
@@ -148,7 +165,7 @@ public class RegistreController {
                     }
                     break;
 
-                case "Trabajador", "Invitado":
+                case "EMPLOYED", "GUEST":
 
                     if (nombreUsuarioField.getText().isEmpty() || nombreVerdaderoField.getText().isEmpty() ||
                             passwordField.getText().isEmpty()) {
