@@ -1,46 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.Datos">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #31363F;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.DatosController">
    <children>
-      <Label layoutX="14.0" layoutY="14.0" prefHeight="22.0" prefWidth="168.0" text="Datos del negocio" textFill="WHITE">
+      <Label layoutX="14.0" layoutY="14.0" prefHeight="32.0" prefWidth="197.0" text="Configuración" textFill="WHITE">
          <font>
-            <Font name="JetBrains Mono Bold" size="16.0" />
+            <Font name="JetBrains Mono Bold" size="24.0" />
          </font>
       </Label>
-      <Label layoutX="14.0" layoutY="53.0" prefHeight="20.0" prefWidth="61.0" text="Nombre" textFill="WHITE">
+      <Label layoutX="14.0" layoutY="91.0" prefHeight="20.0" prefWidth="61.0" text="Nombre" textFill="WHITE" />
+      <TextField fx:id="NameL" layoutX="14.0" layoutY="111.0" />
+      <Label layoutX="14.0" layoutY="141.0" prefHeight="17.0" prefWidth="27.0" text="NIT" textFill="WHITE" />
+      <TextField fx:id="NitL" layoutX="14.0" layoutY="161.0" />
+      <Label layoutX="14.0" layoutY="189.0" prefHeight="20.0" prefWidth="68.0" text="Dirección" textFill="WHITE" />
+      <TextField fx:id="DirL" layoutX="14.0" layoutY="208.0" />
+      <TextField fx:id="TelL" layoutX="14.0" layoutY="255.0" />
+      <Label layoutX="14.0" layoutY="236.0" prefHeight="20.0" prefWidth="68.0" text="Teléfono" textFill="WHITE" />
+      <Label layoutX="14.0" layoutY="285.0" prefHeight="17.0" prefWidth="47.0" text="Logo" textFill="WHITE" />
+      <TextField fx:id="LogoL" layoutX="14.0" layoutY="304.0" prefHeight="25.0" prefWidth="92.0" promptText="236X236" />
+      <CheckBox fx:id="checkImpre" layoutX="198.0" layoutY="165.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="241.0" text="Preguntar siempre que impresora elegir" textFill="WHITE" />
+      <Label layoutX="14.0" layoutY="64.0" text="Datos del negocio" textFill="WHITE">
          <font>
-            <Font size="14.0" />
+            <Font name="JetBrains Mono Bold" size="14.0" />
          </font>
       </Label>
-      <TextField layoutX="14.0" layoutY="73.0" />
-      <Label layoutX="14.0" layoutY="111.0" prefHeight="17.0" prefWidth="27.0" text="NIT" textFill="WHITE">
+      <Label layoutX="197.0" layoutY="65.0" prefHeight="20.0" prefWidth="80.0" text="Impresora" textFill="WHITE">
          <font>
-            <Font size="14.0" />
+            <Font name="JetBrains Mono Bold" size="14.0" />
          </font>
       </Label>
-      <TextField layoutX="14.0" layoutY="131.0" />
-      <Label layoutX="14.0" layoutY="169.0" prefHeight="20.0" prefWidth="68.0" text="Dirección" textFill="WHITE">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-      <TextField layoutX="14.0" layoutY="188.0" />
-      <TextField layoutX="14.0" layoutY="247.0" />
-      <Label layoutX="14.0" layoutY="228.0" prefHeight="20.0" prefWidth="68.0" text="Teléfono" textFill="WHITE">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-      <Label layoutX="14.0" layoutY="283.0" prefHeight="17.0" prefWidth="47.0" text="Logo" textFill="WHITE">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-      <TextField layoutX="14.0" layoutY="302.0" promptText="Dimensiones 236X236" />
+      <Label layoutX="197.0" layoutY="94.0" text="Impresora predeterminada" textFill="WHITE" />
+      <TextField fx:id="ImpreL" editable="false" layoutX="196.0" layoutY="111.0" />
+      <Label layoutX="198.0" layoutY="143.0" text="Seleccionar impresoras" textFill="WHITE" />
+      <ImageView fx:id="chooseLogo" fitHeight="24.0" fitWidth="24.0" layoutX="113.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="https://res.cloudinary.com/dtljcfmr3/image/upload/v1728928232/ghbh6pzerkthgxashtax.png" />
+         </image></ImageView>
    </children>
 </AnchorPane>

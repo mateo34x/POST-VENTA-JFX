@@ -4,8 +4,11 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -32,10 +35,36 @@ public class LoginController {
 
         usernameField.textProperty().addListener((observable, oldValue, newValue) -> {
             Check();
+
         });
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
             Check();
         });
+
+        usernameField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode()== KeyCode.ENTER){
+                    if (!usernameField.getText().isEmpty()){
+                        passwordField.requestFocus();
+                    }
+                }
+            }
+        });
+
+        passwordField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode()== KeyCode.ENTER){
+                    if (!passwordField.getText().isEmpty()){
+                        login();
+                    }
+                }
+
+            }
+        });
+
+
 
 
         Funtions.ChangeMessage(title, 0, "TARS 01");
@@ -65,6 +94,7 @@ public class LoginController {
     private void Check() {
         String username = usernameField.getText();
         String password = passwordField.getText();
+
 
         Platform.runLater(() -> I.setDisable(username.isEmpty() || password.isEmpty()));
     }

@@ -6,6 +6,7 @@ import com.example.tars01.Database.Producto;
 import com.example.tars01.Printer.Command;
 import com.example.tars01.Printer.PrinterCommandsAct;
 import com.example.tars01.Servidor.ServerManager;
+import com.example.tars01.Utils.FileEditor;
 import com.jfoenix.controls.JFXTreeTableView;
 import io.github.palexdev.materialfx.controls.MFXListView;
 import javafx.animation.Animation;
@@ -52,6 +53,7 @@ import java.util.*;
 import java.util.Date;
 
 import static com.example.tars01.Printer.PrinterCommandsAct.*;
+import static com.example.tars01.Utils.FileEditor.leerLineaEspecifica;
 
 
 public class MainController {
@@ -283,13 +285,13 @@ public class MainController {
         });
 
 
-        textFieldItem.textProperty().addListener((observable, oldValue, newValue)->{
-            if (!newValue.isEmpty()&&!newValue.matches("\\d+")) {
+        textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty() && !newValue.matches("\\d+")) {
                 busquedaB.setVisible(true);
-                updateProductList(newValue,1);
+                updateProductList(newValue, 1);
                 QueryInput.setText(newValue);
 
-            }else{
+            } else {
                 tableSearchQuery.getItems().clear();
                 busquedaB.setVisible(false);
                 textFieldItem.requestFocus();
@@ -333,27 +335,30 @@ public class MainController {
         tableView.setRowFactory(tv -> {
             TreeTableRow<Producto> row = new TreeTableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1 && !row.isEmpty()) {
-                    Producto rowData = row.getItem();
-                    System.out.println(rowData.getName());
-                    System.out.println(rowData.getId());
+                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1) {
+                    if (!row.isEmpty()) {
 
-                    if (productCounts.containsKey(rowData.getId())) {
-                        System.out.println(productCounts.get(rowData.getName()));
-                        openDeleteDialog(productCounts.get(rowData.getId()), rowData);
+                        Producto rowData = row.getItem();
+                        System.out.println(rowData.getName());
+                        System.out.println(rowData.getId());
+
+                        if (productCounts.containsKey(rowData.getId())) {
+                            openDeleteDialog(productCounts.get(rowData.getId()), rowData);
+                        }
                     }
                 } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() == 1) {
-                    for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
-                            double priceEq = Double.parseDouble(item.getValue().getPrice());
-                            System.out.println(priceEq);
-                            totalVenta += priceEq;
-                            productCounts.put(item.getValue().getId(), productCounts.get(item.getValue().getId()) + 1);
-                            Platform.runLater(() -> info.setText("Producto añadido"));
-                            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
-                            tableView.refresh();
-                            break;
 
+                    if (!row.isEmpty()) {
+                        Producto rowData = row.getItem();
+                        double priceEq = Double.parseDouble(rowData.getPrice());
+                        System.out.println(priceEq);
+                        totalVenta += priceEq;
+                        productCounts.put(rowData.getId(), productCounts.get(rowData.getId()) + 1);
+                        Platform.runLater(() -> info.setText("Producto añadido"));
+                        Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                        tableView.refresh();
                     }
+
 
                 }
             });
@@ -376,7 +381,7 @@ public class MainController {
             }
         });
 
-        precio.textProperty().addListener((observable, oldValue, newValue) ->{
+        precio.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
 
                 String formattedValue = jTextField1KeyTyped(newValue);
@@ -389,7 +394,6 @@ public class MainController {
                 }
             }
         });
-
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
@@ -466,7 +470,7 @@ public class MainController {
 
         QueryInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
-                updateProductList(newValue,0);
+                updateProductList(newValue, 0);
             } else {
                 tableSearchQuery.getItems().clear();
             }
@@ -548,7 +552,7 @@ public class MainController {
         return priceColumn;
     }
 
-    private void updateProductList(String searchText,int origin) {
+    private void updateProductList(String searchText, int origin) {
         tableSearchQuery.getItems().clear();
 
         if (searchText.isEmpty()) {
@@ -567,19 +571,19 @@ public class MainController {
 
 
             if (!resultSet.next()) {
-                if (origin==1){
+                if (origin == 1) {
                     tableSearchQuery.getItems().clear();
                     busquedaB.setVisible(false);
-                }else{
+                } else {
                     tableSearchQuery.getItems().clear();
                     return;
                 }
 
             }
 
-            if (origin==0){
+            if (origin == 0) {
 
-            } else if (origin==1) {
+            } else if (origin == 1) {
 
             }
 
@@ -634,14 +638,14 @@ public class MainController {
                     if (itemToRemove != null) {
                         tableView.getRoot().getChildren().remove(itemToRemove);
                     }
-                    totalVenta = 0.0;
+                    totalVenta -= minus * quantity;
                     Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
-                    Platform.runLater(()->info.setText("Producto borrado correctamente"));
+                    Platform.runLater(() -> info.setText("Producto borrado correctamente"));
                     tableView.refresh();
                 } else if (quantity > 0 && quantity <= valueG) {
                     productCounts.put(producto.getId(), r);
                     totalVenta -= minus * quantity;
-                    Platform.runLater(()->info.setText(quantityStr+" producto(s) borrados correctamente"));
+                    Platform.runLater(() -> info.setText(quantityStr + " producto(s) borrados correctamente"));
                     Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                     tableView.refresh();
                     System.out.println(totalVenta);
@@ -725,7 +729,7 @@ public class MainController {
                 } else {
 
                     Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
-                    String cleanTextPrecio = precio.getText().replaceAll("'","");
+                    String cleanTextPrecio = precio.getText().replaceAll("'", "");
                     precio.setDisable(false);
                     precio.requestFocus();
                     if (!precio.getText().isEmpty()) {
@@ -975,6 +979,11 @@ public class MainController {
         HelloClientes.go();
     }
 
+    public void cargarVistaConfig() throws IOException {
+
+        HelloDatos.go();
+    }
+
 
     public void actualizarProductosArea() {
 
@@ -1021,25 +1030,57 @@ public class MainController {
     }
 
 
-
     public void Print_Ex(Double result) throws IOException, PrintException {
 
-        String USB_PRINTER_PATH = "/dev/usb/lp0"; // Ruta predeterminada para Linux
-        OutputStream out = null; // Flujo de salida inicializado como null
-
-        // Detectar sistema operativo
+        String USB_PRINTER_PATH = "/dev/usb/lp0";
+        OutputStream out = null;
         String os = System.getProperty("os.name").toLowerCase();
+        String defaultPrinterFile = "PrincipalData.txt";
+        PrintService selectedService = null;
 
         if (os.contains("win")) {
-            // En Windows, seleccionar la impresora conectada
-            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-            PrintService selectedService = (PrintService) JOptionPane.showInputDialog(null, "Seleccione una impresora",
-                    "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
 
-            if (selectedService != null) {
-                out = new ByteArrayOutputStream();
+            File file = new File(defaultPrinterFile);
+            if (file.exists()) {
+
+                String printerName = FileEditor.leerLineaEspecifica("PrincipalData.txt",6);
+                PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+                for (PrintService ps : printServices) {
+                    System.out.println(ps.getName());
+                    if (ps.getName().equals(printerName.replace("\n",""))) {
+                        selectedService = ps;
+                        break;
+                    }
+                }
+
+            }
+
+            if (selectedService == null || Boolean.parseBoolean(leerLineaEspecifica("PrincipalData.txt", 7).replace("\n",""))) {
+                PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+                selectedService = (PrintService) JOptionPane.showInputDialog(null, "Seleccione una impresora",
+                        "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
+
+
+                if (selectedService != null) {
+                    int option;
+                        option = JOptionPane.showConfirmDialog(null,
+                                "¿Desea establecer esta impresora como predeterminada?", "Confirmación",
+                                JOptionPane.YES_NO_OPTION);
+
+
+                    if (option == JOptionPane.YES_OPTION) {
+                        FileEditor.insertarValorEnLinea(defaultPrinterFile, 6, selectedService.getName());
+                    }
+
+
+                    out = new ByteArrayOutputStream();
+                } else {
+                    throw new IOException("No se seleccionó ninguna impresora.");
+
+                }
             } else {
-                throw new IOException("No se seleccionó ninguna impresora.");
+                out = new ByteArrayOutputStream();
+
             }
         } else if (os.contains("nix") || os.contains("nux")) {
             // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
@@ -1062,10 +1103,10 @@ public class MainController {
 
         int numeroFacturaActual = DatabaseManager.NVentas();
 
-        String Nfactura2 = " Factura: #" + String.format("%03d", numeroFacturaActual) + "\n" +
+        String Nfactura2 = " P.O.S:#" + String.format("%03d", numeroFacturaActual) + "\n" +
                 " Fecha:" + fecha + " " + hora + "\n" +
-                " Atendido por: " + NameUser + "\n\n" +
-                " Cliente: Josefina \n" +
+                " Atendido por:" + NameUser + "\n\n" +
+                " Cliente:Consumidor Final \n" +
                 " Observaciones: " + " " + "\n" + " " + "* Ninguna" + "\n\n" +
                 " Productos comprados  " + "\n\n" +
                 productosArea.getText() + "\n";
@@ -1078,12 +1119,10 @@ public class MainController {
             sendData(out, Command.ESC_Align);
             printImage(ImageIO.read(new File("C:\\Users\\danin\\Downloads\\logoa.jpg")), out, false);
             sendData(out, setBold(true));
-            sendData(out, ("VITAL CLINICA VETERINARIA\n" +
-                    "&\n" +
-                    "PET SHOP\n").getBytes());
-            sendData(out, "NIT: 1110482049-8\n".getBytes());
-            sendData(out, "Dir: MZ2 CS23 1etp.Jordan IBAGUE-TOLIMA\n".getBytes());
-            sendData(out, "TEL: 3144658553\n\n".getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 3)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 4)).getBytes());
 
             sendData(out, setBold(false));
 
@@ -1091,14 +1130,14 @@ public class MainController {
             sendData(out, Command.ESC_Align);
             sendData(out, Nfactura2.getBytes(StandardCharsets.ISO_8859_1));
 
-            sendData(out, Objects.requireNonNull(printMixedText("TOTAL:$ ", format(String.valueOf(totalVenta)) + "\n")));
-            sendData(out, Objects.requireNonNull(printMixedText("RECIBIDO:$ ", format(String.valueOf(totalPagado)) + "\n")));
-            sendData(out, Objects.requireNonNull(printMixedText("CAMBIO:$ ", format(String.valueOf(result)) + "\n")));
+            sendData(out, Objects.requireNonNull(printMixedText("TOTAL: $", format(String.valueOf(totalVenta)) + "\n")));
+            sendData(out, Objects.requireNonNull(printMixedText("RECIBIDO: $", format(String.valueOf(totalPagado)) + "\n")));
+            sendData(out, Objects.requireNonNull(printMixedText("CAMBIO: $", format(String.valueOf(result)) + "\n")));
             sendData(out, "-----------------------------------------\n\n".getBytes());
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-            byte[] code = PrinterCommandsAct.getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
+            byte[] code = getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
 
             if (code != null) {
                 sendData(out, code);
@@ -1106,7 +1145,11 @@ public class MainController {
                 System.err.println("Error creando el comando de código de barras.");
             }
 
-            sendData(out, "\nGRACIAS POR SU COMPRA!\n".getBytes());
+            sendData(out, "\nGRACIAS POR SU COMPRA!\n\n".getBytes());
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
             sendData(out, Command.GS_i);//Comando para cortar el papel por completo
 
 
@@ -1123,10 +1166,11 @@ public class MainController {
         if (os.contains("win") && out instanceof ByteArrayOutputStream) {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
             Doc doc = new SimpleDoc(inputStream, DocFlavor.INPUT_STREAM.AUTOSENSE, null);
-            PrintService selectedService = PrintServiceLookup.lookupPrintServices(null, null)[0];
+            selectedService = PrintServiceLookup.lookupPrintServices(null, null)[0];
             DocPrintJob printJob = selectedService.createPrintJob();
             printJob.print(doc, new HashPrintRequestAttributeSet());
         }
     }
+
 
 }
