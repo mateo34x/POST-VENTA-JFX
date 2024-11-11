@@ -94,6 +94,12 @@ public class HelloMain extends Application {
                     mainController.ReciboViewVenta.setVisible(false);
                 }
             }
+
+
+            if (event.isControlDown() && event.getCode() == KeyCode.L){
+                mainController.getLastBill();
+            }
+
         }
 
 

@@ -41,217 +41,174 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.example.tars01.MainController">
+<VBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tars01.MainController">
     <children>
         <MenuBar style="-fx-background-color: #DBD8E3;" useSystemMenuBar="true" VBox.vgrow="ALWAYS">
             <menus>
                 <Menu mnemonicParsing="false" text="Turno">
                     <items>
-                        <MenuItem fx:id="tON" mnemonicParsing="false" onAction="#IniciarTurno" text="Iniciar turno"/>
-                        <MenuItem fx:id="tOFF" disable="true" mnemonicParsing="false" onAction="#TerminarTurno"
-                                  text="Terminar turno"/>
+                        <MenuItem fx:id="tON" mnemonicParsing="false" onAction="#IniciarTurno" text="Iniciar turno" />
+                        <MenuItem fx:id="tOFF" disable="true" mnemonicParsing="false" onAction="#TerminarTurno" text="Terminar turno" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" style="-fx-text-fill: BLACK;" text="Cuenta">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#Logout" style="-fx-text-fill: black;"
-                                  text="Cerrar sesión"/>
+                        <MenuItem mnemonicParsing="false" onAction="#Logout" style="-fx-text-fill: black;" text="Cerrar sesión" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Vistas">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaCrear" text="Crear Producto"/>
-                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaEditar" text="Editar Producto"/>
-                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaBuscar" text="Buscar venta"/>
-                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaNCliente" text="Clientes"/>
-                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaConfig" text="Configuración"/>
+                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaCrear" text="Crear Producto" />
+                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaEditar" text="Editar Producto" />
+                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaBuscar" text="Buscar venta" />
+                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaNCliente" text="Clientes" />
+                        <MenuItem mnemonicParsing="false" onAction="#cargarVistaConfig" text="Configuración" />
 
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Servidor">
                     <items>
-                        <MenuItem fx:id="see" disable="true" mnemonicParsing="false" text="Encender"/>
+                        <MenuItem fx:id="see" disable="true" mnemonicParsing="false" text="Encender" />
 
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Coming soon"/>
+                        <MenuItem mnemonicParsing="false" text="Coming soon" />
                     </items>
                 </Menu>
             </menus>
 
         </MenuBar>
-        <AnchorPane fx:id="busqueda" prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #101015;"
-                    VBox.vgrow="ALWAYS">
+        <AnchorPane fx:id="busqueda" prefHeight="768.0" prefWidth="1360" style="-fx-background-color: #101015;" VBox.vgrow="ALWAYS">
 
             <children>
-                <TextField fx:id="textFieldItem" disable="true" layoutX="20.0" layoutY="18.0" prefHeight="23.0"
-                           prefWidth="324.0" promptText="Ingrese el código de barras"
-                           style="-fx-background-color: #DDDDDD;"/>
-                <Button fx:id="buttonClear" disable="true" layoutX="420.0" layoutY="549.0" mnemonicParsing="false"
-                        onAction="#clear" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #506385;"
-                        text="L" textAlignment="CENTER" textFill="WHITE">
+                <TextField fx:id="textFieldItem" disable="true" layoutX="20.0" layoutY="18.0" prefHeight="23.0" prefWidth="324.0" promptText="Ingrese el código de barras" style="-fx-background-color: #DDDDDD;" />
+                <Button fx:id="buttonClear" disable="true" layoutX="420.0" layoutY="549.0" mnemonicParsing="false" onAction="#clear" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #506385;" text="L" textAlignment="CENTER" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="19.0"/>
+                        <Font name="JetBrains Mono Bold" size="19.0" />
                     </font>
                     <cursor>
-                        <Cursor fx:constant="HAND"/>
+                        <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <TextField fx:id="textFieldTotalQuantity" editable="false" layoutX="118.0" layoutY="490.0"
-                           prefHeight="52.0" prefWidth="195.0"
-                           style="-fx-background-color: #222831; -fx-text-fill: white; -fx-background-radius: 10; -fx-border-radius: 10;">
+                <TextField fx:id="textFieldTotalQuantity" editable="false" layoutX="118.0" layoutY="490.0" prefHeight="52.0" prefWidth="195.0" style="-fx-background-color: #222831; -fx-text-fill: white; -fx-background-radius: 10; -fx-border-radius: 10;">
                     <font>
-                        <Font size="25.0"/>
+                        <Font size="25.0" />
                     </font>
                 </TextField>
-                <TextField fx:id="textFieldTotalPaidAmount" disable="true" layoutX="119.0" layoutY="547.0"
-                           prefHeight="50.0" prefWidth="195.0"
-                           style="-fx-background-color: #222831; -fx-text-fill: WHITE; -fx-background-radius: 10; -fx-border-radius: 10;"
-                           visible="false">
+                <TextField fx:id="textFieldTotalPaidAmount" disable="true" layoutX="119.0" layoutY="547.0" prefHeight="50.0" prefWidth="195.0" style="-fx-background-color: #222831; -fx-text-fill: WHITE; -fx-background-radius: 10; -fx-border-radius: 10;" visible="false">
                     <font>
-                        <Font size="25.0"/>
+                        <Font size="25.0" />
                     </font>
                 </TextField>
-                <Button fx:id="buttonSave" disable="true" layoutX="356.0" layoutY="490.0" mnemonicParsing="false"
-                        onAction="#entregar" prefHeight="51.0" prefWidth="116.0" style="-fx-background-color: #5C8374;"
-                        text="Cerrar venta" textAlignment="CENTER" textFill="WHITE">
+                <Button fx:id="buttonSave" disable="true" layoutX="356.0" layoutY="490.0" mnemonicParsing="false" onAction="#entregar" prefHeight="51.0" prefWidth="116.0" style="-fx-background-color: #5C8374;" text="Cerrar venta" textAlignment="CENTER" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="13.0"/>
+                        <Font name="JetBrains Mono Bold" size="13.0" />
                     </font>
                 </Button>
-                <Button fx:id="buttonClear1" disable="true" layoutX="369.0" layoutY="549.0" mnemonicParsing="false"
-                        onAction="#ClearSould" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #FF6363;"
-                        text="C" textAlignment="CENTER" textFill="WHITE">
+                <Button fx:id="buttonClear1" disable="true" layoutX="369.0" layoutY="549.0" mnemonicParsing="false" onAction="#ClearSould" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #FF6363;" text="C" textAlignment="CENTER" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="19.0"/>
+                        <Font name="JetBrains Mono Bold" size="19.0" />
                     </font>
                     <cursor>
-                        <Cursor fx:constant="HAND"/>
+                        <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <Label contentDisplay="CENTER" ellipsisString="" graphicTextGap="0.0" layoutX="518.0" layoutY="47.0"
-                       style="-fx-text-fill: #F1F0E1;" text="Hora de inicio:">
+                <Label contentDisplay="CENTER" ellipsisString="" graphicTextGap="0.0" layoutX="518.0" layoutY="47.0" style="-fx-text-fill: #F1F0E1;" text="Hora de inicio:">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="16.0"/>
+                        <Font name="JetBrains Mono Bold" size="16.0" />
                     </font>
                 </Label>
-                <Label fx:id="logArea" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="663.0"
-                       layoutY="47.0" style="-fx-text-fill: #F1F0E1;" text="No hay un turno activo">
+                <Label fx:id="logArea" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="663.0" layoutY="47.0" style="-fx-text-fill: #F1F0E1;" text="No hay un turno activo">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="16.0"/>
+                        <Font name="JetBrains Mono Bold" size="16.0" />
                     </font>
                     <opaqueInsets>
-                        <Insets/>
+                        <Insets />
                     </opaqueInsets>
                 </Label>
-                <Label fx:id="labelItem1" layoutX="29.0" layoutY="498.0" prefHeight="35.0" prefWidth="69.0"
-                       style="-fx-text-fill: #F1F0E1;" text="Total" textFill="WHITE">
+                <Label fx:id="labelItem1" layoutX="29.0" layoutY="498.0" prefHeight="35.0" prefWidth="69.0" style="-fx-text-fill: #F1F0E1;" text="Total" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="21.0"/>
+                        <Font name="JetBrains Mono Bold" size="21.0" />
                     </font>
                 </Label>
-                <Label fx:id="Tpago" layoutX="16.0" layoutY="550.0" prefHeight="35.0" prefWidth="103.0"
-                       style="-fx-text-fill: WHITE;" text="Efectivo" textFill="WHITE" visible="false">
+                <Label fx:id="Tpago" layoutX="16.0" layoutY="550.0" prefHeight="35.0" prefWidth="103.0" style="-fx-text-fill: WHITE;" text="Efectivo" textFill="WHITE" visible="false">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="21.0"/>
+                        <Font name="JetBrains Mono Bold" size="21.0" />
                     </font>
                 </Label>
-                <Label fx:id="horaActual" layoutX="26.0" layoutY="661.0" prefHeight="24.0" prefWidth="324.0"
-                       style="-fx-text-fill: white;" visible="false">
+                <Label fx:id="horaActual" layoutX="26.0" layoutY="661.0" prefHeight="24.0" prefWidth="324.0" style="-fx-text-fill: white;" visible="false">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="21.0"/>
+                        <Font name="JetBrains Mono Bold" size="21.0" />
                     </font>
                     <opaqueInsets>
-                        <Insets/>
+                        <Insets />
                     </opaqueInsets>
                 </Label>
-                <Label fx:id="info" layoutX="517.0" layoutY="73.0" prefHeight="20.0" prefWidth="828.0"
-                       textFill="#e4f800">
+                <Label fx:id="info" layoutX="517.0" layoutY="73.0" prefHeight="20.0" prefWidth="828.0" textFill="#e4f800">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="14.0"/>
+                        <Font name="JetBrains Mono Bold" size="14.0" />
                     </font>
                     <opaqueInsets>
-                        <Insets/>
+                        <Insets />
                     </opaqueInsets>
                 </Label>
-                <TextField fx:id="textFieldChange" editable="false" layoutX="117.0" layoutY="603.0" prefHeight="51.0"
-                           prefWidth="195.0"
-                           style="-fx-background-color: #222831; -fx-text-fill: white; -fx-background-radius: 10; -fx-border-radius: 10;"
-                           visible="false">
+                <TextField fx:id="textFieldChange" editable="false" layoutX="117.0" layoutY="603.0" prefHeight="51.0" prefWidth="195.0" style="-fx-background-color: #222831; -fx-text-fill: white; -fx-background-radius: 10; -fx-border-radius: 10;" visible="false">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="25.0"/>
+                        <Font name="JetBrains Mono Bold" size="25.0" />
                     </font>
                 </TextField>
-                <Label fx:id="TCambio" layoutX="19.0" layoutY="617.0" style="-fx-text-fill: WHITE;" text="Cambio"
-                       textFill="WHITE" visible="false">
+                <Label fx:id="TCambio" layoutX="19.0" layoutY="617.0" style="-fx-text-fill: WHITE;" text="Cambio" textFill="WHITE" visible="false">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="21.0"/>
+                        <Font name="JetBrains Mono Bold" size="21.0" />
                     </font>
                 </Label>
-                <TextField fx:id="precio" disable="true" layoutX="45.0" layoutY="49.0" prefHeight="24.0"
-                           prefWidth="116.0">
+                <TextField fx:id="precio" disable="true" layoutX="45.0" layoutY="49.0" prefHeight="24.0" prefWidth="116.0">
                     <font>
-                        <Font name="JetBrains Mono Regular" size="13.0"/>
+                        <Font name="JetBrains Mono Regular" size="13.0" />
                     </font>
                 </TextField>
-                <Label fx:id="labelItem2" alignment="CENTER" layoutX="18.0" layoutY="48.0" prefHeight="25.0"
-                       prefWidth="23.0" style="-fx-text-fill: WHITE;" text="\$" textFill="WHITE">
+                <Label fx:id="labelItem2" alignment="CENTER" layoutX="18.0" layoutY="48.0" prefHeight="25.0" prefWidth="23.0" style="-fx-text-fill: WHITE;" text="\$" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="18.0"/>
+                        <Font name="JetBrains Mono Bold" size="18.0" />
                     </font>
                 </Label>
-                <TextArea fx:id="ReciboViewVenta" editable="false" layoutX="517.0" layoutY="76.0" prefHeight="402.0"
-                          prefWidth="286.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" visible="false">
+                <TextArea fx:id="ReciboViewVenta" editable="false" layoutX="517.0" layoutY="76.0" prefHeight="402.0" prefWidth="286.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" visible="false">
                     <font>
-                        <Font name="Monospaced Bold" size="11.0"/>
+                        <Font name="Monospaced Bold" size="11.0" />
                     </font>
                 </TextArea>
-                <TextField fx:id="Nventa" alignment="TOP_LEFT" editable="false" layoutX="239.0" layoutY="48.0"
-                           opacity="0.69" prefHeight="20.0" prefWidth="103.0"
-                           style="-fx-text-fill: WHITE; -fx-background-color: #191919;" text="90">
+                <TextField fx:id="Nventa" alignment="TOP_LEFT" editable="false" layoutX="239.0" layoutY="48.0" opacity="0.69" prefHeight="20.0" prefWidth="103.0" style="-fx-text-fill: WHITE; -fx-background-color: #191919;">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="13.0"/>
+                        <Font name="JetBrains Mono Bold" size="13.0" />
                     </font>
                 </TextField>
-                <Label fx:id="labelItem21" alignment="CENTER" layoutX="169.0" layoutY="49.0" prefHeight="22.0"
-                       prefWidth="69.0" style="-fx-text-fill: #F1F0E1;" text="Factura" textFill="WHITE">
+                <Label fx:id="labelItem21" alignment="CENTER" layoutX="169.0" layoutY="49.0" prefHeight="22.0" prefWidth="69.0" style="-fx-text-fill: #F1F0E1;" text="Factura" textFill="WHITE">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="16.0"/>
+                        <Font name="JetBrains Mono Bold" size="16.0" />
                     </font>
                 </Label>
-                <MFXListView fx:id="productListView" depthLevel="LEVEL3" layoutX="80.0" layoutY="45.0" prefHeight="0.0"
-                             prefWidth="324.0"/>
-                <ComboBox fx:id="optionSold" disable="true" layoutX="359.0" layoutY="48.0" prefWidth="150.0"
-                          promptText="Tipo de pago"/>
-                <Label fx:id="labelItem121" layoutX="518.0" layoutY="508.0" style="-fx-text-fill: WHITE;"
-                       text="Observaciones" textFill="WHITE" visible="false">
+                <MFXListView fx:id="productListView" depthLevel="LEVEL3" layoutX="80.0" layoutY="45.0" prefHeight="0.0" prefWidth="324.0" />
+                <ComboBox fx:id="optionSold" disable="true" layoutX="359.0" layoutY="48.0" prefWidth="150.0" promptText="Tipo de pago" />
+                <Label fx:id="labelItem121" layoutX="518.0" layoutY="508.0" style="-fx-text-fill: WHITE;" text="Observaciones" textFill="WHITE" visible="false">
                     <font>
-                        <Font name="JetBrains Mono Bold" size="17.0"/>
+                        <Font name="JetBrains Mono Bold" size="17.0" />
                     </font>
                 </Label>
 
 
-                <AnchorPane fx:id="busquedaB" layoutX="827.0" layoutY="70.0" prefHeight="435.0" prefWidth="477.0"
-                            style="-fx-background-color: #1D1D1D; -fx-border-radius: 10; -fx-background-radius: 10;"
-                            visible="false">
-                    <TextField fx:id="QueryInput" layoutX="22.0" layoutY="14.0" prefHeight="27.0" prefWidth="349.0"/>
-                    <TableView fx:id="tableSearchQuery" layoutX="22.0" layoutY="59.0" prefHeight="349.0"
-                               prefWidth="427.0"/>
+                <AnchorPane fx:id="busquedaB" layoutX="827.0" layoutY="70.0" prefHeight="435.0" prefWidth="477.0" style="-fx-background-color: #1D1D1D; -fx-border-radius: 10; -fx-background-radius: 10;" visible="false">
+                    <TextField fx:id="QueryInput" layoutX="22.0" layoutY="14.0" prefHeight="27.0" prefWidth="349.0" />
+                    <TableView fx:id="tableSearchQuery" layoutX="22.0" layoutY="59.0" prefHeight="349.0" prefWidth="427.0" />
                     <effect>
-                        <Blend/>
+                        <Blend />
                     </effect>
                 </AnchorPane>
-                <TextArea fx:id="obser" layoutX="517.0" layoutY="536.0" prefHeight="83.0" prefWidth="278.0"
-                          promptText="Ingrese una observación sobre la venta si es necesario"
-                          style="-fx-background-radius: 10; -fx-background-color: #222831; -fx-border-radius: 10; -fx-text-fill: white; -fx-control-inner-background: #222831; -fx-fill: white;"
-                          visible="false" wrapText="true"/>
-                <JFXTreeTableView fx:id="tableView" layoutX="19.0" layoutY="93.0" prefHeight="387.0" prefWidth="490.0"
-                                  stylesheets="@nombre.css">
+                <TextArea fx:id="obser" layoutX="517.0" layoutY="536.0" prefHeight="83.0" prefWidth="278.0" promptText="Ingrese una observación sobre la venta si es necesario" style="-fx-background-radius: 10; -fx-background-color: #222831; -fx-border-radius: 10; -fx-text-fill: white; -fx-control-inner-background: #222831; -fx-fill: white;" visible="false" wrapText="true" />
+                <JFXTreeTableView fx:id="tableView" layoutX="19.0" layoutY="93.0" prefHeight="387.0" prefWidth="490.0" stylesheets="@nombre.css">
                     <columnResizePolicy>
-                        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
                 </JFXTreeTableView>
 

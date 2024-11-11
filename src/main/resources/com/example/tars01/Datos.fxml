@@ -21,7 +21,7 @@
       <TextField fx:id="TelL" layoutX="14.0" layoutY="255.0" />
       <Label layoutX="14.0" layoutY="236.0" prefHeight="20.0" prefWidth="68.0" text="Teléfono" textFill="WHITE" />
       <Label layoutX="14.0" layoutY="285.0" prefHeight="17.0" prefWidth="47.0" text="Logo" textFill="WHITE" />
-      <TextField fx:id="LogoL" layoutX="14.0" layoutY="304.0" prefHeight="25.0" prefWidth="92.0" promptText="236X236" />
+      <TextField fx:id="LogoL" editable="false" layoutX="14.0" layoutY="304.0" prefHeight="25.0" prefWidth="92.0" promptText="236X236" />
       <CheckBox fx:id="checkImpre" layoutX="198.0" layoutY="165.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="241.0" text="Preguntar siempre que impresora elegir" textFill="WHITE" />
       <Label layoutX="14.0" layoutY="64.0" text="Datos del negocio" textFill="WHITE">
          <font>
@@ -36,9 +36,11 @@
       <Label layoutX="197.0" layoutY="94.0" text="Impresora predeterminada" textFill="WHITE" />
       <TextField fx:id="ImpreL" editable="false" layoutX="196.0" layoutY="111.0" />
       <Label layoutX="198.0" layoutY="143.0" text="Seleccionar impresoras" textFill="WHITE" />
-      <ImageView fx:id="chooseLogo" fitHeight="24.0" fitWidth="24.0" layoutX="113.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="chooseLogo" fitHeight="24.0" fitWidth="24.0" layoutX="113.0" layoutY="304.0" onMouseClicked="#chooseLogo" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="https://res.cloudinary.com/dtljcfmr3/image/upload/v1728928232/ghbh6pzerkthgxashtax.png" />
          </image></ImageView>
+      <CheckBox fx:id="checkRecibo" layoutX="198.0" layoutY="217.0" mnemonicParsing="false" text="No preguntar antes de imprimir el recibo" textFill="WHITE" />
+      <Label layoutX="197.0" layoutY="191.0" prefHeight="17.0" prefWidth="129.0" text="Recibo" textFill="WHITE" />
    </children>
 </AnchorPane>

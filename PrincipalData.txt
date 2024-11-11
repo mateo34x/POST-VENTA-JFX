@@ -1,7 +1,9 @@
-VITAL CLINICA
+
 NIT:1110482049-8
 
 TEL:3144658553
 
 POS-80
 false
+true
+C:\\Users\\danin\\Downloads\\logo.png

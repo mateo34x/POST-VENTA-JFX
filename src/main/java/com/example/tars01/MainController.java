@@ -4,11 +4,9 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
 import com.example.tars01.Printer.Command;
-import com.example.tars01.Printer.PrinterCommandsAct;
 import com.example.tars01.Servidor.ServerManager;
 import com.example.tars01.Utils.FileEditor;
 import com.jfoenix.controls.JFXTreeTableView;
-import io.github.palexdev.materialfx.controls.MFXListView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -17,6 +15,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -64,7 +63,7 @@ public class MainController {
 
     private ServerSocket serverSocket;
     static double totalVenta = 0.0;
-    double totalPagado = 0.0;
+    static double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText, PagoOption;
     String fecha, hora, NameUser, Permission;
@@ -269,6 +268,7 @@ public class MainController {
         String numeroFacturaFormateado = String.format("%03d", DatabaseManager.NVentas() + 1);
 
         Platform.runLater(() -> Nventa.setText(numeroFacturaFormateado));
+        textFieldItem.setFocusTraversable(true);
 
         //Ejecuta la función searchProduct cuando precionemos la tecla ENTER
         textFieldItem.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -308,6 +308,25 @@ public class MainController {
                     String searchText = textFieldItem.getText();
                     if (!searchText.isEmpty()) {
                         searchProductT(searchText);
+                    }
+                }
+            }
+        });
+
+        textFieldTotalPaidAmount.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.ENTER) {
+                    if (textFieldTotalPaidAmount.getText().isEmpty()) {
+                        textFieldTotalPaidAmount.setText(textFieldTotalQuantity.getText());
+                    } else {
+                        try {
+                            entregar();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        } catch (PrintException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -522,6 +541,15 @@ public class MainController {
             }
         });
 
+
+        buttonSave.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                Platform.runLater(() -> info.setText("Para cerrar la venta debe seleccionar un método de pago"));
+
+            }
+        });
+
+
     }
 
     private static TreeTableColumn<Producto, String> getProductoStringTreeTableColumn() {
@@ -581,13 +609,6 @@ public class MainController {
 
             }
 
-            if (origin == 0) {
-
-            } else if (origin == 1) {
-
-            }
-
-
             do {
                 String nombre = resultSet.getString("nombre");
                 String codigoBarras = resultSet.getString("codigo_barras");
@@ -641,6 +662,7 @@ public class MainController {
                     totalVenta -= minus * quantity;
                     Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                     Platform.runLater(() -> info.setText("Producto borrado correctamente"));
+                    textFieldItem.requestFocus();
                     tableView.refresh();
                 } else if (quantity > 0 && quantity <= valueG) {
                     productCounts.put(producto.getId(), r);
@@ -648,6 +670,7 @@ public class MainController {
                     Platform.runLater(() -> info.setText(quantityStr + " producto(s) borrados correctamente"));
                     Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                     tableView.refresh();
+                    textFieldItem.requestFocus();
                     System.out.println(totalVenta);
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
@@ -716,7 +739,8 @@ public class MainController {
 //                            Producto producto = itemToUpdate.getValue();
 //                            producto.setPrice(precio.getText());
                             productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
-                            Platform.runLater(() -> info.setText("Producto añadido"));
+                            textFieldItem.requestFocus();
+                            Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
                             Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
                             tableView.refresh();
 
@@ -728,7 +752,7 @@ public class MainController {
 
                 } else {
 
-                    Platform.runLater(() -> info.setText("El producto con el codigo ingresado no existe, ingrese un precio"));
+                    Platform.runLater(() -> info.setText("El producto con el código ingresado no existe, ingrese un precio"));
                     String cleanTextPrecio = precio.getText().replaceAll("'", "");
                     precio.setDisable(false);
                     precio.requestFocus();
@@ -738,7 +762,7 @@ public class MainController {
                         totalVenta += Double.parseDouble(cleanTextPrecio);
                         Platform.runLater(() -> precio.clear());
                         precio.setDisable(true);
-                        Platform.runLater(() -> info.setText("Producto añadido"));
+                        Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
                         textFieldItem.clear();
                         textFieldItem.requestFocus();
                         Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
@@ -748,7 +772,7 @@ public class MainController {
 
 
             } else {
-                Platform.runLater(() -> info.setText("Producto añadido"));
+                Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
                 precio.setDisable(true);
                 tableView.refresh();
                 Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
@@ -807,6 +831,7 @@ public class MainController {
             } catch (NumberFormatException e) {
 
                 textFieldTotalPaidAmount.clear();
+                precio.clear();
                 Platform.runLater(() -> {
                     info.setText("Valor no númerico ingresado");
                     Funtions.ChangeMessage(info, 0, "");
@@ -842,6 +867,8 @@ public class MainController {
 
                 } else {
                     info.setText("El valor pagado debe ser mayor al total de venta");
+                    textFieldTotalPaidAmount.clear();
+                    textFieldTotalPaidAmount.requestFocus();
                 }
 
             } catch (NumberFormatException e) {
@@ -867,29 +894,29 @@ public class MainController {
 
 
         StringBuilder reciboBuilder = new StringBuilder();
-        reciboBuilder.append("        TIENDA LA BENDICIÓN DE DIOS\n")
-                .append("-----------------------------------------\n")
-                .append(" Factura de venta: #").append(numeroFacturaFormateado).append("\n")
-                .append(" Fecha de venta: ").append(fecha).append(" ").append(hora).append("\n")
-                .append(" Atendido por: ").append(NameUser).append("\n")
-                .append(" Pago: ").append(PagoOption).append("\n")
-                .append(" Observaciones: ").append(" ").append("\n").append(" " + obser.getText().toString()).append("\n\n")
+        reciboBuilder
+                .append(" P.O.S:#").append(numeroFacturaFormateado).append("\n")
+                .append(" Fecha:").append(fecha).append(" ").append(hora).append("\n")
+                .append(" Atendido por:").append(NameUser).append("\n\n")
+                .append(" Cliente:").append("Consumidor Final").append("\n")
+                .append(" Observaciones: ").append("Copia del recibo ").append("\n").append(" " + obser.getText().toString()).append("\n")
                 .append(" Productos comprados ↓\n\n")
                 .append(productosArea.getText()).append("\n")
                 .append(" TOTAL:$ ").append(format(String.valueOf(totalVenta))).append("\n")
                 .append(" RECIBIDO:$ ").append(format(String.valueOf(totalPagado))).append("\n")
-                .append(" CAMBIO:$ ").append(format(String.valueOf(result))).append("\n")
-                .append("-----------------------------------------\n\n")
-                .append("           ¡GRACIAS POR SU COMPRA!\n");
+                .append(" CAMBIO:$ ").append(format(String.valueOf(result))).append("\n");
 
         String contenidoRecibo = reciboBuilder.toString();
 //        String rutaArchivo = "/home/matt/Documents/FACTURAS/" + UUID.randomUUID();
 //        FileWriter writer = new FileWriter(rutaArchivo);
 //        writer.write(contenidoRecibo);
 //        writer.close();
-        DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, totalVenta, totalPagado, result, contenidoRecibo, info);
-        Print_Ex(result);
-
+        DatabaseManager.SaveSold(numeroFacturaFormateado, fecha, hora, totalVenta, totalPagado, result, contenidoRecibo, obser.getText(), NameUser, info);
+        if (!Boolean.parseBoolean(leerLineaEspecifica("PrincipalData.txt", 8).replace("\n", ""))) {
+            mostrarDialogoConCheck("¿Desea imprimir el recibo de venta?", "Información");
+        } else {
+            Print_Ex();
+        }
 
         int actual = DatabaseManager.NVentas();
         int sig = actual + 1;
@@ -1030,7 +1057,7 @@ public class MainController {
     }
 
 
-    public void Print_Ex(Double result) throws IOException, PrintException {
+    public void Print_Ex() throws IOException, PrintException {
 
         String USB_PRINTER_PATH = "/dev/usb/lp0";
         OutputStream out = null;
@@ -1043,11 +1070,11 @@ public class MainController {
             File file = new File(defaultPrinterFile);
             if (file.exists()) {
 
-                String printerName = FileEditor.leerLineaEspecifica("PrincipalData.txt",6);
+                String printerName = leerLineaEspecifica("PrincipalData.txt", 6);
                 PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
                 for (PrintService ps : printServices) {
                     System.out.println(ps.getName());
-                    if (ps.getName().equals(printerName.replace("\n",""))) {
+                    if (ps.getName().equals(printerName.replace("\n", ""))) {
                         selectedService = ps;
                         break;
                     }
@@ -1055,7 +1082,7 @@ public class MainController {
 
             }
 
-            if (selectedService == null || Boolean.parseBoolean(leerLineaEspecifica("PrincipalData.txt", 7).replace("\n",""))) {
+            if (selectedService == null || Boolean.parseBoolean(leerLineaEspecifica("PrincipalData.txt", 7).replace("\n", ""))) {
                 PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
                 selectedService = (PrintService) JOptionPane.showInputDialog(null, "Seleccione una impresora",
                         "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
@@ -1063,9 +1090,9 @@ public class MainController {
 
                 if (selectedService != null) {
                     int option;
-                        option = JOptionPane.showConfirmDialog(null,
-                                "¿Desea establecer esta impresora como predeterminada?", "Confirmación",
-                                JOptionPane.YES_NO_OPTION);
+                    option = JOptionPane.showConfirmDialog(null,
+                            "¿Desea establecer esta impresora como predeterminada?", "Confirmación",
+                            JOptionPane.YES_NO_OPTION);
 
 
                     if (option == JOptionPane.YES_OPTION) {
@@ -1107,7 +1134,7 @@ public class MainController {
                 " Fecha:" + fecha + " " + hora + "\n" +
                 " Atendido por:" + NameUser + "\n\n" +
                 " Cliente:Consumidor Final \n" +
-                " Observaciones: " + " " + "\n" + " " + "* Ninguna" + "\n\n" +
+                " Observaciones: Recibo original " + " " + "\n" + " " + obser.getText() + "\n\n" +
                 " Productos comprados  " + "\n\n" +
                 productosArea.getText() + "\n";
 
@@ -1117,7 +1144,8 @@ public class MainController {
             sendData(out, SetCodePageOEM850());
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
-            printImage(ImageIO.read(new File("C:\\Users\\danin\\Downloads\\logoa.jpg")), out, false);
+
+            printImage(ImageIO.read(new File(FileEditor.leerLineaEspecifica("PrincipalData.txt",9).replace("\n",""))), out, false);
             sendData(out, setBold(true));
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
@@ -1132,7 +1160,7 @@ public class MainController {
 
             sendData(out, Objects.requireNonNull(printMixedText("TOTAL: $", format(String.valueOf(totalVenta)) + "\n")));
             sendData(out, Objects.requireNonNull(printMixedText("RECIBIDO: $", format(String.valueOf(totalPagado)) + "\n")));
-            sendData(out, Objects.requireNonNull(printMixedText("CAMBIO: $", format(String.valueOf(result)) + "\n")));
+            sendData(out, Objects.requireNonNull(printMixedText("CAMBIO: $", format(String.valueOf(totalPagado - totalVenta)) + "\n")));
             sendData(out, "-----------------------------------------\n\n".getBytes());
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
@@ -1170,6 +1198,193 @@ public class MainController {
             DocPrintJob printJob = selectedService.createPrintJob();
             printJob.print(doc, new HashPrintRequestAttributeSet());
         }
+
+
+    }
+
+
+    public void mostrarDialogoConCheck(String mensaje, String titulo) throws PrintException, IOException {
+        JCheckBox checkBoxNoMostrar = new JCheckBox("¿No volver a preguntar?");
+        Object[] components = {mensaje, checkBoxNoMostrar};
+
+        int option = JOptionPane.showConfirmDialog(null, components, titulo, JOptionPane.YES_NO_CANCEL_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            Print_Ex();
+        }
+        FileEditor.insertarValorEnLinea("PrincipalData.txt", 8, String.valueOf(checkBoxNoMostrar.isSelected()));
+
+    }
+
+
+    public void getLastBill() {
+        String id;
+        if (DatabaseManager.NVentas() == 1) {
+            id = String.format("%03d", DatabaseManager.NVentas());
+        } else {
+            id = String.format("%03d", DatabaseManager.NVentas());
+            ;
+        }
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL3);
+             PreparedStatement statement = connection.prepareStatement("SELECT detallesVenta, obser FROM ventas WHERE idVenta = ?");
+        ) {
+            statement.setString(1, id.replace(" ", ""));
+            ResultSet resultSet = statement.executeQuery();
+
+            boolean productoEncontrado = false; // Variable para verificar si se encontró el producto
+
+            while (resultSet.next()) {
+
+                String detalle = resultSet.getString("detallesVenta");
+                String observacion = resultSet.getString("obser");
+
+                Platform.runLater(() -> info.setText("Factura encontrada"));
+                Print_Ex_Copy(Integer.parseInt(id), detalle, observacion);
+
+
+                productoEncontrado = true; // Se encontró al menos un producto
+            }
+
+            if (!productoEncontrado) {
+
+                Platform.runLater(() -> info.setText("No hemos encontrado la factura con ID: " + id));
+
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (PrintException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void Print_Ex_Copy(int id, String detalle, String obser) throws IOException, PrintException {
+
+        String USB_PRINTER_PATH = "/dev/usb/lp0";
+        OutputStream out = null;
+        String os = System.getProperty("os.name").toLowerCase();
+        String defaultPrinterFile = "PrincipalData.txt";
+        PrintService selectedService = null;
+
+        if (os.contains("win")) {
+
+            File file = new File(defaultPrinterFile);
+            if (file.exists()) {
+
+                String printerName = leerLineaEspecifica("PrincipalData.txt", 6);
+                PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+                for (PrintService ps : printServices) {
+                    System.out.println(ps.getName());
+                    if (ps.getName().equals(printerName.replace("\n", ""))) {
+                        selectedService = ps;
+                        break;
+                    }
+                }
+
+            }
+
+            if (selectedService == null || Boolean.parseBoolean(leerLineaEspecifica("PrincipalData.txt", 7).replace("\n", ""))) {
+                PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+                selectedService = (PrintService) JOptionPane.showInputDialog(null, "Seleccione una impresora",
+                        "Impresoras disponibles", JOptionPane.QUESTION_MESSAGE, null, printServices, printServices[0]);
+
+
+                if (selectedService != null) {
+                    int option;
+                    option = JOptionPane.showConfirmDialog(null,
+                            "¿Desea establecer esta impresora como predeterminada?", "Confirmación",
+                            JOptionPane.YES_NO_OPTION);
+
+
+                    if (option == JOptionPane.YES_OPTION) {
+                        FileEditor.insertarValorEnLinea(defaultPrinterFile, 6, selectedService.getName());
+                    }
+
+
+                    out = new ByteArrayOutputStream();
+                } else {
+                    throw new IOException("No se seleccionó ninguna impresora.");
+
+                }
+            } else {
+                out = new ByteArrayOutputStream();
+
+            }
+        } else if (os.contains("nix") || os.contains("nux")) {
+            // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
+            FileDialog dialog = new FileDialog((Frame) null, "Seleccionar archivo de impresora", FileDialog.LOAD);
+            dialog.setVisible(true);
+            String selectedFile = dialog.getFile();
+            if (selectedFile != null) {
+                USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
+                out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
+            } else {
+                throw new IOException("No se seleccionó ninguna ruta.");
+            }
+        }
+
+        String Nfactura2 = detalle + "\n";
+
+        // Enviar datos a la impresora o a la ruta en Linux
+        if (out != null) {
+            sendData(out, IniciarImpresora());
+            sendData(out, SetCodePageOEM850());
+            Command.ESC_Align[2] = 0x01;
+            sendData(out, Command.ESC_Align);
+            printImage(ImageIO.read(new File("C:\\Users\\danin\\Downloads\\logoa.jpg")), out, false);
+            sendData(out, setBold(true));
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 3)).getBytes());
+            sendData(out, (leerLineaEspecifica("PrincipalData.txt", 4)).getBytes());
+
+            sendData(out, setBold(false));
+
+            Command.ESC_Align[2] = 0x00;
+            sendData(out, Command.ESC_Align);
+            sendData(out, Nfactura2.getBytes(StandardCharsets.ISO_8859_1));
+            Command.ESC_Align[2] = 0x01;
+            sendData(out, Command.ESC_Align);
+
+            byte[] code = getCodeBarCommand(String.format("%03d", id), 69, 3, 168, 1, 2);
+
+            if (code != null) {
+                sendData(out, code);
+            } else {
+                System.err.println("Error creando el comando de código de barras.");
+            }
+
+            sendData(out, "\nESTE RECIBO ES UNA FIEL COPIA DE SU ORIGINAL!\n\n".getBytes());
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
+            sendData(out, CTL_LF);
+            sendData(out, Command.GS_i);//Comando para cortar el papel por completo
+
+
+//            ArrayList<String> Banner = new ArrayList<>();
+//            Banner.add("/home/matt/Downloads/cat1.png");
+//            Banner.add("/home/matt/Downloads/cats2.jpg");
+//            Banner.add("/home/matt/Downloads/dogs2.jpg");
+//            printImage(ImageIO.read(new File(RandomImageBannerDown(Banner))), out, true);
+
+            out.close();  // Cerrar el flujo de salida
+        }
+
+        // Si es Windows, enviar el contenido del ByteArrayOutputStream a la impresora seleccionada
+        if (os.contains("win") && out instanceof ByteArrayOutputStream) {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
+            Doc doc = new SimpleDoc(inputStream, DocFlavor.INPUT_STREAM.AUTOSENSE, null);
+            selectedService = PrintServiceLookup.lookupPrintServices(null, null)[0];
+            DocPrintJob printJob = selectedService.createPrintJob();
+            printJob.print(doc, new HashPrintRequestAttributeSet());
+        }
+
+
     }
 
 

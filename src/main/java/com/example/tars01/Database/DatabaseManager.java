@@ -136,10 +136,13 @@ public class DatabaseManager {
             statement.execute("CREATE TABLE IF NOT EXISTS Ventas (" +
                     "idVenta TEXT PRIMARY KEY," +
                     "fecha TEXT," +
+                    "hora TEXT,"+
                     "totalVenta DECIMAL(10, 2)," +
                     "cantidadPagada DECIMAL(10, 2)," +
                     "cambio DECIMAL(10, 2)," +
-                    "detallesVenta TEXT)");
+                    "detallesVenta TEXT," +
+                    "obser TEXT," +
+                    "vendor TEXT)");
         } catch (SQLException e) {
             System.err.println("Error al crear la tabla de Ventas: " + e.getMessage());
         }
@@ -159,20 +162,23 @@ public class DatabaseManager {
         }
     }
 
-    public static void SaveSold(String id, String fecha, double totalVenta, double cantidadPagada, double cambio, String detalles, Label info) {
+    public static void SaveSold(String id, String fecha,String hora, double totalVenta, double cantidadPagada, double cambio, String detalles,String obser,String vendor, Label info) {
         DatabaseManager.createTableVentas();
 
-        String sqlInsert = "INSERT INTO Ventas (idVenta, fecha, totalVenta, cantidadPagada, cambio, detallesVenta) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO Ventas (idVenta, fecha, hora, totalVenta, cantidadPagada, cambio, detallesVenta, obser, vendor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(Constans.URL3);
              PreparedStatement statement = connection.prepareStatement(sqlInsert)) {
 
             statement.setString(1, id);
             statement.setString(2, fecha);
-            statement.setDouble(3, totalVenta);
-            statement.setDouble(4, cantidadPagada);
-            statement.setDouble(5, cambio);
-            statement.setString(6, detalles);
+            statement.setString(3, hora);
+            statement.setDouble(4, totalVenta);
+            statement.setDouble(5, cantidadPagada);
+            statement.setDouble(6, cambio);
+            statement.setString(7, detalles);
+            statement.setString(8, obser);
+            statement.setString(9, vendor);
             statement.executeUpdate();
 
 

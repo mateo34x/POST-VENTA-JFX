@@ -5,11 +5,19 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class DatosController {
 
@@ -18,7 +26,8 @@ public class DatosController {
     @FXML
     ImageView chooseLogo;
     @FXML
-    CheckBox checkImpre;
+    CheckBox checkImpre,checkRecibo;
+    String Config = "PrincipalData.txt";
     Boolean isChecked;
 
 
@@ -29,11 +38,15 @@ public class DatosController {
     @FXML
     private void initialize() {
 
-        NameL.setText(FileEditor.leerLineaEspecifica("PrincipalData.txt",1));
-        ImpreL.setText(FileEditor.leerLineaEspecifica("PrincipalData.txt",6));
+        NameL.setText(FileEditor.leerLineaEspecifica(Config,1));
+        ImpreL.setText(FileEditor.leerLineaEspecifica(Config,6));
 
-        if (FileEditor.leerLineaEspecifica("PrincipalData.txt",7)!=null){
-            checkImpre.setSelected(Boolean.parseBoolean(FileEditor.leerLineaEspecifica("PrincipalData.txt",7).replace("\n","")));
+        if (FileEditor.leerLineaEspecifica(Config,7)!=null){
+            checkImpre.setSelected(Boolean.parseBoolean(FileEditor.leerLineaEspecifica(Config,7).replace("\n","")));
+        }
+        if (FileEditor.leerLineaEspecifica(Config,8)!=null){
+            checkRecibo.setSelected(Boolean.parseBoolean(FileEditor.leerLineaEspecifica(Config,8).replace("\n","")));
+
         }
 
 
@@ -42,10 +55,20 @@ public class DatosController {
         checkImpre.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-                System.out.println("Check: "+t1);
-                FileEditor.insertarValorEnLinea("PrincipalData.txt",7, String.valueOf(t1));
+                System.out.println("Check7: "+t1);
+                FileEditor.insertarValorEnLinea(Config,7, String.valueOf(t1));
             }
         });
+
+        checkRecibo.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                System.out.println("Check8: "+t1);
+                FileEditor.insertarValorEnLinea(Config,8, String.valueOf(t1));
+            }
+        });
+
+
 
 
 
@@ -93,5 +116,43 @@ public class DatosController {
                 }
             }
         });
+    }
+
+
+    public void chooseLogo(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleccione una imagen");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(new Stage());
+        if (selectedFile != null) {
+            try {
+                // Intentamos cargar la imagen
+                Image image = new Image(new FileInputStream(selectedFile));
+
+                // Verificamos las dimensiones
+                if (image.getWidth() == 226 && image.getHeight() == 216) {
+                    String imagePath = selectedFile.getAbsolutePath();
+                    LogoL.setText(imagePath);
+                    System.out.println("Ruta de la imagen seleccionada: " + imagePath);
+                    FileEditor.insertarValorEnLinea("PrincipalData.txt",9,imagePath);
+
+                    // Aquí podrías usar imagePath según lo necesites en tu aplicación
+
+                } else {
+                    // Mostramos una alerta si las dimensiones no son correctas
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Dimensiones incorrectas");
+                    alert.setHeaderText(null);
+                    alert.setContentText("La imagen debe tener dimensiones de 236 x 236 píxeles.");
+                    alert.showAndWait();
+                }
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 }

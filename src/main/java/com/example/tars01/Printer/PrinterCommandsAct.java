@@ -86,6 +86,7 @@ public class PrinterCommandsAct {
 
     public static void printImage(BufferedImage image, OutputStream out, boolean banner) throws IOException {
         int[][] pixels = new ImageP().getPixelsSlow(image);
+
         for (int y = 0; y < pixels.length; y += 24) {
             sendData(out, SET_LINE_SPACE_24);
             sendData(out, SELECT_BIT_IMAGE_MODE);
@@ -94,6 +95,7 @@ public class PrinterCommandsAct {
                 sendData(out, new ImageP().recollectSlice(y, x, pixels));
             }
             sendData(out, CTL_LF);
+
         }
 
         if (banner){
