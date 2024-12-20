@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -288,8 +289,12 @@ public class MainController {
         textFieldItem.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && !newValue.matches("\\d+")) {
                 busquedaB.setVisible(true);
-                updateProductList(newValue, 1);
                 QueryInput.setText(newValue);
+                QueryInput.requestFocus();
+                Platform.runLater(() -> {
+                    QueryInput.positionCaret(newValue.length());
+                });
+                updateProductList(newValue, 1);
 
             } else {
                 tableSearchQuery.getItems().clear();
@@ -1107,6 +1112,7 @@ public class MainController {
                 }
             } else {
                 out = new ByteArrayOutputStream();
+                JOptionPane.showMessageDialog(null,"No hay ninguna impresora disponible, no se imprimirá el recibo de la compra","Alerta",JOptionPane.ERROR_MESSAGE);
 
             }
         } else if (os.contains("nix") || os.contains("nux")) {
@@ -1118,7 +1124,9 @@ public class MainController {
                 USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
                 out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
             } else {
+                JOptionPane.showMessageDialog(null,"No hay ninguna impresora disponible, no se imprimirá el recibo de la compra","Alerta",JOptionPane.ERROR_MESSAGE);
                 throw new IOException("No se seleccionó ninguna ruta.");
+
             }
         }
 
@@ -1218,12 +1226,7 @@ public class MainController {
 
     public void getLastBill() {
         String id;
-        if (DatabaseManager.NVentas() == 1) {
-            id = String.format("%03d", DatabaseManager.NVentas());
-        } else {
-            id = String.format("%03d", DatabaseManager.NVentas());
-            ;
-        }
+        id = String.format("%03d", DatabaseManager.NVentas());
 
         try (Connection connection = DriverManager.getConnection(Constans.URL3);
              PreparedStatement statement = connection.prepareStatement("SELECT detallesVenta, obser FROM ventas WHERE idVenta = ?");

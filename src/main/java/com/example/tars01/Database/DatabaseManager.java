@@ -1,10 +1,7 @@
 package com.example.tars01.Database;
 
 import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.w3c.dom.Text;
 
 import java.sql.*;
@@ -188,7 +185,7 @@ public class DatabaseManager {
     }
 
 
-    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code, TextField CODE) {
+    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code, TextField CODE, Button save) {
 
         String sqlConsult = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
         String sqlUpdate = "UPDATE productos SET nombre = ?, precio = ?, codigo_barras = ? WHERE codigo_barras = ?";
@@ -226,10 +223,18 @@ public class DatabaseManager {
                     Platform.runLater(code::clear);
                     Platform.runLater(CODE::clear);
                     Platform.runLater(CODE::requestFocus);
+                    save.setDisable(true);
+
 
 
                 } else {
                     Platform.runLater(() -> info.setText("El producto a actualizar no existe.."));
+                    Platform.runLater(name::clear);
+                    Platform.runLater(price::clear);
+                    Platform.runLater(code::clear);
+                    Platform.runLater(CODE::clear);
+                    Platform.runLater(CODE::requestFocus);
+                    save.setDisable(true);
                 }
             }
 

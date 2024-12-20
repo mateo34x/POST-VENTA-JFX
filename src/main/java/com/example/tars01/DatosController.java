@@ -39,7 +39,11 @@ public class DatosController {
     private void initialize() {
 
         NameL.setText(FileEditor.leerLineaEspecifica(Config,1));
+        NitL.setText(FileEditor.leerLineaEspecifica(Config,2));
+        DirL.setText(FileEditor.leerLineaEspecifica(Config,3));
+        TelL.setText(FileEditor.leerLineaEspecifica(Config,4));
         ImpreL.setText(FileEditor.leerLineaEspecifica(Config,6));
+        LogoL.setText(FileEditor.leerLineaEspecifica(Config,9));
 
         if (FileEditor.leerLineaEspecifica(Config,7)!=null){
             checkImpre.setSelected(Boolean.parseBoolean(FileEditor.leerLineaEspecifica(Config,7).replace("\n","")));
@@ -133,7 +137,7 @@ public class DatosController {
                 Image image = new Image(new FileInputStream(selectedFile));
 
                 // Verificamos las dimensiones
-                if (image.getWidth() == 226 && image.getHeight() == 216) {
+                if (image.getWidth() == 236 && image.getHeight() == 236) {
                     String imagePath = selectedFile.getAbsolutePath();
                     LogoL.setText(imagePath);
                     System.out.println("Ruta de la imagen seleccionada: " + imagePath);

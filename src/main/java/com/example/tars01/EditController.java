@@ -23,9 +23,6 @@ import static com.example.tars01.Funtions.cargarVista;
 
 public class EditController {
 
-    public static final int SERVER_PORT = 8080;
-    private ServerSocket serverSocket;
-    private boolean serverRunning = false;
     @FXML
     TextField textFieldItemEdit;
     @FXML
@@ -124,7 +121,9 @@ public class EditController {
         String nameValue = name.getText();
         String priceValue = price.getText();
         String codeValue = code.getText();
-        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,codeOriginal,info,name,price,code,textFieldItemEdit);
+        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,codeOriginal,info,name,price,code,textFieldItemEdit,saveChange);
+
+
     }
 
 
@@ -158,6 +157,9 @@ public class EditController {
             if (!productoEncontrado) {
 
                 Platform.runLater(() -> info.setText("Producto no encontrado"));
+                name.clear();
+                price.clear();
+                code.clear();
 
             }
 
