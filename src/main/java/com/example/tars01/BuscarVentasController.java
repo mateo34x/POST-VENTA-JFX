@@ -154,10 +154,10 @@ public class BuscarVentasController {
 
         LocalDate start = FechaStart.getValue();
         LocalDate end = FechaEnd.getValue();
-        String formattedDateStart = start.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
-        String formattedDateEnd = end.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
+        String formattedDateStart = start.format(DateTimeFormatter.ofPattern("yy/MM/dd"));
+        String formattedDateEnd = end.format(DateTimeFormatter.ofPattern("yy/MM/dd"));
         try (Connection connection = DriverManager.getConnection(Constans.URL3);
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Ventas WHERE fecha >= ? AND fecha <= ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Ventas WHERE fecha BETWEEN ? AND ?")) {
 
             preparedStatement.setString(1, formattedDateStart);
             preparedStatement.setString(2, formattedDateEnd);

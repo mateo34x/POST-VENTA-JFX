@@ -421,7 +421,7 @@ public class MainController {
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
-        DateTimeFormatter formatterOther = DateTimeFormatter.ofPattern("dd/MM/yy");
+        DateTimeFormatter formatterOther = DateTimeFormatter.ofPattern("yy/MM/dd");
         DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 
         timeline = new Timeline(
