@@ -4,8 +4,11 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -65,6 +68,28 @@ public class RegistreController {
             Platform.runLater(() -> MasterField.setVisible(t1.equals("Administrador")));
 
 
+        });
+
+        nombreVerdaderoField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode()== KeyCode.ENTER){
+                    if (!nombreVerdaderoField.getText().isEmpty()){
+                        nombreUsuarioField.requestFocus();
+                    }
+                }
+            }
+        });
+
+        nombreUsuarioField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode()== KeyCode.ENTER){
+                    if (!nombreUsuarioField.getText().isEmpty()){
+                        passwordField.requestFocus();
+                    }
+                }
+            }
         });
 
 
@@ -143,6 +168,23 @@ public class RegistreController {
 
                 messageLabel.setText("Usuario creado correctamente");
                 Funtions.ChangeMessage(messageLabel, 0, "Cierre esta venta he inicie sesion");
+                nombreVerdaderoField.clear();
+                nombreUsuarioField.clear();
+                passwordField.clear();
+                MasterField.clear();
+                MasterField.setVisible(false);
+                optionsPer.setValue("Permisos");
+                optionsPer.setButtonCell(new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String s, boolean b) {
+                        super.updateItem(s, b);
+                        if (b || s == null) {
+                            setText("Select Subject");
+                        } else {
+                            setText(s);
+                        }
+                    }
+                });
 
             }
         } catch (SQLException e) {

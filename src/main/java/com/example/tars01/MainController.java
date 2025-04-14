@@ -33,12 +33,17 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.imageio.ImageIO;
 import javax.print.*;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Font;
 import java.io.*;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
@@ -47,10 +52,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
+import java.util.List;
 
 import static com.example.tars01.Printer.PrinterCommandsAct.*;
 import static com.example.tars01.Utils.FileEditor.leerLineaEspecifica;
@@ -67,7 +74,9 @@ public class MainController {
     static double totalPagado = 0.0;
     private Timeline timeline;
     String cleanText, PagoOption;
-    String fecha, hora, NameUser, Permission;
+    String fecha, hora, NameUser, Permission, PassM;
+    private final List<Producto> productosParaExportar = new ArrayList<>();
+
 
 
     @FXML
@@ -123,6 +132,8 @@ public class MainController {
     public Button buttonClear1, buttonClear;
     static DecimalFormat df;
 
+    private static final String FILE_PATH = "/home/tars/Documents/datos.xlsx";
+
 
     public void Logout() throws IOException {
 
@@ -142,6 +153,8 @@ public class MainController {
     public void clear() {
         textFieldItem.clear();
         precio.clear();
+        productosParaExportar.clear(); // Limpia la lista después de exportar
+
 
     }
 
@@ -177,6 +190,8 @@ public class MainController {
                 }
             }
         });
+        productosParaExportar.clear(); // Limpia la lista después de exportar
+
 
 
     }
@@ -211,16 +226,20 @@ public class MainController {
         });
         Platform.runLater(() -> info.setText("Venta realizada con éxito"));
         Funtions.ClearMessage(textFieldChange, 0);
+        productosParaExportar.clear(); // Limpia la lista después de exportar
+
 
 
     }
 
-    public void setUser(String user, String per) {
+    public void setUser(String user, String per,String passM) {
         this.NameUser = user;
         this.Permission = per;
+        this.PassM = passM;
         //Obtener permisos del usuario
         System.out.println("User in controller: " + NameUser);
         System.out.println("User permission: " + Permission);
+        System.out.println("User PassM: " + PassM);
     }
 
 
@@ -291,8 +310,10 @@ public class MainController {
                 busquedaB.setVisible(true);
                 QueryInput.setText(newValue);
                 QueryInput.requestFocus();
+
                 Platform.runLater(() -> {
                     QueryInput.positionCaret(newValue.length());
+
                 });
                 updateProductList(newValue, 1);
 
@@ -327,9 +348,9 @@ public class MainController {
                     } else {
                         try {
                             entregar();
-                        } catch (IOException e) {
+                        } catch (IOException | PrintException e) {
                             throw new RuntimeException(e);
-                        } catch (PrintException e) {
+                        } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     }
@@ -463,6 +484,10 @@ public class MainController {
 
                     buttonSave.setDisable(false);
                     totalPagado = totalVenta;
+                    Tpago.setVisible(false);
+                    TCambio.setVisible(false);
+                    textFieldTotalPaidAmount.setVisible(false);
+                    textFieldChange.setVisible(false);
                     break;
                 default:
                     textFieldTotalPaidAmount.setVisible(false);
@@ -602,94 +627,115 @@ public class MainController {
             statement.setString(2, searchPattern);
             ResultSet resultSet = statement.executeQuery();
 
+            // Verifica si hay resultados antes de procesarlos
+            if (!resultSet.isBeforeFirst()) {
 
-            if (!resultSet.next()) {
-                if (origin == 1) {
-                    tableSearchQuery.getItems().clear();
-                    busquedaB.setVisible(false);
-                } else {
-                    tableSearchQuery.getItems().clear();
-                    return;
-                }
-
+                tableSearchQuery.getItems().clear();
+                return; // Evita procesar datos inexistentes
             }
 
-            do {
+            // Usa while en lugar de do-while para evitar problemas
+            while (resultSet.next()) {
                 String nombre = resultSet.getString("nombre");
                 String codigoBarras = resultSet.getString("codigo_barras");
                 String precio = resultSet.getString("precio");
+
                 Producto p = new Producto(codigoBarras, nombre, precio);
                 p.setId(codigoBarras);
                 tableSearchQuery.getItems().add(p);
-            } while (resultSet.next());
+            }
 
         } catch (SQLException e) {
             System.err.println("Error al buscar productos: " + e.getMessage());
+
+
         }
     }
 
     private void openDeleteDialog(int valueG, Producto producto) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Eliminar productos");
-        dialog.setHeaderText("Eliminar productos de la venta");
-        dialog.setContentText("Ingrese la cantidad de elementos a eliminar:");
 
-        // Mostrar el diálogo y esperar a que el usuario ingrese la cantidad
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(quantityStr -> {
-            try {
-                // Verificar si la entrada no está vacía
-                if (quantityStr.trim().isEmpty()) {
-                    System.out.println("vacia");
-                }
 
-                // Verificar si la entrada es un número entero válido
-                if (!quantityStr.matches("\\d+")) {
-                    System.out.println("Entrada no numérica");
-                }
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("ATENCIÓN");
+        confirmDialog.setHeaderText("Necesita al administrador para borrar un producto");
+        confirmDialog.setContentText("¿Desea continuar?");
 
-                int quantity = Integer.parseInt(quantityStr);
-                int r = valueG - quantity;
-                double minus = Double.parseDouble(producto.getPrice());
+        Optional<ButtonType> resultado = confirmDialog.showAndWait();
 
-                if (quantity > 0 && quantity == valueG) {
-                    Platform.runLater(() -> productCounts.remove(producto.getId()));
-                    TreeItem<Producto> itemToRemove = null;
-                    for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
-                        if (item.getValue().equals(producto)) {
-                            itemToRemove = item;
-                            break;
+        // Evaluar la respuesta del usuario
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            TextInputDialog dialogg = new TextInputDialog();
+            dialogg.setTitle("¡Aviso!");
+            dialogg.setHeaderText("Confirme sus datos");
+            dialogg.setContentText("Escane su clave de admistrador");
+            // Mostrar el diálogo y esperar a que el usuario ingrese la cantidad
+            Optional<String> resultt = dialogg.showAndWait();
+            if (resultt.isPresent()&& resultt.get().equals(PassM)){
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("Eliminar productos");
+                dialog.setHeaderText("Eliminar productos de la venta");
+                dialog.setContentText("Ingrese la cantidad de elementos a eliminar:");
+
+                // Mostrar el diálogo y esperar a que el usuario ingrese la cantidad
+                Optional<String> result = dialog.showAndWait();
+                result.ifPresent(quantityStr -> {
+                    try {
+                        // Verificar si la entrada no está vacía
+                        if (quantityStr.trim().isEmpty()) {
+                            System.out.println("vacia");
                         }
-                    }
-                    if (itemToRemove != null) {
-                        tableView.getRoot().getChildren().remove(itemToRemove);
-                    }
-                    totalVenta -= minus * quantity;
-                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
-                    Platform.runLater(() -> info.setText("Producto borrado correctamente"));
-                    textFieldItem.requestFocus();
-                    tableView.refresh();
-                } else if (quantity > 0 && quantity <= valueG) {
-                    productCounts.put(producto.getId(), r);
-                    totalVenta -= minus * quantity;
-                    Platform.runLater(() -> info.setText(quantityStr + " producto(s) borrados correctamente"));
-                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
-                    tableView.refresh();
-                    textFieldItem.requestFocus();
-                    System.out.println(totalVenta);
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
-                            "Ingrese una cantidad válida entre 1 y " + valueG);
-                }
 
-                if (totalVenta == 0.0) {
-                    Platform.runLater(() -> textFieldTotalQuantity.clear());
-                }
-            } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
-                        "Ingrese un número entero válido");
+                        // Verificar si la entrada es un número entero válido
+                        if (!quantityStr.matches("\\d+")) {
+                            System.out.println("Entrada no numérica");
+                        }
+
+                        int quantity = Integer.parseInt(quantityStr);
+                        int r = valueG - quantity;
+                        double minus = Double.parseDouble(producto.getPrice());
+
+                        if (quantity > 0 && quantity == valueG) {
+                            Platform.runLater(() -> productCounts.remove(producto.getId()));
+                            TreeItem<Producto> itemToRemove = null;
+                            for (TreeItem<Producto> item : tableView.getRoot().getChildren()) {
+                                if (item.getValue().equals(producto)) {
+                                    itemToRemove = item;
+                                    break;
+                                }
+                            }
+                            if (itemToRemove != null) {
+                                tableView.getRoot().getChildren().remove(itemToRemove);
+                            }
+                            totalVenta -= minus * quantity;
+                            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                            Platform.runLater(() -> info.setText("Producto borrado correctamente"));
+                            textFieldItem.requestFocus();
+                            tableView.refresh();
+                        } else if (quantity > 0 && quantity <= valueG) {
+                            productCounts.put(producto.getId(), r);
+                            totalVenta -= minus * quantity;
+                            Platform.runLater(() -> info.setText(quantityStr + " producto(s) borrados correctamente"));
+                            Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                            tableView.refresh();
+                            textFieldItem.requestFocus();
+                            System.out.println(totalVenta);
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
+                                    "Ingrese una cantidad válida entre 1 y " + valueG);
+                        }
+
+                        if (totalVenta == 0.0) {
+                            Platform.runLater(() -> textFieldTotalQuantity.clear());
+                        }
+                    } catch (NumberFormatException e) {
+                        showAlert(Alert.AlertType.ERROR, "Error", "Cantidad inválida",
+                                "Ingrese un número entero válido");
+                    }
+                });
             }
-        });
+        }
+
+
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
@@ -720,8 +766,11 @@ public class MainController {
 
                 if (productCounts.containsKey(code)) {
                     productCounts.put(code, productCounts.get(code) + 1);
+                    productosParaExportar.add(new Producto(code, productName, productPrice));
+
                 } else {
                     tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(code, productName, productPrice)));
+                    productosParaExportar.add(new Producto(code, productName, productPrice));
                     productCounts.put(code, 1);
                     tableView.refresh();
                 }
@@ -744,6 +793,7 @@ public class MainController {
 //                            Producto producto = itemToUpdate.getValue();
 //                            producto.setPrice(precio.getText());
                             productCounts.put(textFieldItem.getText(), productCounts.get(textFieldItem.getText()) + 1);
+                            productosParaExportar.add(new Producto(textFieldItem.getText(), textFieldItem.getText(),String.valueOf(priceEq)));
                             textFieldItem.requestFocus();
                             Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
                             Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
@@ -761,16 +811,46 @@ public class MainController {
                     String cleanTextPrecio = precio.getText().replaceAll("'", "");
                     precio.setDisable(false);
                     precio.requestFocus();
-                    if (!precio.getText().isEmpty()) {
-                        tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(textFieldItem.getText(), textFieldItem.getText(), cleanTextPrecio)));
-                        productCounts.put(textFieldItem.getText(), 1);
-                        totalVenta += Double.parseDouble(cleanTextPrecio);
-                        Platform.runLater(() -> precio.clear());
-                        precio.setDisable(true);
-                        Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
-                        textFieldItem.clear();
-                        textFieldItem.requestFocus();
-                        Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+
+                    if (!precio.getText().isEmpty()&&Integer.parseInt(precio.getText().replace("'",""))!=0) {
+                        Optional<ButtonType> resultado = getButtonType();
+
+                        // Evaluar la respuesta del usuario
+                        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                            TextInputDialog dialog = new TextInputDialog();
+                            dialog.setTitle("¡Aviso!");
+                            dialog.setHeaderText("Confirme sus datos");
+                            dialog.setContentText("Escane su clave de admistrador");
+                            Optional<String> result = dialog.showAndWait();
+                            if (result.isPresent()&& result.get().equals(PassM)){
+                                dialog.setTitle("¡ATENCIÓN!");
+                                dialog.setHeaderText("Se guardará el producto en base de datos");
+                                dialog.setContentText("Asignele un nombre");
+                                Optional<String> name = dialog.showAndWait();
+                                if (name.isPresent()&& !name.get().isEmpty()){
+                                    tableView.getRoot().getChildren().add(new TreeItem<>(new Producto(textFieldItem.getText(), name.get(), cleanTextPrecio)));
+                                    productosParaExportar.add(new Producto(textFieldItem.getText(), name.get(),cleanTextPrecio));
+                                    DatabaseManager.insertarProductoVenta(new Producto(textFieldItem.getText(),name.get(),cleanTextPrecio),info);
+                                    productCounts.put(textFieldItem.getText(), 1);
+                                    totalVenta += Double.parseDouble(cleanTextPrecio);
+                                    Platform.runLater(() -> precio.clear());
+                                    precio.setDisable(true);
+                                    Funtions.ChangeMessage(info,0,"Al finalizar el pedido, seleccione un tipo de pago para cerrar la venta");
+                                    textFieldItem.clear();
+                                    textFieldItem.requestFocus();
+                                    Platform.runLater(() -> textFieldTotalQuantity.setText(getTotalT()));
+                                }
+
+                            }else{
+                                System.out.println("No eres administrador");
+                            }
+                        } else {
+                            System.out.println("El usuario canceló la acción.");
+                        }
+
+                    }else{
+                        Funtions.ChangeMessage(info,0,"El precio no puede estar vacío o ser 0");
+
                     }
 
                 }
@@ -787,6 +867,17 @@ public class MainController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Optional<ButtonType> getButtonType() {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("ATENCIÓN");
+        confirmDialog.setHeaderText("El producto que quiere vender no se encuentra en base de datos\n¿Quiere agregarlo?");
+        confirmDialog.setContentText("Debe tener permisos de administrador para realizar esta acción");
+
+        // Mostrar el diálogo y esperar la respuesta del usuario
+        Optional<ButtonType> resultado = confirmDialog.showAndWait();
+        return resultado;
     }
 
 
@@ -848,14 +939,18 @@ public class MainController {
     }
 
 
-    public void entregar() throws IOException, PrintException {
+    public void entregar() throws IOException, PrintException, InterruptedException {
 
         if (PagoOption.equals("Nequi")) {
             double result = totalPagado - totalVenta;
             actualizarProductosArea();
             generarRecibo(result);
             productCounts.clear();
+            exportarProductosAFactura(true);
             ClearSouldV();
+            ClearSould();
+
+
         } else if (PagoOption.equals("Efectivo")) {
             cleanText = textFieldTotalPaidAmount.getText().replaceAll("'", "");
             try {
@@ -867,7 +962,11 @@ public class MainController {
                     Platform.runLater(() -> textFieldChange.setText(getChange(result)));
                     System.out.println("Valor a devolver: " + (totalPagado - totalVenta));
                     productCounts.clear();
+                    exportarProductosAFactura(false);
                     ClearSouldV();
+
+
+
 
 
                 } else {
@@ -881,6 +980,8 @@ public class MainController {
                 e.printStackTrace();
 
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -1115,19 +1216,43 @@ public class MainController {
                 JOptionPane.showMessageDialog(null,"No hay ninguna impresora disponible, no se imprimirá el recibo de la compra","Alerta",JOptionPane.ERROR_MESSAGE);
 
             }
-        } else if (os.contains("nix") || os.contains("nux")) {
-            // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
-            FileDialog dialog = new FileDialog((Frame) null, "Seleccionar archivo de impresora", FileDialog.LOAD);
-            dialog.setVisible(true);
-            String selectedFile = dialog.getFile();
-            if (selectedFile != null) {
-                USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
-                out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
-            } else {
-                JOptionPane.showMessageDialog(null,"No hay ninguna impresora disponible, no se imprimirá el recibo de la compra","Alerta",JOptionPane.ERROR_MESSAGE);
-                throw new IOException("No se seleccionó ninguna ruta.");
+        }
+        else if (os.contains("nix") || os.contains("nux")) {
 
+
+
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Ingresa la ruta de tu impresora");
+            dialog.setHeaderText("Ruta:");
+            dialog.setContentText("");
+
+            // Mostrar el cuadro de diálogo y capturar la respuesta
+            Optional<String> result = dialog.showAndWait();
+
+            if (result.isPresent()){
+                USB_PRINTER_PATH = result.get();
+                out = new FileOutputStream(USB_PRINTER_PATH);
             }
+            // Verificar si el usuario ingresó texto
+            result.ifPresent(text -> {
+                System.out.println("Texto ingresado: " + text);
+                // Aquí puedes hacer lo que necesites con el texto ingresado
+            });
+
+
+
+//            // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
+//            FileDialog dialog = new FileDialog((Frame) null, "Seleccionar archivo de impresora", FileDialog.LOAD);
+//            dialog.setVisible(true);
+//            String selectedFile = dialog.getFile();
+//            if (selectedFile != null) {
+//                USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
+//                out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
+//            } else {
+//                JOptionPane.showMessageDialog(null,"No hay ninguna impresora disponible, no se imprimirá el recibo de la compra","Alerta",JOptionPane.ERROR_MESSAGE);
+//                throw new IOException("No se seleccionó ninguna ruta.");
+//
+//            }
         }
 
         // Aquí se sigue tu código original para preparar los datos a imprimir
@@ -1153,7 +1278,7 @@ public class MainController {
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-            printImage(ImageIO.read(new File(FileEditor.leerLineaEspecifica("PrincipalData.txt",9).replace("\n",""))), out, false);
+            //printImage(ImageIO.read(new File(FileEditor.leerLineaEspecifica("PrincipalData.txt",9).replace("\n",""))), out, false);
             sendData(out, setBold(true));
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
@@ -1389,6 +1514,191 @@ public class MainController {
 
 
     }
+
+
+
+    private void escribirEnExcel(String nombre, String edad, int precio,Boolean EsTransferencia) throws IOException, InterruptedException {
+        File archivo = new File(FILE_PATH);
+        Workbook workbook;
+        Sheet sheet;
+
+        if (archivo.exists()) {
+            FileInputStream inputStream = new FileInputStream(archivo);
+            workbook = new XSSFWorkbook(inputStream);
+            sheet = workbook.getSheetAt(0);
+            inputStream.close();
+        } else {
+            workbook = new XSSFWorkbook();
+            sheet = workbook.createSheet("Datos");
+        }
+        CreationHelper createHelper = workbook.getCreationHelper();
+        CellStyle fechaStyle = workbook.createCellStyle();
+        fechaStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MMM"));
+
+        // Crear formato de moneda (COP)
+        CellStyle monedaStyle = workbook.createCellStyle();
+        DataFormat formato = workbook.createDataFormat();
+        monedaStyle.setDataFormat(formato.getFormat("\"$\"#,##0.00"));
+
+
+        // Obtener última fila
+        int rowNum = sheet.getLastRowNum() + 1;
+
+        if (EsTransferencia){
+            finalizarVentaTransferencia();
+
+        }else{
+
+            Row row = sheet.createRow(rowNum);
+            Date fechaActual = new Date();
+            Cell cellFecha = row.createCell(0);
+            cellFecha.setCellValue(fechaActual);
+            cellFecha.setCellStyle(fechaStyle);
+
+            // Nombre y edad
+            row.createCell(1).setCellValue(nombre);
+            row.createCell(2).setCellValue(edad);
+
+            // Precio con formato de moneda
+            Cell cellPrecio = row.createCell(4);
+            Cell cellAcumulado = row.createCell(5);
+            cellPrecio.setCellValue(precio);
+            cellAcumulado.setCellStyle(monedaStyle);
+            cellPrecio.setCellStyle(monedaStyle);
+
+            if (rowNum == 0) {
+                // Primera fila: solo valor
+                cellAcumulado.setCellValue(precio);
+            } else {
+                // Fórmula acumulativa: D(n) = D(n-1) + C(n)
+                int filaActualExcel = rowNum + 1;         // Excel usa 1-based
+                int filaAnteriorExcel = filaActualExcel - 1;
+
+                String formula = "F" + filaAnteriorExcel + "+E" + filaActualExcel;
+                cellAcumulado.setCellFormula(formula);
+            }
+
+
+
+            FileOutputStream outputStream = new FileOutputStream(FILE_PATH);
+            workbook.write(outputStream);
+            workbook.close();
+            outputStream.close();
+        }
+
+
+
+        // Crear formato de fecha "dd-MMM"
+
+
+
+        // Fecha actual
+
+    }
+
+    public void finalizarVentaTransferencia() throws IOException {
+        if (productosParaExportar.isEmpty()) return;
+
+        File archivo = new File(FILE_PATH);
+        Workbook workbook;
+        Sheet sheet;
+
+        if (archivo.exists()) {
+            FileInputStream inputStream = new FileInputStream(archivo);
+            workbook = new XSSFWorkbook(inputStream);
+            sheet = workbook.getSheetAt(0);
+            inputStream.close();
+        } else {
+            workbook = new XSSFWorkbook();
+            sheet = workbook.createSheet("Datos");
+        }
+
+        CellStyle fechaStyle = workbook.createCellStyle();
+        CreationHelper createHelper = workbook.getCreationHelper();
+        fechaStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MMM"));
+
+        CellStyle monedaStyle = workbook.createCellStyle();
+        monedaStyle.setDataFormat(workbook.createDataFormat().getFormat("\"$\"#,##0.00"));
+
+        int startRow = sheet.getLastRowNum() + 1;
+        int currentRow = startRow;
+        String total = "";
+
+
+        for (Producto datos : productosParaExportar) {
+            Row row = sheet.createRow(currentRow);
+            Cell fecha = row.createCell(0);
+            fecha.setCellValue(new Date());
+            fecha.setCellStyle(fechaStyle);
+            Cell cellAcumulado = row.createCell(5);
+
+            row.createCell(1).setCellValue((String) datos.getId());
+            row.createCell(2).setCellValue((String) datos.getName());
+            // columna D se deja vacía temporalmente
+            int filaExcel = currentRow + 1; // Excel es 1-based
+            total = total+"+"+datos.getPrice();
+            
+            if (currentRow == 0) {
+                // Primera fila: solo valor
+                cellAcumulado.setCellValue(0);
+            } else {
+                // Fórmula acumulativa: D(n) = D(n-1) + C(n)
+                int filaActualExcel = currentRow + 1;         // Excel usa 1-based
+                int filaAnteriorExcel = filaActualExcel - 1;
+
+                String formula = "F" + filaAnteriorExcel + "+E" + filaActualExcel;
+                cellAcumulado.setCellFormula(formula);
+                cellAcumulado.setCellStyle(monedaStyle);
+            }
+            currentRow++;
+
+        }
+
+        // Combinar las celdas de la columna D y poner la sumatoria
+        if (currentRow > startRow+1) {
+            sheet.addMergedRegion(new CellRangeAddress(startRow, currentRow - 1, 3, 3));
+            Row mergedRow = sheet.getRow(startRow);
+            Cell mergedCell = mergedRow.createCell(3);
+            mergedCell.setCellFormula(total);
+            mergedCell.setCellStyle(monedaStyle);
+        }else{
+            Row mergedRow = sheet.getRow(startRow);
+            Cell mergedCell = mergedRow.createCell(3);
+            mergedCell.setCellFormula(total);
+            mergedCell.setCellStyle(monedaStyle);
+        }
+                // Fórmula acumulativa: D(n) = D(n-1) + C(n)
+
+        productosParaExportar.clear();
+
+        FileOutputStream outputStream = new FileOutputStream(FILE_PATH);
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+    }
+
+    private void exportarProductosAFactura(boolean t) throws IOException, InterruptedException {
+        List<Producto> copiaProductos = new ArrayList<>(productosParaExportar); // 👈 clona la lista
+
+        for (Producto producto : copiaProductos) {
+            escribirEnExcel(producto.getId(), producto.getName(), Integer.parseInt(producto.getPrice()), t);
+            System.out.println("Exportando a Excel: Código=" + producto.getId() + ", Nombre=" + producto.getName() + ", Precio=" + producto.getPrice());
+        }
+
+        productosParaExportar.clear(); // ahora sí, seguro limpiar la lista original
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

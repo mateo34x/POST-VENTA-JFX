@@ -43,7 +43,7 @@ public class DatosController {
         DirL.setText(FileEditor.leerLineaEspecifica(Config,3));
         TelL.setText(FileEditor.leerLineaEspecifica(Config,4));
         ImpreL.setText(FileEditor.leerLineaEspecifica(Config,6));
-        LogoL.setText(FileEditor.leerLineaEspecifica(Config,9));
+        //LogoL.setText(FileEditor.leerLineaEspecifica(Config,9));
 
         if (FileEditor.leerLineaEspecifica(Config,7)!=null){
             checkImpre.setSelected(Boolean.parseBoolean(FileEditor.leerLineaEspecifica(Config,7).replace("\n","")));

@@ -1,5 +1,6 @@
 package com.example.tars01;
 
+import com.example.tars01.Printer.PrinterCommandsAct;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +11,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.*;
+
+import static com.example.tars01.Printer.PrinterCommandsAct.SetCodePageOEM850;
+import static com.example.tars01.Printer.PrinterCommandsAct.printImage;
 
 public class HelloMain extends Application {
 
@@ -19,7 +24,7 @@ public class HelloMain extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        go("","");
+        go("","","");
     }
 
     public static void main(String[] args) {
@@ -27,7 +32,7 @@ public class HelloMain extends Application {
     }
 
 
-    public void go(String user,String permision) throws IOException {
+    public void go(String user,String permision,String passM) throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloMain.class.getResource("Main-View.fxml"));
 
@@ -37,7 +42,7 @@ public class HelloMain extends Application {
         double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
 
         MainController mainController = fxmlLoader.getController();
-        mainController.setUser(user,permision);
+        mainController.setUser(user,permision,passM);
 
 
 
@@ -98,6 +103,15 @@ public class HelloMain extends Application {
 
             if (event.isControlDown() && event.getCode() == KeyCode.L){
                 mainController.getLastBill();
+            }
+
+            if (event.isControlDown() && event.getCode()== KeyCode.P){
+                PrinterCommandsAct.IniciarImpresora();
+                OutputStream out = new FileOutputStream("/dev/usb/lp0");;
+                PrinterCommandsAct.sendData(out, SetCodePageOEM850());
+                printImage(ImageIO.read(new File("/home/tars/Downloads/barcode.jpg")), out, false);
+                out.close();
+
             }
 
         }

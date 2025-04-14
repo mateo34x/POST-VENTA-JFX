@@ -51,6 +51,41 @@ public class DatabaseManager {
         }
     }
 
+    public static void insertarProductoVenta(Producto producto, Label info) {
+        DatabaseManager.createTable();
+        String sqlSelect = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
+        String sqlInsert = "INSERT INTO productos (codigo_barras, nombre, precio, stock) VALUES (?, ?, ?, ?)";
+
+        try (Connection connection = DriverManager.getConnection(Constans.URL1);
+             PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
+             PreparedStatement insertStatement = connection.prepareStatement(sqlInsert)) {
+
+            selectStatement.setString(1, producto.getId());
+            ResultSet resultSet = selectStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt("count");
+
+            if (count > 0) {
+                Platform.runLater(() -> info.setText("El id: " + producto.getId() + " pertenece a un producto existente"));
+
+            } else {
+                insertStatement.setString(1, producto.getId());
+                insertStatement.setString(2, producto.getName());
+                insertStatement.setString(3, producto.getPrice());
+                insertStatement.setString(4, producto.getStock());
+                insertStatement.executeUpdate();
+                Platform.runLater(() -> {
+                    info.setText("Producto creado correctamente");
+                });
+            }
+
+
+        } catch (SQLException e) {
+            Platform.runLater(() -> info.setText("Error al guardar el producto: " + e.getMessage()));
+
+        }
+    }
+
 
     public static void insertarCliente(Cliente cliente, Label info, TextField n,TextField l,TextField i,TextField p,TextField c,TextField a) {
         DatabaseManager.createTableClients();
@@ -185,57 +220,77 @@ public class DatabaseManager {
     }
 
 
-    public static void actualizarProducto(String nombre, String precio, String nuevoCodigo, String codigoExistente, Label info, TextField name, TextField price, TextField code, TextField CODE, Button save) {
+    public static void actualizarProducto(
+            String nombreNuevo, String precioNuevo, String codigoNuevo,
+            String nombreOriginal, String precioOriginal, String codigoOriginal,
+            Label info, TextField name, TextField price, TextField code, Button save) {
 
-        String sqlConsult = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
-        String sqlUpdate = "UPDATE productos SET nombre = ?, precio = ?, codigo_barras = ? WHERE codigo_barras = ?";
+        // Verificar si se cambió el código de barras
+        boolean cambioCodigo = !codigoNuevo.equals(codigoOriginal);
 
+        StringBuilder sqlUpdate = new StringBuilder("UPDATE productos SET ");
+        List<String> campos = new ArrayList<>();
+        List<Object> valores = new ArrayList<>();
 
-        try (Connection connection = DriverManager.getConnection(Constans.URL1);
-             PreparedStatement consultStatement = connection.prepareStatement(sqlConsult);
-             PreparedStatement updateStatement = connection.prepareStatement(sqlUpdate)) {
+        if (!nombreNuevo.equals(nombreOriginal)) {
+            campos.add("nombre = ?");
+            valores.add(nombreNuevo);
+        }
 
+        if (!precioNuevo.equals(precioOriginal)) {
+            campos.add("precio = ?");
+            valores.add(precioNuevo);
+        }
 
-            consultStatement.setString(1, nuevoCodigo);
-            ResultSet resultSet = consultStatement.executeQuery();
-            resultSet.next();
-            int count = resultSet.getInt("count");
+        if (cambioCodigo) {
+            campos.add("codigo_barras = ?");
+            valores.add(codigoNuevo);
+        }
 
+        // Si no hay cambios, salir
+        if (campos.isEmpty()) {
+            Platform.runLater(() -> info.setText("No hay cambios para guardar."));
+            return;
+        }
 
-            if (count>0){
-                Platform.runLater(() -> info.setText("El nuevo código ya pertenece a otro producto"));
+        // Comprobación si el nuevo código ya existe (solo si se cambió)
+        String sqlCheckCodigo = "SELECT COUNT(*) AS count FROM productos WHERE codigo_barras = ?";
+        try (Connection connection = DriverManager.getConnection(Constans.URL1)) {
 
-            }else{
-                updateStatement.setString(1, nombre);
-                updateStatement.setString(2, precio);
-                updateStatement.setString(3, nuevoCodigo);
-                updateStatement.setString(4, codigoExistente);
+            if (cambioCodigo) {
+                try (PreparedStatement checkStmt = connection.prepareStatement(sqlCheckCodigo)) {
+                    checkStmt.setString(1, codigoNuevo);
+                    ResultSet rs = checkStmt.executeQuery();
+                    if (rs.next() && rs.getInt("count") > 0) {
+                        Platform.runLater(() -> info.setText("El nuevo código ya pertenece a otro producto."));
+                        return;
+                    }
+                }
+            }
 
+            // Armar la consulta final
+            sqlUpdate.append(String.join(", ", campos));
+            sqlUpdate.append(" WHERE codigo_barras = ?");
 
-                // Ejecutar la consulta SQL y obtener el número de filas afectadas
-                int rowsAffected = updateStatement.executeUpdate();
+            try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate.toString())) {
+                int index = 1;
+                for (Object valor : valores) {
+                    updateStmt.setObject(index++, valor);
+                }
+                updateStmt.setString(index, codigoOriginal);
 
-                // Verificar si se actualizaron filas
+                int rowsAffected = updateStmt.executeUpdate();
                 if (rowsAffected > 0) {
                     Platform.runLater(() -> info.setText("Producto actualizado correctamente."));
                     Platform.runLater(name::clear);
                     Platform.runLater(price::clear);
                     Platform.runLater(code::clear);
-                    Platform.runLater(CODE::clear);
-                    Platform.runLater(CODE::requestFocus);
+                    Platform.runLater(code::requestFocus);
                     save.setDisable(true);
-
-
-
                 } else {
-                    Platform.runLater(() -> info.setText("El producto a actualizar no existe.."));
-                    Platform.runLater(name::clear);
-                    Platform.runLater(price::clear);
-                    Platform.runLater(code::clear);
-                    Platform.runLater(CODE::clear);
-                    Platform.runLater(CODE::requestFocus);
-                    save.setDisable(true);
+                    Platform.runLater(() -> info.setText("El producto a actualizar no existe."));
                 }
+
             }
 
         } catch (SQLException e) {

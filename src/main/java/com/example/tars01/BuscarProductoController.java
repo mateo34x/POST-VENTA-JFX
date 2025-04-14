@@ -3,7 +3,6 @@ package com.example.tars01;
 import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.Producto;
 import com.example.tars01.Servidor.ServerManager;
-import com.sun.javafx.property.adapter.PropertyDescriptor;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -55,6 +54,7 @@ public class BuscarProductoController {
         QueryInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
                 updateProductList(newValue);
+
             } else {
                 tableSearchQuery.getItems().clear();
             }
@@ -93,6 +93,7 @@ public class BuscarProductoController {
 
             if (!resultSet.next()) {
                 tableSearchQuery.getItems().clear();
+
                 return;
             }
 

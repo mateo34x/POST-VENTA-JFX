@@ -79,15 +79,15 @@ public class EditController {
         timeline.play();
 
         name.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSaveButtonState();
+                updateSaveButtonState();
         });
 
         price.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSaveButtonState();
+                updateSaveButtonState();
         });
 
         code.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSaveButtonState();
+                updateSaveButtonState();
         });
 
     }
@@ -101,13 +101,15 @@ public class EditController {
 
 
         if (!isEmpty){
-            if (!nameOriginal.equals(nameValue)||!priceOriginal.equals(priceValue)||!codeOriginal.equals(codeValue)){
+            if (!nameOriginal.equals(nameValue) || !priceOriginal.equals(priceValue) || !codeOriginal.equals(codeValue)){
                 Platform.runLater(()-> saveChange.setDisable(false));
             }else{
                 Platform.runLater(()-> saveChange.setDisable(true));
 
             }
 
+        }else{
+            Platform.runLater(()-> saveChange.setDisable(true));
         }
 
     }
@@ -121,7 +123,7 @@ public class EditController {
         String nameValue = name.getText();
         String priceValue = price.getText();
         String codeValue = code.getText();
-        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,codeOriginal,info,name,price,code,textFieldItemEdit,saveChange);
+        DatabaseManager.actualizarProducto(nameValue,priceValue,codeValue,nameOriginal,priceOriginal,codeOriginal,info,name,price,code,saveChange);
 
 
     }
