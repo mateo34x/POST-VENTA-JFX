@@ -4,6 +4,7 @@ import com.example.tars01.Database.Constans;
 import com.example.tars01.Database.DatabaseManager;
 import com.example.tars01.Database.Producto;
 import com.example.tars01.Printer.Command;
+import com.example.tars01.Printer.PrinterCommandsAct;
 import com.example.tars01.Servidor.ServerManager;
 import com.example.tars01.Utils.FileEditor;
 import com.jfoenix.controls.JFXTreeTableView;
@@ -1219,25 +1220,9 @@ public class MainController {
         }
         else if (os.contains("nix") || os.contains("nux")) {
 
-
-
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Ingresa la ruta de tu impresora");
-            dialog.setHeaderText("Ruta:");
-            dialog.setContentText("");
-
-            // Mostrar el cuadro de diálogo y capturar la respuesta
-            Optional<String> result = dialog.showAndWait();
-
-            if (result.isPresent()){
-                USB_PRINTER_PATH = result.get();
                 out = new FileOutputStream(USB_PRINTER_PATH);
-            }
             // Verificar si el usuario ingresó texto
-            result.ifPresent(text -> {
-                System.out.println("Texto ingresado: " + text);
-                // Aquí puedes hacer lo que necesites con el texto ingresado
-            });
+
 
 
 
@@ -1278,7 +1263,8 @@ public class MainController {
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-            //printImage(ImageIO.read(new File(FileEditor.leerLineaEspecifica("PrincipalData.txt",9).replace("\n",""))), out, false);
+            printImage(ImageIO.read(new File(FileEditor.leerLineaEspecifica("PrincipalData.txt",9).replace("\n",""))), out, false);
+            sendData(out, "\n\n".getBytes());
             sendData(out, setBold(true));
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
@@ -1298,15 +1284,18 @@ public class MainController {
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-            byte[] code = getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
+//            byte[] code = getCodeBarCommand(String.format("%03d", numeroFacturaActual), 69, 3, 168, 1, 2);
+//
+//            if (code != null) {
+//                sendData(out, code);
+//            } else {
+//                System.err.println("Error creando el comando de código de barras.");
+//            }
 
-            if (code != null) {
-                sendData(out, code);
-            } else {
-                System.err.println("Error creando el comando de código de barras.");
-            }
-
-            sendData(out, "\nGRACIAS POR SU COMPRA!\n\n".getBytes());
+            sendData(out, "x-------------------------\n".getBytes());
+            sendData(out, PrinterCommandsAct.setFontSize(1,1));
+            sendData(out, ("\nAl firma, acepta que el servicio prestado fue de calidad y que su mascota \n" +
+                    "se encuentra en perfecto estado\n").getBytes());
             sendData(out, CTL_LF);
             sendData(out, CTL_LF);
             sendData(out, CTL_LF);
@@ -1444,15 +1433,9 @@ public class MainController {
             }
         } else if (os.contains("nix") || os.contains("nux")) {
             // En Linux, abrir una ventana para ingresar manualmente la ruta de la impresora
-            FileDialog dialog = new FileDialog((Frame) null, "Seleccionar archivo de impresora", FileDialog.LOAD);
-            dialog.setVisible(true);
-            String selectedFile = dialog.getFile();
-            if (selectedFile != null) {
-                USB_PRINTER_PATH = dialog.getDirectory() + selectedFile;
+
                 out = new FileOutputStream(USB_PRINTER_PATH);  // Enviar datos a la ruta en Linux
-            } else {
-                throw new IOException("No se seleccionó ninguna ruta.");
-            }
+
         }
 
         String Nfactura2 = detalle + "\n";
@@ -1463,12 +1446,14 @@ public class MainController {
             sendData(out, SetCodePageOEM850());
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
-            printImage(ImageIO.read(new File("C:\\Users\\danin\\Downloads\\logoa.jpg")), out, false);
+            printImage(ImageIO.read(new File("/home/tars/Downloads/logo.png")), out, false);
+            sendData(out, "\n".getBytes());
             sendData(out, setBold(true));
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 1)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 2)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 3)).getBytes());
             sendData(out, (leerLineaEspecifica("PrincipalData.txt", 4)).getBytes());
+            sendData(out, "-----------------------------------------\n".getBytes());
 
             sendData(out, setBold(false));
 
@@ -1478,13 +1463,13 @@ public class MainController {
             Command.ESC_Align[2] = 0x01;
             sendData(out, Command.ESC_Align);
 
-            byte[] code = getCodeBarCommand(String.format("%03d", id), 69, 3, 168, 1, 2);
-
-            if (code != null) {
-                sendData(out, code);
-            } else {
-                System.err.println("Error creando el comando de código de barras.");
-            }
+//            byte[] code = getCodeBarCommand(String.format("%03d", id), 69, 3, 168, 1, 2);
+//
+//            if (code != null) {
+//                sendData(out, code);
+//            } else {
+//                System.err.println("Error creando el comando de código de barras.");
+//            }
 
             sendData(out, "\nESTE RECIBO ES UNA FIEL COPIA DE SU ORIGINAL!\n\n".getBytes());
             sendData(out, CTL_LF);
@@ -1654,23 +1639,25 @@ public class MainController {
 
         }
 
+
+
         // Combinar las celdas de la columna D y poner la sumatoria
         if (currentRow > startRow+1) {
             sheet.addMergedRegion(new CellRangeAddress(startRow, currentRow - 1, 3, 3));
-            Row mergedRow = sheet.getRow(startRow);
-            Cell mergedCell = mergedRow.createCell(3);
-            mergedCell.setCellFormula(total);
-            mergedCell.setCellStyle(monedaStyle);
-        }else{
-            Row mergedRow = sheet.getRow(startRow);
-            Cell mergedCell = mergedRow.createCell(3);
-            mergedCell.setCellFormula(total);
-            mergedCell.setCellStyle(monedaStyle);
         }
-                // Fórmula acumulativa: D(n) = D(n-1) + C(n)
 
+        Row mergedRow = sheet.getRow(startRow);
+        Cell mergedCell = mergedRow.createCell(3);
+        mergedCell.setCellFormula(total);
+        CellStyle fondoAmarillo = sheet.getWorkbook().createCellStyle();
+        fondoAmarillo.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        fondoAmarillo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        //fondoAmarillo.cloneStyleFrom(monedaStyle); // si quieres conservar estilo de moneda
+        mergedCell.setCellStyle(fondoAmarillo);
+        mergedCell.getCellStyle().cloneStyleFrom(monedaStyle);
+
+        // Fórmula acumulativa: D(n) = D(n-1) + C(n)
         productosParaExportar.clear();
-
         FileOutputStream outputStream = new FileOutputStream(FILE_PATH);
         workbook.write(outputStream);
         workbook.close();

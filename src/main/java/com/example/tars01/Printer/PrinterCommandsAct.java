@@ -158,4 +158,13 @@ public class PrinterCommandsAct {
 
         return command;
     }
+
+    public static byte[] setFontSize(int widthMultiplier, int heightMultiplier) {
+        if (widthMultiplier < 1 || widthMultiplier > 8 || heightMultiplier < 1 || heightMultiplier > 8) {
+            throw new IllegalArgumentException("Multipliers must be between 1 and 8");
+        }
+
+        int size = ((widthMultiplier - 1) << 4) | (heightMultiplier - 1);
+        return new byte[]{0x1D, 0x21, (byte) size};
+    }
 }

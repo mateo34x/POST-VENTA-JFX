@@ -135,24 +135,25 @@ public class DatosController {
             try {
                 // Intentamos cargar la imagen
                 Image image = new Image(new FileInputStream(selectedFile));
-
-                // Verificamos las dimensiones
-                if (image.getWidth() == 236 && image.getHeight() == 236) {
-                    String imagePath = selectedFile.getAbsolutePath();
+                String imagePath = selectedFile.getAbsolutePath();
                     LogoL.setText(imagePath);
                     System.out.println("Ruta de la imagen seleccionada: " + imagePath);
                     FileEditor.insertarValorEnLinea("PrincipalData.txt",9,imagePath);
 
-                    // Aquí podrías usar imagePath según lo necesites en tu aplicación
-
-                } else {
-                    // Mostramos una alerta si las dimensiones no son correctas
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Dimensiones incorrectas");
-                    alert.setHeaderText(null);
-                    alert.setContentText("La imagen debe tener dimensiones de 236 x 236 píxeles.");
-                    alert.showAndWait();
-                }
+                // Verificamos las dimensiones
+//                if (image.getWidth() == 236 && image.getHeight() == 236) {
+//
+//
+//                    // Aquí podrías usar imagePath según lo necesites en tu aplicación
+//
+//                } else {
+//                    // Mostramos una alerta si las dimensiones no son correctas
+//                    Alert alert = new Alert(Alert.AlertType.ERROR);
+//                    alert.setTitle("Dimensiones incorrectas");
+//                    alert.setHeaderText(null);
+//                    alert.setContentText("La imagen debe tener dimensiones de 236 x 236 píxeles.");
+//                    alert.showAndWait();
+//                }
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
