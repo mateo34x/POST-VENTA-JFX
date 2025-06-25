@@ -112,6 +112,7 @@ public class HelloMain extends Application {
                 printImage(ImageIO.read(new File("/home/tars/Downloads/barcode.jpg")), out, false);
                 out.close();
 
+
             }
 
         }
