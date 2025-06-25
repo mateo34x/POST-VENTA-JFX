@@ -131,6 +131,8 @@ public class MainController {
     public MenuItem tOFF;
     @FXML
     public Button buttonClear1, buttonClear;
+    @FXML
+    public Button D5,D10,D20,D50,D100;
     static DecimalFormat df;
 
     private static final String FILE_PATH = "/home/tars/Documents/datos.xlsx";
@@ -580,6 +582,77 @@ public class MainController {
             }
         });
 
+        D5.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                double d = 5000;
+                if (d >= totalVenta) {
+                    info.setText("No se puede hacer descuento a esta venta");
+                } else {
+                    searchProductT("05D");
+
+
+                }
+
+            }
+        });
+
+        D10.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                double d = 10000;
+                if (d >= totalVenta) {
+                    info.setText("No se puede hacer descuento a esta venta");
+
+                } else {
+                    searchProductT("010D");
+
+
+                }
+
+            }
+        });
+
+        D20.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                double d = 20000;
+                if (d >= totalVenta) {
+
+                    info.setText("No se puede hacer descuento a esta venta");
+                } else {
+                    searchProductT("020D");
+
+
+                }
+            }
+        });
+
+        D50.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                double d = 50000;
+                if (d >= totalVenta) {
+                    info.setText("No se puede hacer descuento a esta venta");
+
+                } else {
+                    searchProductT("050D");
+
+
+                }
+            }
+        });
+
+
+        D100.addEventFilter(MouseEvent.MOUSE_CLICKED,event->{
+            if (buttonSave.isDisable()){
+                double d = 100000;
+                if (d >= totalVenta) {
+                    info.setText("No se puede hacer descuento a esta venta");
+
+                } else {
+                    searchProductT("0100D");
+
+
+                }            }
+        });
+
 
     }
 
@@ -776,8 +849,12 @@ public class MainController {
                     tableView.refresh();
                 }
 
-                totalVenta += Double.parseDouble(productPrice);
-                textFieldItem.clear();
+                double precioDouble = Double.parseDouble(productPrice);
+                if (productName.toLowerCase().contains("descuento") || precioDouble < 0) {
+                    totalVenta -= Math.abs(precioDouble);
+                } else {
+                    totalVenta += precioDouble;
+                }                textFieldItem.clear();
                 productoEncontrado = true;
                 System.out.println("Codigo obtenido " + code + " N°items " + productCounts.get(code));// Se encontró al menos un producto
             }
@@ -1673,6 +1750,10 @@ public class MainController {
         }
 
         productosParaExportar.clear(); // ahora sí, seguro limpiar la lista original
+    }
+
+    private void descuento(){
+
     }
 
 

@@ -300,6 +300,7 @@ public class DatabaseManager {
 
 
     public static void obtenerTodosLosProductos(TableView tableView, Label info) {
+        tableView.getItems().clear();
         int cantidad = 0;
         String sql = "SELECT codigo_barras, nombre, precio FROM productos";
         try (Connection connection = DriverManager.getConnection(Constans.URL1);
