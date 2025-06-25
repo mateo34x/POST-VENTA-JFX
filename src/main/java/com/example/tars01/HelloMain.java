@@ -107,7 +107,7 @@ public class HelloMain extends Application {
 
             if (event.isControlDown() && event.getCode()== KeyCode.P){
                 PrinterCommandsAct.IniciarImpresora();
-                OutputStream out = new FileOutputStream("/dev/usb/lp0");;
+                OutputStream out = new FileOutputStream("/dev/usb/lp0");
                 PrinterCommandsAct.sendData(out, SetCodePageOEM850());
                 printImage(ImageIO.read(new File("/home/tars/Downloads/barcode.jpg")), out, false);
                 out.close();
